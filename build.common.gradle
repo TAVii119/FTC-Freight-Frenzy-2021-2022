@@ -54,10 +54,9 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 24
+        minSdkVersion 23
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 28
-
-        multiDexEnabled true
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
@@ -113,6 +112,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        pickFirst '**/*.so'
+    }
     sourceSets.main {
         jni.srcDirs = []
         jniLibs.srcDir rootProject.file('libs')
@@ -124,6 +126,5 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
-    mavenCentral()
 }
 
