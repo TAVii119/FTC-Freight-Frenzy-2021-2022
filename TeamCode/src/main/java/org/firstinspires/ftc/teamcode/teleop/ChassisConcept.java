@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -59,6 +60,7 @@ public class ChassisConcept extends LinearOpMode {
     private DcMotor RF = null;
     private DcMotor LB = null;
     private DcMotor RB = null;
+    private DcMotor intakeMotor = null;
 
     @Override
     public void runOpMode() {
@@ -72,6 +74,7 @@ public class ChassisConcept extends LinearOpMode {
         RF = hardwareMap.get(DcMotor.class, "RF");
         LB = hardwareMap.get(DcMotor.class, "LB");
         RB = hardwareMap.get(DcMotor.class, "RB");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -79,6 +82,7 @@ public class ChassisConcept extends LinearOpMode {
         RF.setDirection(DcMotor.Direction.REVERSE);
         LB.setDirection(DcMotor.Direction.FORWARD);
         RB.setDirection(DcMotor.Direction.REVERSE);
+        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -89,6 +93,7 @@ public class ChassisConcept extends LinearOpMode {
 
             // Setup a variable for each drive wheel to save power level for telemetry
             double lfPower, rfPower,lbPower, rbPower;
+            double intakePower = gamepad1.right_trigger - gamepad1.left_trigger;
 
             // Choose to drive using either Tank Mode, or POV Mode
             // Comment out the method that's not used.  The default below is POV.
@@ -113,9 +118,11 @@ public class ChassisConcept extends LinearOpMode {
             RF.setPower(rfPower);
             LB.setPower(lbPower);
             RB.setPower(rbPower);
+            intakeMotor.setPower(intakePower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Motors", "(drive (%.2f), turn (%.2f)", drive, turn);
+            telemetry.addData("Intake Power:", intakePower);
             telemetry.update();
         }
     }
