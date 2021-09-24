@@ -16,6 +16,11 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
     /*
+    This is our TeleOperated class. We control the robot using two DualShock 4 controllers.
+
+    We use subsystems and commands. The goal of this is to improve the initial programming experience
+    for new members as well as greatly enhance the efficiency of code for veterans.
+
     Gamepad Controls:
 
     Gamepad1:
