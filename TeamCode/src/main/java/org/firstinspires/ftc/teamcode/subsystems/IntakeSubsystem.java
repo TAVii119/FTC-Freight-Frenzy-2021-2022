@@ -4,10 +4,9 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-/*
-This class was created by Botosan Octavian on September 24, 2021.
-This is a subsystem for the freight intake that we use.
- */
+    /*
+    Tihs is our intake subsystem. Using one DC Motor we can intake our outtake (spit out) freight (game elements).
+     */
 
 public class IntakeSubsystem extends SubsystemBase {
 
