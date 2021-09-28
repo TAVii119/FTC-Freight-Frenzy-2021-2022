@@ -140,7 +140,7 @@ public class ConceptMotorBulkRead extends LinearOpMode {
         displayCycleTimes("Test 2 of 3 (Wait for completion)");
 
         // --------------------------------------------------------------------------------------
-        // Run test cycles using AUTO cache mode
+        // Run org.firstinspires.ftc.teamcode.test cycles using AUTO cache mode
         // In this mode, only one bulk read is done per cycle, UNLESS you read a specific encoder/velocity item AGAIN in that cycle.
         // --------------------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ public class ConceptMotorBulkRead extends LinearOpMode {
         displayCycleTimes("Test 3 of 3 (Wait for completion)");
 
         // --------------------------------------------------------------------------------------
-        // Run test cycles using MANUAL cache mode
+        // Run org.firstinspires.ftc.teamcode.test cycles using MANUAL cache mode
         // In this mode, only one block read is done each control cycle.
         // This is the MOST efficient method, but it does require that the cache is cleared manually each control cycle.
         // --------------------------------------------------------------------------------------

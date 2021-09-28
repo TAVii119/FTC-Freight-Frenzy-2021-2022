@@ -65,7 +65,7 @@ public class RegressionUtil {
     }
 
     /**
-     * Run regression to compute velocity and static feedforward from ramp test data.
+     * Run regression to compute velocity and static feedforward from ramp org.firstinspires.ftc.teamcode.test data.
      *
      * Here's the general procedure for gathering the requisite data:
      *   1. Slowly ramp the motor power/voltage and record encoder values along the way.

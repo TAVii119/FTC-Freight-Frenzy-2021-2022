@@ -112,7 +112,7 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
+        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first org.firstinspires.ftc.teamcode.test drive.
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
 

@@ -162,7 +162,7 @@ public class ConceptGamepadRumble extends LinearOpMode
                 }
 
                 //  Prompt for manual rumble action
-                telemetry.addData(">", "Hold Left-Bumper to test Manual Rumble");
+                telemetry.addData(">", "Hold Left-Bumper to org.firstinspires.ftc.teamcode.test Manual Rumble");
                 telemetry.addData(">", "Press A (Cross) for three blips");
                 telemetry.addData(">", "Squeeze right trigger slowly for 1 blip");
             }

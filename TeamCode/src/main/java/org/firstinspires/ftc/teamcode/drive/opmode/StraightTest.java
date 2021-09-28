@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
- * This is a simple routine to test translational drive capabilities.
+ * This is a simple routine to org.firstinspires.ftc.teamcode.test translational drive capabilities.
  */
 @Config
 @Autonomous(group = "drive")

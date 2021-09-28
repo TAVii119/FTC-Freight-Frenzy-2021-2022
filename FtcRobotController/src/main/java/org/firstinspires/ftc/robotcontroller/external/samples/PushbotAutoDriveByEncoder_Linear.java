@@ -153,11 +153,11 @@ public class PushbotAutoDriveByEncoder_Linear extends LinearOpMode {
             robot.rightDrive.setPower(Math.abs(speed));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
-            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // Note: We use (isBusy() && isBusy()) in the loop org.firstinspires.ftc.teamcode.test, which means that when EITHER motor hits
             // its target position, the motion will stop.  This is "safer" in the event that the robot will
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
-            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            // onto the next step, use (isBusy() || isBusy()) in the loop org.firstinspires.ftc.teamcode.test.
             while (opModeIsActive() &&
                    (runtime.seconds() < timeoutS) &&
                    (robot.leftDrive.isBusy() && robot.rightDrive.isBusy())) {

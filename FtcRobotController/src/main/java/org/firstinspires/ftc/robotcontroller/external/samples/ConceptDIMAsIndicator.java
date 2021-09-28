@@ -72,7 +72,7 @@ public class ConceptDIMAsIndicator extends LinearOpMode {
         dim = hardwareMap.get(DeviceInterfaceModule.class, "dim");
 
         // Toggle LEDs while Waiting for the start button
-        telemetry.addData(">", "Press Play to test LEDs." );
+        telemetry.addData(">", "Press Play to org.firstinspires.ftc.teamcode.test LEDs." );
         telemetry.update();
 
         while (!isStarted()) {

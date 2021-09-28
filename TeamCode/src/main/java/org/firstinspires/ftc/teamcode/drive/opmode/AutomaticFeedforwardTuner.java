@@ -131,7 +131,7 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
                         "DriveRampRegression-%d.csv", System.currentTimeMillis())));
 
         telemetry.clearAll();
-        telemetry.addLine("Quasi-static ramp up test complete");
+        telemetry.addLine("Quasi-static ramp up org.firstinspires.ftc.teamcode.test complete");
         if (fitIntercept) {
             telemetry.addLine(Misc.formatInvariant("kV = %.5f, kStatic = %.5f (R^2 = %.2f)",
                     rampResult.kV, rampResult.kStatic, rampResult.rSquare));
@@ -207,7 +207,7 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
                             "DriveAccelRegression-%d.csv", System.currentTimeMillis())));
 
             telemetry.clearAll();
-            telemetry.addLine("Constant power test complete");
+            telemetry.addLine("Constant power org.firstinspires.ftc.teamcode.test complete");
             telemetry.addLine(Misc.formatInvariant("kA = %.5f (R^2 = %.2f)",
                     accelResult.kA, accelResult.rSquare));
             telemetry.update();

@@ -96,7 +96,7 @@ public class ConceptRampMotorSpeed extends LinearOpMode {
 
             // Display the current value
             telemetry.addData("Motor Power", "%5.2f", power);
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end org.firstinspires.ftc.teamcode.test." );
             telemetry.update();
 
             // Set the motor to the new power and pause;
