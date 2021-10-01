@@ -15,7 +15,7 @@ public class IntakeCommand extends CommandBase {
 private final IntakeSubsystem intakeSystem;
 private double intake, outtake;
 
-public IntakeCommand(org.firstinspires.ftc.teamcode.test.Subsystems.IntakeSubsystem subsystem, double intakePower, double outtakePower) {
+public IntakeCommand(IntakeSubsystem subsystem, double intakePower, double outtakePower) {
     intakeSystem = subsystem;
     intake = intakePower;
     outtake = outtakePower;

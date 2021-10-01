@@ -32,14 +32,7 @@ public DriveCommand(DriveSubsystem subsystem, DoubleSupplier forward, DoubleSupp
     addRequirements(m_drive);
 }
 
-     {
-    }
 
-    {
-    }
-
-     {
-    }
 
 
     @Override

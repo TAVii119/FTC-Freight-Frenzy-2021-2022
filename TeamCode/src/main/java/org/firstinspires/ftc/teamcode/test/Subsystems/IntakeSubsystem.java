@@ -11,13 +11,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private final Motor lintakeMotor;
     private final Motor rintakemotor;
+    public double intakePower;
 
     public IntakeSubsystem(Motor lIntakeMotor, Motor rIntakeMotor) {
         lintakeMotor = lIntakeMotor;
-        rintakemotor=rIntakeMotor;
+        rintakemotor = rIntakeMotor;
     }
 
     public void runIntake(double power) {
+        intakePower = power;
         lintakeMotor.set(power);
         rintakemotor.set(power);
     }

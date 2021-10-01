@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -61,6 +62,8 @@ public class ChassisConcept extends LinearOpMode {
     private DcMotor LB = null;
     private DcMotor RB = null;
     private DcMotor intakeMotor = null;
+    private CRServo intakeServoR = null;
+    private CRServo intakeServoL = null;
 
     @Override
     public void runOpMode() {
@@ -70,19 +73,16 @@ public class ChassisConcept extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        LF = hardwareMap.get(DcMotor.class, "LF");
-        RF = hardwareMap.get(DcMotor.class, "RF");
-        LB = hardwareMap.get(DcMotor.class, "LB");
-        RB = hardwareMap.get(DcMotor.class, "RB");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeServoR = hardwareMap.get(CRServo.class, "intakeServoR");
+        intakeServoL = hardwareMap.get(CRServo.class, "intakeServoL");
+
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        LF.setDirection(DcMotor.Direction.FORWARD);
-        RF.setDirection(DcMotor.Direction.REVERSE);
-        LB.setDirection(DcMotor.Direction.FORWARD);
-        RB.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeServoR.setDirection(DcMotorSimple.Direction.FORWARD);
+        intakeServoL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -91,37 +91,23 @@ public class ChassisConcept extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            // Setup a variable for each drive wheel to save power level for telemetry
-            double lfPower, rfPower,lbPower, rbPower;
             double intakePower = gamepad1.right_trigger - gamepad1.left_trigger;
 
-            // Choose to drive using either Tank Mode, or POV Mode
-            // Comment out the method that's not used.  The default below is POV.
-
-            // POV Mode uses left stick to go forward, and right stick to turn.
-            // - This uses basic math to combine motions and is easier to drive straight.
-            double turn  =  gamepad1.right_stick_x;
-            double drive = -gamepad1.left_stick_y;
-
-            lfPower = Range.clip(drive - turn, -1, 1);
-            rfPower = Range.clip(drive + turn, -1, 1);
-            lbPower = Range.clip(drive - turn, -1, 1);
-            rbPower = Range.clip(drive + turn, -1, 1);
-
-            // Tank Mode uses one stick to control each wheel.
-            // - This requires no math, but it is hard to drive forward slowly and keep straight.
-            // leftPower  = -gamepad1.left_stick_y ;
-            // rightPower = -gamepad1.right_stick_y ;
+            if (gamepad1.a) {
+                intakeServoR.setPower(1);
+                intakeServoL.setPower(1);
+            } else if (gamepad1.b) {
+                intakeServoR.setPower(-1);
+                intakeServoL.setPower(-1);
+            } else {
+                intakeServoR.setPower(0);
+                intakeServoL.setPower(0);
+            }
 
             // Send calculated power to wheels
-            LF.setPower(lfPower);
-            RF.setPower(rfPower);
-            LB.setPower(lbPower);
-            RB.setPower(rbPower);
             intakeMotor.setPower(intakePower);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Motors", "(drive (%.2f), turn (%.2f)", drive, turn);
             telemetry.addData("Intake Power:", intakePower);
             telemetry.update();
         }

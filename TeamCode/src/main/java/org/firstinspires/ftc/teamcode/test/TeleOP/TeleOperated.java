@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.test.TeleOP;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.button.Button;
+import com.arcrobotics.ftclib.command.button.GamepadButton;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -46,64 +50,97 @@ public class TeleOperated extends CommandOpMode {
    private Motor RB;
    private Motor lintakeMotor;
    private Motor rintakeMotor;
-   private Servo arm;
-
+   private Servo rarm;
+   private Servo larm;
 
     // Declaring subsystmes
-    private DriveSubsystem driveSubsystem;
-    private IntakeSubsystem intakeSubsystem;
-    private ArmSubsystem armSubsystem;
+
+    private DriveSubsystem driveSystem;
+    private IntakeSubsystem intakeSystem;
+    private ArmSubsystem armSystem;
+
     // Declaring commands
 
     private DriveCommand driveCommand;
     private IntakeCommand intakeCommand;
-     private ArmCommand armCommand;
+    private ArmCommand armCommand;
+
     // Declaring instant commands
+
+    private InstantCommand level1Command;
+    private InstantCommand level2Command;
+    private InstantCommand level3Command;
+    public InstantCommand levelIntakeCommand;
 
     // Insert instant command here
 
-    private GamepadEx driver1;
-
-
-
+    private GamepadEx driver1, driver2;
 
     // Insert buttons here
 
-    @Override
-    public void initialize() {
+    private Button level1, level2, level3;
+    private Trigger levelIntake123;
 
-        LF = hardwareMap.get(Motor.class, "LF");
-        RF = hardwareMap.get(Motor.class, "RF");
-        LB = hardwareMap.get(Motor.class, "LB");
-        RB = hardwareMap.get(Motor.class, "RB");
+    @Override
+        public void initialize() {
+
+        RB = new Motor(hardwareMap, "RB");
+        RF = new Motor(hardwareMap, "RF");
+        LB = new Motor(hardwareMap, "LB");
+        LF = new Motor(hardwareMap, "LF");
         lintakeMotor = new Motor(hardwareMap, "lintakeMotor");
         rintakeMotor = new Motor(hardwareMap, "rintakeMotor");
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        arm = hardwareMap.get(Servo.class, "Arm")
-        ;
+        rarm = hardwareMap.get(Servo.class, "rarm");
+        larm = hardwareMap.get(Servo.class, "larm");
 
         driver1 = new GamepadEx(gamepad1);
+        driver2 = new GamepadEx(gamepad2);
 
         // Subsystems and TEST.Commands
 
         // Intake subsystem and it's command
-        intakeSubsystem = new IntakeSubsystem(lintakeMotor, rintakeMotor);
-        intakeCommand = new IntakeCommand(intakeSubsystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+        intakeSystem = new IntakeSubsystem(lintakeMotor, rintakeMotor);
+        intakeCommand = new IntakeCommand(intakeSystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
 
         // Drive subsystem and it's command
-        driveSubsystem = new DriveSubsystem(RB, RF, LB, LF);
-        driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftY, driver1::getRightX, driver1::getLeftX);
+        driveSystem = new DriveSubsystem(RB, RF, LB, LF);
+        driveCommand = new DriveCommand(driveSystem, driver1::getLeftY, driver1::getRightX, driver1::getLeftX);
 
         // Arm subsystem and it's command;
-        armSubsystem = new ArmSubsystem(arm);
+        armSystem = new ArmSubsystem(rarm, larm);
+        armCommand = new ArmCommand(armSystem);
+
+        level1Command = new InstantCommand(()-> {
+            armSystem.level1();
+        }, armSystem);
+
+        level2Command = new InstantCommand(()-> {
+            armSystem.level2();
+        }, armSystem);
+
+        level3Command = new InstantCommand(()-> {
+            armSystem.level3();
+        }, armSystem);
+
+        // High Level, Mid Level, Low Level, Wait Level, Intaking Level
+
         // Buttons that run the commands
         // Insert buttons here
 
+        level1 = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(level1Command);
+        level2 = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(level2Command);
+        level3 = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(level3Command);
+
+        if (intakeSystem.intakePower > 0) {
+            armSystem.levelIntake();
+        }
+
         // Registering and default commands of our subsystems
-        register(driveSubsystem, intakeSubsystem, armSubsystem);
-        armSubsystem.setDefaultCommand(armCommand);
-        driveSubsystem.setDefaultCommand(driveCommand);
-        intakeSubsystem.setDefaultCommand(intakeCommand);
+        register(driveSystem, intakeSystem, armSystem);
+        armSystem.setDefaultCommand(armCommand);
+        driveSystem.setDefaultCommand(driveCommand);
+        intakeSystem.setDefaultCommand(intakeCommand);
     }
 }

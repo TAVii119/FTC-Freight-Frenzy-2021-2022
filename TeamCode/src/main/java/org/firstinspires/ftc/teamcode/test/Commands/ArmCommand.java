@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.test.Commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.hardware.motors.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.test.Subsystems.ArmSubsystem;
 
@@ -8,22 +10,23 @@ import org.firstinspires.ftc.teamcode.test.Subsystems.ArmSubsystem;
 public class ArmCommand extends CommandBase {
 
     // The subsystem the command runs on
-    private ArmSubsystem m_armSubsystem;
+    private ArmSubsystem armSubsystem;
 
-    public void rotate(ArmSubsystem subsystem) {
-        m_armSubsystem = subsystem;
-        addRequirements(m_armSubsystem);
+    public ArmCommand(ArmSubsystem subsystem) {
+        armSubsystem = subsystem;
     }
 
     @Override
-    public void initialize() {
-        m_armSubsystem.rotate();
+    public void execute() {
+        armSubsystem.LeftarmRotation.setPosition(armSubsystem.getCurrentPosition());
+        armSubsystem.RightarmRotation.setPosition(armSubsystem.getCurrentPosition());
     }
 
     @Override
     public void cancel()
-    {   m_armSubsystem.release();
-
+    {
+        armSubsystem.RightarmRotation.setPosition(0);
+        armSubsystem.LeftarmRotation.setPosition(0);
     }
 
 }
