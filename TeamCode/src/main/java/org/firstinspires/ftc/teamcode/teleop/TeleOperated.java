@@ -87,7 +87,8 @@ public class TeleOperated extends CommandOpMode {
         driver2 = new GamepadEx(gamepad2);
 
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
-        intakeCommand = new IntakeCommand(intakeSubsystem, driver2::getLeftY, driver2::getRightY);
+        intakeCommand = new IntakeCommand(intakeSubsystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+        // intakeCommand = new IntakeCommand(intakeSubsystem, gamepad1.right_trigger, gamepad1.left_trigger);
 
         driveSubsystem = new DriveSubsystem(leftSide, rightSide);
         driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftY, driver1::getRightX);
