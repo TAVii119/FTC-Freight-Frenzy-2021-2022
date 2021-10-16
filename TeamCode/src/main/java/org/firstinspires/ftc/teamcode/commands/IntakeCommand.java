@@ -14,9 +14,9 @@ import java.util.function.DoubleSupplier;
 public class IntakeCommand extends CommandBase {
 
     private final IntakeSubsystem intakeSystem;
-    public DoubleSupplier intake, outtake;
+    public double intake, outtake;
 
-    public IntakeCommand(IntakeSubsystem subsystem, DoubleSupplier intakePower, DoubleSupplier outtakePower) {
+    public IntakeCommand(IntakeSubsystem subsystem, double intakePower, double outtakePower) {
         intakeSystem = subsystem;
         intake = intakePower;
         outtake = outtakePower;
@@ -25,6 +25,6 @@ public class IntakeCommand extends CommandBase {
 
     @Override
     public void execute() {
-        intakeSystem.runIntake(intake.getAsDouble() - outtake.getAsDouble());
+        intakeSystem.runIntake(intake - outtake);
     }
 }
