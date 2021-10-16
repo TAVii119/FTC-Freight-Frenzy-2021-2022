@@ -14,7 +14,7 @@ import java.util.function.DoubleSupplier;
 public class IntakeCommand extends CommandBase {
 
     private final IntakeSubsystem intakeSystem;
-    private double intake, outtake;
+    public double intake, outtake;
 
     public IntakeCommand(IntakeSubsystem subsystem, double intakePower, double outtakePower) {
         intakeSystem = subsystem;

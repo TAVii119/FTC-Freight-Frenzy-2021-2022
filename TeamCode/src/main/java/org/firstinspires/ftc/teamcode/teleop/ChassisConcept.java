@@ -37,33 +37,19 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
-/**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
-
 @TeleOp(name="6WD Chassis", group="Test")
 
 public class ChassisConcept extends LinearOpMode {
 
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor LF = null;
-    private DcMotor RF = null;
-    private DcMotor LB = null;
-    private DcMotor RB = null;
-    private DcMotor intakeMotor = null;
-    private CRServo intakeServoR = null;
-    private CRServo intakeServoL = null;
+    private DcMotor l1 = null; //l1, l2, l3 ; r1, r2, r3
+    private DcMotor l2 = null;
+    private DcMotor l3 = null;
+    private DcMotor r1 = null;
+    private DcMotor r2 = null; //l1, l2, l3 ; r1, r2, r3
+    private DcMotor r3 = null;
+    double leftPower;
+    double rightPower;
 
     @Override
     public void runOpMode() {
@@ -73,43 +59,41 @@ public class ChassisConcept extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        intakeServoR = hardwareMap.get(CRServo.class, "intakeServoR");
-        intakeServoL = hardwareMap.get(CRServo.class, "intakeServoL");
+        l1 = hardwareMap.get(DcMotor.class, "l1");
+        l2 = hardwareMap.get(DcMotor.class, "l2");
+        l3 = hardwareMap.get(DcMotor.class, "l3");
+        r1 = hardwareMap.get(DcMotor.class, "r1");
+        r2 = hardwareMap.get(DcMotor.class, "r2");
+        r3 = hardwareMap.get(DcMotor.class, "r3");
 
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
-        intakeServoR.setDirection(DcMotorSimple.Direction.FORWARD);
-        intakeServoL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        r1.setDirection(DcMotor.Direction.REVERSE);
+        r2.setDirection(DcMotor.Direction.REVERSE);
+        r3.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-            double intakePower = gamepad1.right_trigger - gamepad1.left_trigger;
-
-            if (gamepad1.a) {
-                intakeServoR.setPower(1);
-                intakeServoL.setPower(1);
-            } else if (gamepad1.b) {
-                intakeServoR.setPower(-1);
-                intakeServoL.setPower(-1);
-            } else {
-                intakeServoR.setPower(0);
-                intakeServoL.setPower(0);
-            }
-
+            double drive = -gamepad1.left_stick_y;
+            double turn  =  gamepad1.right_stick_x;
             // Send calculated power to wheels
-            intakeMotor.setPower(intakePower);
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Intake Power:", intakePower);
-            telemetry.update();
+            leftPower    = Range.clip(drive + turn, -1.0, 1.0);
+            rightPower   = Range.clip(drive - turn, -1.0, 1.0);
+
+            l1.setPower(leftPower);
+            l2.setPower(leftPower);
+            l3.setPower(leftPower);
+            r1.setPower(rightPower);
+            r2.setPower(rightPower);
+            r3.setPower(rightPower);
+
+            // Telemetry
         }
     }
 }
