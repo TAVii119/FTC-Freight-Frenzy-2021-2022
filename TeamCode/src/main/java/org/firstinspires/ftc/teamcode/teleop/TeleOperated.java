@@ -54,13 +54,14 @@ public class TeleOperated extends CommandOpMode {
     private InstantCommand levelTopFourBar;
     private InstantCommand levelMidFourBar;
     private InstantCommand levelLowFourBar;
+    private InstantCommand levelWaitFourBar;
 
     private InstantCommand closeDeposit;
-    private InstantCommand openDeposit;
+    private InstantCommand moveDeposit;
     private InstantCommand pushDeposit;
 
-    private Button levelTop, levelMid, levelLow;
-    private Button depositPush, depositClose, depositOpen;
+    private Button levelTopButton, levelMidButton, levelLowButton, levelWaitButton;
+    private Button depositPushButton, depositClose, moveDepositButton;
 
     GamepadEx driver1;
     GamepadEx driver2;
@@ -90,6 +91,12 @@ public class TeleOperated extends CommandOpMode {
         intakeCommand = new IntakeCommand(intakeSubsystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
         // intakeCommand = new IntakeCommand(intakeSubsystem, gamepad1.right_trigger, gamepad1.left_trigger);
 
+        // When the intake is active, the fourbar moves to the intake position.
+        if(intakeCommand.intake >0.1){
+            fourBarSubsystem.setLevel(0);
+            depositSubsystem.openDeposit();
+        }
+
         driveSubsystem = new DriveSubsystem(leftSide, rightSide);
         driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftY, driver1::getRightX);
 
@@ -110,24 +117,28 @@ public class TeleOperated extends CommandOpMode {
         levelLowFourBar = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(4);
         }, fourBarSubsystem);
+        levelWaitFourBar = new InstantCommand(()-> {
+            fourBarSubsystem.setLevel(1);
+        }, fourBarSubsystem);
 
-        levelLow = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBar);
-        levelMid = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(levelMidFourBar);
-        levelTop = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBar);
+        moveDeposit = new InstantCommand(() -> {
+            if(depositSubsystem.depositOpen)
+                depositSubsystem.closeDeposit();
+            else depositSubsystem.openDeposit();
 
-        openDeposit = new InstantCommand(() -> {
-            depositSubsystem.openDeposit();
         }, depositSubsystem);
-        closeDeposit = new InstantCommand(() -> {
-            depositSubsystem.closeDeposit();
-        }, depositSubsystem);
+
         pushDeposit = new InstantCommand(() -> {
             depositSubsystem.pushDeposit();
         }, depositSubsystem);
 
-        depositClose = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(closeDeposit);
-        depositOpen = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(openDeposit);
-        depositPush = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDeposit);
+        depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDeposit);
+
+        levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBar);
+        levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(levelMidFourBar);
+        levelTopButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBar);
+        levelWaitButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBar);
+        moveDepositButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(moveDeposit);
 
         register(fourBarSubsystem, driveSubsystem, intakeSubsystem, depositSubsystem);
         depositSubsystem.setDefaultCommand(depositCommand);
