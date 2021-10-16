@@ -9,7 +9,8 @@ public class DepositCommand extends CommandBase {
     private DepositSubsystem depositSubsystem;
 
     public DepositCommand(DepositSubsystem subsystem){
-        depositSubsystem= subsystem;
+        depositSubsystem = subsystem;
+        addRequirements(depositSubsystem);
     }
 
     @Override

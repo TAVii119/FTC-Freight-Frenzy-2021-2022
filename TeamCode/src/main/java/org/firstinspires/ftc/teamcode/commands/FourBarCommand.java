@@ -8,8 +8,10 @@ import org.firstinspires.ftc.teamcode.subsystems.FourBarSubsystem;
 public class FourBarCommand extends CommandBase {
     FourBarSubsystem fourBarSubsystem;
 
-    public FourBarCommand(FourBarSubsystem BarSubsystem){
-        fourBarSubsystem = BarSubsystem;
+    public FourBarCommand(FourBarSubsystem barSubsystem){
+
+        fourBarSubsystem = barSubsystem;
+        addRequirements(fourBarSubsystem);
     }
 
     @Override

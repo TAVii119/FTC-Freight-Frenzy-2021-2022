@@ -132,15 +132,18 @@ public class TeleOPSimple extends LinearOpMode {
             // Control Intake
             intakeMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
-            if (gamepad1.right_trigger > 0.2) { // INTAKE POS
-                gbServoLeft.setPosition(0);
-                gbServoRight.setPosition(0);
+            if (gamepad1.right_trigger > 0.1) { // INTAKE POS
+                gbServoLeft.setPosition(0.02);
+                gbServoRight.setPosition(0.02);
                 depositServo.setPosition(0);
                 openDeposit = true;
-            }else if (gamepad1.left_trigger > 0.2) { // WAIT POS
-                gbServoLeft.setPosition(0.06);
-                gbServoRight.setPosition(0.06);
-                openDeposit = true;
+            }
+
+            if(gamepad2.right_trigger > 0.1) // WAIT POS
+            { gbServoLeft.setPosition(0.06);
+            gbServoRight.setPosition(0.06);
+            depositServo.setPosition(0.38);
+            openDeposit = false;
             }
 
             // Telemetry

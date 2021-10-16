@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.Button;
@@ -9,14 +8,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
@@ -74,9 +67,6 @@ public class TeleOperated extends CommandOpMode {
 
     @Override
     public void initialize() {
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -96,9 +86,8 @@ public class TeleOperated extends CommandOpMode {
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
-
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
-        intakeCommand = new IntakeCommand(intakeSubsystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+        intakeCommand = new IntakeCommand(intakeSubsystem, driver2::getLeftY, driver2::getRightY);
 
         driveSubsystem = new DriveSubsystem(leftSide, rightSide);
         driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftY, driver1::getRightX);
@@ -125,13 +114,6 @@ public class TeleOperated extends CommandOpMode {
         levelMid = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(levelMidFourBar);
         levelTop = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBar);
 
-        if(intakeCommand.intake > 0.2){
-            fourBarSubsystem.setLevel(0);
-        }
-        if(intakeCommand.outtake > 0.2){
-            fourBarSubsystem.setLevel(1);
-        }
-
         openDeposit = new InstantCommand(() -> {
             depositSubsystem.openDeposit();
         }, depositSubsystem);
@@ -144,7 +126,7 @@ public class TeleOperated extends CommandOpMode {
 
         depositClose = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(closeDeposit);
         depositOpen = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(openDeposit);
-        depositPush = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(pushDeposit);
+        depositPush = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDeposit);
 
         register(fourBarSubsystem, driveSubsystem, intakeSubsystem, depositSubsystem);
         depositSubsystem.setDefaultCommand(depositCommand);
