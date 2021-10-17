@@ -7,10 +7,8 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.Button;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.TriggerReader;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -29,20 +27,22 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 public class TeleOperated extends CommandOpMode {
 
-    // Declare OpMode members.
-    private Motor l1; //l1, l2, l3 ; r1, r2, r3
-    private Motor l2;
+    // Declare Motors and Servos
+    private Motor l1; // l1, l2, l3 ; r1, r2, r3 - Chassis motors, l = left, r = right,
+    private Motor l2; // numbered from front to back
     private Motor l3;
     private Motor r1;
-    private Motor r2; //l1, l2, l3 ; r1, r2, r3
+    private Motor r2;
     private Motor r3;
-    private MotorGroup rightSide;
     private MotorGroup leftSide;
+    private MotorGroup rightSide;
     private Motor intakeMotor;
+
     private Servo gbServoRight;
     private Servo gbServoLeft;
     private Servo depositServo;
 
+    // Declare commands and subsystems
     private DriveCommand driveCommand;
     private DriveSubsystem driveSubsystem;
 
@@ -55,28 +55,25 @@ public class TeleOperated extends CommandOpMode {
     private DepositCommand depositCommand;
     private DepositSubsystem depositSubsystem;
 
-    private InstantCommand levelTopFourBar;
-    private InstantCommand levelMidFourBar;
-    private InstantCommand levelLowFourBar;
-    private InstantCommand levelWaitFourBar;
+    private InstantCommand levelTopFourBarCommand;
+    private InstantCommand levelMidFourBarCommand;
+    private InstantCommand levelLowFourBarCommand;
+    private InstantCommand levelWaitFourBarCommand;
     public InstantCommand levelIntakeFourBar;
 
     private InstantCommand closeDeposit;
-    private InstantCommand moveDeposit;
-    private InstantCommand pushDeposit;
-
-    private Button levelTopButton, levelMidButton, levelLowButton, levelWaitButton, levelIntakeButton;
-    private Button depositPushButton, depositClose, moveDepositButton;
-    private Trigger levelIntakeTrigger;
+    private InstantCommand moveDepositCommand;
+    private InstantCommand pushDepositCommand;
 
     GamepadEx driver1;
     GamepadEx driver2;
 
     @Override
     public void initialize() {
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
+        // step (using the FTC Driver Station).
         l1 = new Motor(hardwareMap, "l1");
         l2 = new Motor(hardwareMap, "l2");
         l3 = new Motor(hardwareMap, "l3");
@@ -90,9 +87,11 @@ public class TeleOperated extends CommandOpMode {
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
 
+        // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
+        // Initialize subsystems and commands
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem,() -> driver1.getTrigger(RIGHT_TRIGGER), () -> driver1.getTrigger(LEFT_TRIGGER));
 
@@ -105,53 +104,54 @@ public class TeleOperated extends CommandOpMode {
         driveSubsystem = new DriveSubsystem(leftSide, rightSide);
         driveCommand = new DriveCommand(driveSubsystem, () -> driver1.getLeftY(), () -> driver1.getRightX());
 
-//        levelIntakeFourBar = new InstantCommand(()-> {
-//            fourBarSubsystem.setLevel(0);
-//            depositSubsystem.openDeposit();
-//        }, fourBarSubsystem, depositSubsystem);
 
-        levelTopFourBar = new InstantCommand(()-> {
+        // Instant commands to control the four bar and deposit mechanisms
+        // Four bar levels: {0.03, 0.06, 0.58, 0.70, 0.79} {INTAKE, HOVER, TOP GOAL, MID GOAL, LOW GOAL}
+
+        levelTopFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(2);
             sleep(50);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
-        levelMidFourBar = new InstantCommand(()-> {
+        levelMidFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(3);
             sleep(50);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
-        levelLowFourBar = new InstantCommand(()-> {
+        levelLowFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(4);
             sleep(50);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
-        levelWaitFourBar = new InstantCommand(()-> {
+        levelWaitFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(1);
             depositSubsystem.openDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
-        moveDeposit = new InstantCommand(() -> {
+        moveDepositCommand = new InstantCommand(() -> {
             if (depositSubsystem.depositOpen)
                 depositSubsystem.closeDeposit();
             else depositSubsystem.openDeposit();
 
         }, depositSubsystem);
 
-        pushDeposit = new InstantCommand(() -> {
+        pushDepositCommand = new InstantCommand(() -> {
             depositSubsystem.pushDeposit();
         }, depositSubsystem);
 
-        depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDeposit);
+        // Declare buttons to run specific commands
+        Button depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDepositCommand);
 
-        levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBar);
-        levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(levelMidFourBar);
-        levelTopButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBar);
-        levelWaitButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBar);
-        moveDepositButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(moveDeposit);
+        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);
+        Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(levelMidFourBarCommand);
+        Button levelTopButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBarCommand);
+        Button levelWaitButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBarCommand);
+        Button moveDepositButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(moveDepositCommand);
 
+        // Register subsystems and set their default commands
         register(fourBarSubsystem, driveSubsystem, intakeSubsystem, depositSubsystem);
         depositSubsystem.setDefaultCommand(depositCommand);
         fourBarSubsystem.setDefaultCommand(fourBarCommand);
