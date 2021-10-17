@@ -6,24 +6,34 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import org.firstinspires.ftc.teamcode.subsystems.DepositSubsystem;
 
 public class DepositCommand extends CommandBase {
-    private DepositSubsystem depositSubsystem;
 
-    public DepositCommand(DepositSubsystem subsystem){
-        depositSubsystem = subsystem;
+    DepositSubsystem depositSubsystem;
+    IntakeCommand intakeCommand;
+
+    public DepositCommand(DepositSubsystem depositSubsystem, IntakeCommand intakeCommand){
+        this.depositSubsystem = depositSubsystem;
+        this.intakeCommand = intakeCommand;
         addRequirements(depositSubsystem);
     }
 
     @Override
     public void initialize(){
-        depositSubsystem.depositArmRotation.setPosition(0);
+        depositSubsystem.depositServo.setPosition(0);
     }
+
     @Override
-    public void execute(){
-        depositSubsystem.depositArmRotation.setPosition(depositSubsystem.getDepositPosition());
+    public void execute() {
+
+        if (intakeCommand.intakeRunning) {
+            depositSubsystem.openDeposit();
+        }
+
+        depositSubsystem.depositServo.setPosition(depositSubsystem.getDepositPosition());
     }
+
     @Override
-    public void cancel(){
-        depositSubsystem.depositArmRotation.setPosition(0);
+    public void cancel() {
+        depositSubsystem.depositServo.setPosition(0);
         CommandScheduler.getInstance().cancel(this);
     }
 }

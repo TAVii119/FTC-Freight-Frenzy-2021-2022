@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
+
+import org.firstinspires.ftc.teamcode.subsystems.FourBarSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -13,18 +16,25 @@ import java.util.function.DoubleSupplier;
      */
 public class IntakeCommand extends CommandBase {
 
-    private final IntakeSubsystem intakeSystem;
-    public double intake, outtake;
+    private final IntakeSubsystem intakeSubsystem;
+    public DoubleSupplier intake, outtake;
+    public boolean intakeRunning = false;
 
-    public IntakeCommand(IntakeSubsystem subsystem, double intakePower, double outtakePower) {
-        intakeSystem = subsystem;
-        intake = intakePower;
-        outtake = outtakePower;
-        addRequirements(intakeSystem);
+    public IntakeCommand(IntakeSubsystem intakeSubsystem, DoubleSupplier intake,
+                         DoubleSupplier outtake) {
+
+        this.intakeSubsystem = intakeSubsystem;
+        this.intake = intake;
+        this.outtake = outtake;
+        addRequirements(intakeSubsystem);
     }
 
     @Override
     public void execute() {
-        intakeSystem.runIntake(intake - outtake);
+        intakeSubsystem.runIntake(intake.getAsDouble() - outtake.getAsDouble());
+
+        if (intake.getAsDouble() > 0.1)
+            intakeRunning = true;
+        else intakeRunning = false;
     }
 }

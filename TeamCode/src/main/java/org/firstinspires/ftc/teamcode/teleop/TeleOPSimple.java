@@ -125,7 +125,7 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             // DE ASTA NU MERGEA CODUL, CA ASTA II DADEA POZITIA 0 IN CONTINUU
-           // depositServo.setPosition(-gamepad2.right_stick_y);
+            depositServo.setPosition(-gamepad2.right_stick_y);
           //  gbServoLeft.setPosition(-gamepad2.left_stick_y);
           //  gbServoRight.setPosition(-gamepad2.left_stick_y);
 

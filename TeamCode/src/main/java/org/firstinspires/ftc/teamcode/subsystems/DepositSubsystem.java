@@ -5,28 +5,30 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class DepositSubsystem extends SubsystemBase {
 
-    public final Servo depositArmRotation;
+    public final Servo depositServo;
     public int depositLevel = 0; // 0-Open, 1-Close, 2-PUSH.
     public double depositPosition = 0; // 0 - Open, 0.38 - Closed, 0.58 - Push
     public boolean depositOpen = true;
 
-    public DepositSubsystem(Servo dArmRotation) {
-        depositArmRotation = dArmRotation;
-        depositArmRotation.setDirection(Servo.Direction.REVERSE);
+    public DepositSubsystem(Servo depositServo) {
+        this.depositServo = depositServo;
+        this.depositServo.setDirection(Servo.Direction.REVERSE);
     }
     public void openDeposit() {
-        depositPosition = 0;
+        depositPosition = 0.27;
         depositLevel = 0;
         depositOpen = true;
     }
+
     public void closeDeposit() {
-        depositPosition = 0.38;
+        depositPosition = 0.49;
         depositLevel = 1;
         depositOpen = false;
     }
+
     public void pushDeposit() {
-        depositPosition = 0.59;
-        depositLevel=2;
+        depositPosition = 0.74;
+        depositLevel = 2;
         depositOpen = false;
     }
 

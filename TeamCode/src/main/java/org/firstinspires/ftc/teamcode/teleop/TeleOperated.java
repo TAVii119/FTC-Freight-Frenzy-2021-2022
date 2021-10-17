@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.Button;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.gamepad.TriggerReader;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -50,18 +55,19 @@ public class TeleOperated extends CommandOpMode {
     private DepositCommand depositCommand;
     private DepositSubsystem depositSubsystem;
 
-
     private InstantCommand levelTopFourBar;
     private InstantCommand levelMidFourBar;
     private InstantCommand levelLowFourBar;
     private InstantCommand levelWaitFourBar;
+    public InstantCommand levelIntakeFourBar;
 
     private InstantCommand closeDeposit;
     private InstantCommand moveDeposit;
     private InstantCommand pushDeposit;
 
-    private Button levelTopButton, levelMidButton, levelLowButton, levelWaitButton;
+    private Button levelTopButton, levelMidButton, levelLowButton, levelWaitButton, levelIntakeButton;
     private Button depositPushButton, depositClose, moveDepositButton;
+    private Trigger levelIntakeTrigger;
 
     GamepadEx driver1;
     GamepadEx driver2;
@@ -88,41 +94,47 @@ public class TeleOperated extends CommandOpMode {
         driver2 = new GamepadEx(gamepad2);
 
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
-        intakeCommand = new IntakeCommand(intakeSubsystem, driver1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), driver1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-        // intakeCommand = new IntakeCommand(intakeSubsystem, gamepad1.right_trigger, gamepad1.left_trigger);
-
-        // When the intake is active, the fourbar moves to the intake position.
-        if(intakeCommand.intake >0.1){
-            fourBarSubsystem.setLevel(0);
-            depositSubsystem.openDeposit();
-        }
-
-        driveSubsystem = new DriveSubsystem(leftSide, rightSide);
-        driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftY, driver1::getRightX);
-
-        fourBarSubsystem = new FourBarSubsystem(gbServoLeft, gbServoRight);
-        fourBarCommand = new FourBarCommand(fourBarSubsystem);
+        intakeCommand = new IntakeCommand(intakeSubsystem,() -> driver1.getTrigger(RIGHT_TRIGGER), () -> driver1.getTrigger(LEFT_TRIGGER));
 
         depositSubsystem = new DepositSubsystem(depositServo);
-        depositCommand = new DepositCommand(depositSubsystem);
+        depositCommand = new DepositCommand(depositSubsystem, intakeCommand);
+
+        fourBarSubsystem = new FourBarSubsystem(gbServoLeft, gbServoRight);
+        fourBarCommand = new FourBarCommand(fourBarSubsystem, intakeCommand);
+
+        driveSubsystem = new DriveSubsystem(leftSide, rightSide);
+        driveCommand = new DriveCommand(driveSubsystem, () -> driver1.getLeftY(), () -> driver1.getRightX());
+
+//        levelIntakeFourBar = new InstantCommand(()-> {
+//            fourBarSubsystem.setLevel(0);
+//            depositSubsystem.openDeposit();
+//        }, fourBarSubsystem, depositSubsystem);
 
         levelTopFourBar = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(2);
-        }, fourBarSubsystem);
+            sleep(50);
+            depositSubsystem.closeDeposit();
+        }, fourBarSubsystem, depositSubsystem);
 
         levelMidFourBar = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(3);
-        }, fourBarSubsystem);
+            sleep(50);
+            depositSubsystem.closeDeposit();
+        }, fourBarSubsystem, depositSubsystem);
 
         levelLowFourBar = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(4);
-        }, fourBarSubsystem);
+            sleep(50);
+            depositSubsystem.closeDeposit();
+        }, fourBarSubsystem, depositSubsystem);
+
         levelWaitFourBar = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(1);
-        }, fourBarSubsystem);
+            depositSubsystem.openDeposit();
+        }, fourBarSubsystem, depositSubsystem);
 
         moveDeposit = new InstantCommand(() -> {
-            if(depositSubsystem.depositOpen)
+            if (depositSubsystem.depositOpen)
                 depositSubsystem.closeDeposit();
             else depositSubsystem.openDeposit();
 
