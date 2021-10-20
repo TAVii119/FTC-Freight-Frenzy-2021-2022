@@ -14,8 +14,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private Motor intakeMotor;
 
-    public IntakeSubsystem(Motor IntakeMotor) {
-        intakeMotor = IntakeMotor;
+    public IntakeSubsystem(Motor intakeMotor) {
+        this.intakeMotor = intakeMotor;
     }
 
     public void runIntake(double power) {

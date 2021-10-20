@@ -41,6 +41,7 @@ public class TeleOperated extends CommandOpMode {
     private Servo gbServoRight;
     private Servo gbServoLeft;
     private Servo depositServo;
+    private Servo iLifterServo;
 
     // Declare commands and subsystems
     private DriveCommand driveCommand;
@@ -83,9 +84,15 @@ public class TeleOperated extends CommandOpMode {
         rightSide = new MotorGroup(r1, r2, r3);
         leftSide = new MotorGroup(l1, l2, l3);
         intakeMotor = new Motor(hardwareMap, "intakeMotor");
+
         gbServoLeft= hardwareMap.get(Servo.class, "gbServoLeft");
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
+        iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
+
+        // Reverse directions and set initial position for servos
+        iLifterServo.setDirection(Servo.Direction.REVERSE);
+        iLifterServo.setPosition(0.19);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -103,26 +110,25 @@ public class TeleOperated extends CommandOpMode {
 
         driveSubsystem = new DriveSubsystem(leftSide, rightSide);
         driveCommand = new DriveCommand(driveSubsystem, () -> driver1.getLeftY(), () -> driver1.getRightX());
-
-
+        
         // Instant commands to control the four bar and deposit mechanisms
-        // Four bar levels: {0.03, 0.06, 0.58, 0.70, 0.79} {INTAKE, HOVER, TOP GOAL, MID GOAL, LOW GOAL}
+        // Four bar levels: {0.02, 0.06, 0.58, 0.70, 0.79} {INTAKE, HOVER, TOP GOAL, MID GOAL, LOW GOAL}
 
         levelTopFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(2);
-            sleep(50);
+            sleep(30);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
         levelMidFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(3);
-            sleep(50);
+            sleep(30);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
         levelLowFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevel(4);
-            sleep(50);
+            sleep(30);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem, depositSubsystem);
 
@@ -143,13 +149,12 @@ public class TeleOperated extends CommandOpMode {
         }, depositSubsystem);
 
         // Declare buttons to run specific commands
-        Button depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(pushDepositCommand);
-
-        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);
-        Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(levelMidFourBarCommand);
-        Button levelTopButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBarCommand);
-        Button levelWaitButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBarCommand);
-        Button moveDepositButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(moveDepositCommand);
+        Button depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(pushDepositCommand);
+        Button levelLowButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);
+        Button levelMidButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(levelMidFourBarCommand);
+        Button levelTopButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(levelTopFourBarCommand);
+        Button levelWaitButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBarCommand);
+        Button moveDepositButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(moveDepositCommand);
 
         // Register subsystems and set their default commands
         register(fourBarSubsystem, driveSubsystem, intakeSubsystem, depositSubsystem);
