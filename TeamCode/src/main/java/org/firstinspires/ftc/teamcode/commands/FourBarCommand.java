@@ -25,18 +25,10 @@ public class FourBarCommand extends CommandBase {
 
     @Override
     public void execute() {
-
         if (intakeCommand.intakeRunning) {
-            fourBarSubsystem.setLevel(0);
-            fourBarSubsystem.setLevel(0);
+            fourBarSubsystem.setLevelIntake();
         }
-
-        fourBarSubsystem.leftServo.setPosition(fourBarSubsystem.getFourBarPosition());
         fourBarSubsystem.rightServo.setPosition(fourBarSubsystem.getFourBarPosition());
-    }
-
-    public void cancel() {
-        fourBarSubsystem.setLevel(0);
-        CommandScheduler.getInstance().cancel(this);
+        fourBarSubsystem.leftServo.setPosition(fourBarSubsystem.getFourBarPosition());
     }
 }

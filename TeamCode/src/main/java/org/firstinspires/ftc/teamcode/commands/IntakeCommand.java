@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.teleop.TeleOperated;
 
 import java.util.function.DoubleSupplier;
 
@@ -15,7 +16,7 @@ public class IntakeCommand extends CommandBase {
 
     private final IntakeSubsystem intakeSubsystem;
     public DoubleSupplier intake, outtake;
-    public boolean intakeRunning = false;
+    public static boolean intakeRunning = false;
 
     public IntakeCommand(IntakeSubsystem intakeSubsystem, DoubleSupplier intake,
                          DoubleSupplier outtake) {
@@ -28,7 +29,14 @@ public class IntakeCommand extends CommandBase {
 
     @Override
     public void execute() {
+//        if(TeleOperated.intakeTimer.isTimerOn() ){
+//            intakeSubsystem.runIntake(-1);
+//        } else if() {
+//
+//        }
+
         intakeSubsystem.runIntake(intake.getAsDouble() - outtake.getAsDouble());
+
 
         if (intake.getAsDouble() > 0.1)
             intakeRunning = true;
