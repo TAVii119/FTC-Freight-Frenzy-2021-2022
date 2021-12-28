@@ -2,32 +2,42 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="TeleOPSimple", group="Test")
 
 public class TeleOPSimple extends LinearOpMode {
 
-    // Declare OpMode members.
-    private DcMotor l1 = null; //l1, l2, l3 ; r1, r2, r3
-    private DcMotor l2 = null;
-    private DcMotor l3 = null;
-    private DcMotor r1 = null;
-    private DcMotor r2 = null; //l1, l2, l3 ; r1, r2, r3
-    private DcMotor r3 = null;
+    // Declare OpMode members
+    private DcMotor lf = null;
+    private DcMotor rf = null;
+    private DcMotor lb = null;
+    private DcMotor rb = null;
     private DcMotor intakeMotor = null;
-    private Servo gbServoRight = null;
-    private Servo gbServoLeft = null;
-    private Servo depositServo = null;
-    double leftPower;
-    double rightPower;
-    boolean openDeposit = true;
+    private DcMotor slideMotor = null;
+    private DcMotor turretMotor = null;
 
+    private Servo armServo = null;
+    private Servo depositServo = null;
+
+    double lfPower, rfPower, lbPower, rbPower;
+    boolean isDepositOpen = true;
+    boolean isIntakeRunning = false;
+    boolean isArmExtended = false;
+
+    // Servo positions
+    double depositClose = 0.00, depositOpen = 0.00;
+    double armRetracted = 0.00, armExtended = 0.00;
+
+    // Slide positions
+    int slideIntakePos = 0;
+    int slideLevel3Pos = 500;
+
+    // Turret positions
+    int turretHomePos = 0;
+    int turretHubPos = 0;
 
     @Override
     public void runOpMode() {
@@ -37,28 +47,41 @@ public class TeleOPSimple extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        l1 = hardwareMap.get(DcMotor.class, "l1");
-        l2 = hardwareMap.get(DcMotor.class, "l2");
-        l3 = hardwareMap.get(DcMotor.class, "l3");
-        r1 = hardwareMap.get(DcMotor.class, "r1");
-        r2 = hardwareMap.get(DcMotor.class, "r2");
-        r3 = hardwareMap.get(DcMotor.class, "r3");
+        lf = hardwareMap.get(DcMotor.class, "lf");
+        rf = hardwareMap.get(DcMotor.class, "rf");
+        lb = hardwareMap.get(DcMotor.class, "lb");
+        rb = hardwareMap.get(DcMotor.class, "rb");
+
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
-        gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
+        turretMotor = hardwareMap.get(DcMotor.class, "turretMotor");
+
+        armServo = hardwareMap.get(Servo.class, "armServo");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
+
+        armServo.setPosition(0);
+        depositServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
+        lf.setDirection(DcMotor.Direction.REVERSE);
+        rf.setDirection(DcMotor.Direction.REVERSE);
 
-        r1.setDirection(DcMotor.Direction.REVERSE);
-        r2.setDirection(DcMotor.Direction.REVERSE);
-        r3.setDirection(DcMotor.Direction.REVERSE);
-        gbServoLeft.setDirection(Servo.Direction.REVERSE);
-        depositServo.setDirection(Servo.Direction.REVERSE);
-        gbServoLeft.setPosition(0);
-        gbServoRight.setPosition(0);
-        depositServo.setPosition(0);
+        // Set modes
+        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -67,90 +90,165 @@ public class TeleOPSimple extends LinearOpMode {
         while (opModeIsActive()) {
 
             double drive = -gamepad1.left_stick_y;
+            double strafe = gamepad1.left_stick_x;
             double turn = gamepad1.right_stick_x;
 
             // Send calculated power to wheels
+            lfPower = Range.clip(drive - turn - strafe, -1.0, 1.0);
+            rfPower = Range.clip(drive + turn + strafe, -1.0, 1.0);
+            lbPower = Range.clip(drive - turn + strafe, -1.0, 1.0);
+            rbPower = Range.clip(drive + turn - strafe, -1.0, 1.0);
 
-            leftPower = Range.clip(drive + turn, -1.0, 1.0);
-            rightPower = Range.clip(drive - turn, -1.0, 1.0);
+            lf.setPower(lfPower);
+            rf.setPower(rfPower);
+            lb.setPower(lbPower);
+            rb.setPower(rbPower);
 
-            l1.setPower(leftPower);
-            l2.setPower(leftPower);
-            l3.setPower(leftPower);
-            r1.setPower(rightPower);
-            r2.setPower(rightPower);
-            r3.setPower(rightPower);
-
-            // Top Level
-            if (gamepad2.triangle) {
-                gbServoLeft.setPosition(0.58);
-                gbServoRight.setPosition(0.58);
-                depositServo.setPosition(0.38);
-                openDeposit = false;
-                sleep(200);
+            // Intake control
+            if (gamepad1.a) {
+                if (isIntakeRunning) {
+                    intakeMotor.setPower(0);
+                    isIntakeRunning = false;
+                } else {
+                    intakeMotor.setPower(1);
+                    isIntakeRunning = true;
+                }
+                sleep(50);
             }
 
-            // MID LEVEL
-            if (gamepad2.circle) {
-                gbServoLeft.setPosition(0.70);
-                gbServoRight.setPosition(0.70);
-                depositServo.setPosition(0.38);
-                openDeposit = false;
-                sleep(200);
+            if (gamepad1.b) {
+                if (isIntakeRunning) {
+                    intakeMotor.setPower(0);
+                    isIntakeRunning = false;
+                } else {
+                    intakeMotor.setPower(-1);
+                    isIntakeRunning = true;
+                }
+                sleep(50);
             }
 
-            // LOW LEVEL
-            if (gamepad2.cross) {
-                gbServoLeft.setPosition(0.79);
-                gbServoRight.setPosition(0.79);
-                depositServo.setPosition(0.38);
-                openDeposit = false;
-                sleep(200);
+            // Extend scoring system
+            if (gamepad1.right_bumper) {
+
+                // Outtake freight
+                intakeMotor.setPower(-1);
+                isIntakeRunning = true;
+
+                // Close deposit
+                depositServo.setPosition(depositClose);
+                isDepositOpen = false;
+
+                // Move deposit arm and wait for it to fully extend
+                armServo.setPosition(armExtended);
+                isArmExtended = true;
+                sleep(250);
+
+                // Move turret to shipping hub position
+                turretMotor.setTargetPosition(turretHubPos);
+                turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                turretMotor.setPower(1);
+
+                while (opModeIsActive() && turretMotor.isBusy()) {
+                    telemetry.addData(">", "Turret rotating to hub position");
+                    telemetry.update();
+                }
+
+                turretMotor.setPower(0);
+                turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                // Move slides to level 3 position
+                slideMotor.setTargetPosition(slideLevel3Pos);
+                slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideMotor.setPower(1);
+
+                while (opModeIsActive() && slideMotor.isBusy()) {
+                    telemetry.addData(">", "Slides going to level 3");
+                    telemetry.update();
+                }
+
+                slideMotor.setPower(0);
+                slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
 
-            // Deposit
-            if (gamepad2.square && openDeposit) {
-                depositServo.setPosition(0.38);
-                openDeposit = false;
-                sleep(200);
-            } else if (gamepad2.square && !openDeposit) {
-                depositServo.setPosition(0);
-                openDeposit = true;
-                sleep(200);
-            }
-            // PUSH MINERALS
-            if(gamepad1.cross){
-                depositServo.setPosition(0.59);
-                openDeposit = false;
+            // Score freight and retract scoring system
+            if (gamepad1.left_bumper) {
+
+                // Intake freight
+                intakeMotor.setPower(1);
+                isIntakeRunning = true;
+
+                // Open deposit
+                depositServo.setPosition(depositOpen);
+                isDepositOpen = true;
+
+                // Wait a bit for freight to drop out of the deposit
+                sleep(250);
+
+                // Retract deposit arm and wait for it to fully retract
+                armServo.setPosition(armRetracted);
+                isArmExtended = false;
+                sleep(250);
+
+                // Move turret to home position
+                turretMotor.setTargetPosition(turretHomePos);
+                turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                turretMotor.setPower(1);
+
+                while (opModeIsActive() && turretMotor.isBusy()) {
+                    telemetry.addData(">", "Turret rotating to home position");
+                    telemetry.update();
+                }
+
+                turretMotor.setPower(0);
+                turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                // Move slides to intake position
+                slideMotor.setTargetPosition(slideIntakePos);
+                slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideMotor.setPower(1);
+
+                while (opModeIsActive() && slideMotor.isBusy()) {
+                    telemetry.addData(">", "Slides going to level 3");
+                    telemetry.update();
+                }
+
+                slideMotor.setPower(0);
+                slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
 
-            // DE ASTA NU MERGEA CODUL, CA ASTA II DADEA POZITIA 0 IN CONTINUU
-            depositServo.setPosition(-gamepad2.right_stick_y);
-          //  gbServoLeft.setPosition(-gamepad2.left_stick_y);
-          //  gbServoRight.setPosition(-gamepad2.left_stick_y);
-
-            // Control Intake
-            intakeMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-
-            if (gamepad1.right_trigger > 0.1) { // INTAKE POS
-                gbServoLeft.setPosition(0.02);
-                gbServoRight.setPosition(0.02);
-                depositServo.setPosition(0);
-                openDeposit = true;
+            // Control deposit servo
+            if (gamepad1.y) {
+                if (isDepositOpen) {
+                    depositServo.setPosition(depositClose);
+                    isDepositOpen = false;
+                } else {
+                    depositServo.setPosition(depositOpen);
+                    isDepositOpen = true;
+                }
+                sleep(50);
             }
 
-            if(gamepad2.right_trigger > 0.1) // WAIT POS
-            { gbServoLeft.setPosition(0.06);
-            gbServoRight.setPosition(0.06);
-            depositServo.setPosition(0.38);
-            openDeposit = false;
+            // Control arm servo
+            if (gamepad1.x) {
+                if (isArmExtended) {
+                    armServo.setPosition(armRetracted);
+                    isArmExtended = false;
+                } else {
+                    armServo.setPosition(armExtended);
+                    isArmExtended = true;
+                }
+                sleep(50);
             }
+
+            // Move slides manually
+            slideMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
             // Telemetry
-            telemetry.addData("Gearbox Pos:", -gamepad2.left_stick_y);
-            telemetry.addData("gbServoLeft Pos:", gbServoLeft.getPosition());
-            telemetry.addData("gbServoRight Pos:", gbServoRight.getPosition());
-            telemetry.addData("Deposit Pos:", -gamepad2.right_stick_y);
+            telemetry.addData("> Slide position: ", slideMotor.getCurrentPosition());
+            telemetry.addData("> Turret position: ", turretMotor.getCurrentPosition());
+            telemetry.addData("> left stick y", gamepad1.left_stick_y);
+            telemetry.addData("> left stick x", gamepad1.left_stick_x);
+            telemetry.addData("> right stick x", gamepad1.right_stick_x);
             telemetry.update();
         }
     }
