@@ -13,6 +13,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
@@ -23,28 +24,26 @@ import org.firstinspires.ftc.teamcode.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FourBarSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.concurrent.TimeUnit;
 
 @TeleOp(name="TeleOperated", group="Test")
 
 public class TeleOperated extends CommandOpMode {
-    int seconds = 2;
+    int seconds = 1;
     // Declare Motors and Servos
-    private Motor l1; // l1, l2, l3 ; r1, r2, r3 - Chassis motors, l = left, r = right,
-    private Motor l2; // numbered from front to back
-    private Motor l3;
-    private Motor r1;
-    private Motor r2;
-    private Motor r3;
-    private MotorGroup leftSide;
-    private MotorGroup rightSide;
+    private Motor leftFront;
+    private Motor leftBack;
+    private Motor rightFront;
+    private Motor rightBack;
     private Motor intakeMotor;
+    private DcMotor turretMotor;
 
-    private Servo gbServoRight;
-    private Servo gbServoLeft;
     private Servo depositServo;
-    private Servo iLifterServo;
+    private DcMotor slideMotor;
+    private Servo fourBarMotor;
 
     // Declare commands and subsystems
     private DriveCommand driveCommand;
@@ -59,6 +58,10 @@ public class TeleOperated extends CommandOpMode {
     private DepositCommand depositCommand;
     private DepositSubsystem depositSubsystem;
 
+    private SlideSubsystem slideSubsystem;
+
+    private TurretSubsystem turretSubsystem;
+
     private InstantCommand levelTopFourBarCommand;
     private InstantCommand levelMidFourBarCommand;
     private InstantCommand levelLowFourBarCommand;
@@ -66,37 +69,31 @@ public class TeleOperated extends CommandOpMode {
     private InstantCommand moveDepositCommand;
     private InstantCommand pushDepositCommand;
     private InstantCommand moveFourBarCommand;
+    private InstantCommand topLevelCommand;
+    private InstantCommand returnIntakeCommand;
 
     GamepadEx driver1;
     GamepadEx driver2;
 
-    public static Timing.Timer intakeTimer;
     public static boolean intakeTimerDone = false;
+
+
 
     @Override
     public void initialize() {
-        intakeTimer = new Timing.Timer(seconds, TimeUnit.SECONDS);
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station).
-        l1 = new Motor(hardwareMap, "l1");
-        l2 = new Motor(hardwareMap, "l2");
-        l3 = new Motor(hardwareMap, "l3");
-        r1 = new Motor(hardwareMap, "r1");
-        r2 = new Motor(hardwareMap, "r2");
-        r3 = new Motor(hardwareMap, "r3");
-        rightSide = new MotorGroup(r1, r2, r3);
-        leftSide = new MotorGroup(l1, l2, l3);
+        leftFront = new Motor(hardwareMap, "leftFront");
+        leftBack = new Motor(hardwareMap, "leftBack");
+        rightFront = new Motor(hardwareMap, "rightFront");
+        rightBack = new Motor(hardwareMap, "rightBack");
+
         intakeMotor = new Motor(hardwareMap, "intakeMotor");
-
-        gbServoLeft= hardwareMap.get(Servo.class, "gbServoLeft");
-        gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
+        fourBarMotor = hardwareMap.get(Servo.class, "fourBarMotor");
+        turretMotor = hardwareMap.get(DcMotor.class, "turretMotor");
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
-        iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
-
-        // Reverse directions and set initial position for servos
-        iLifterServo.setDirection(Servo.Direction.REVERSE);
-        iLifterServo.setPosition(0.19);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -109,32 +106,37 @@ public class TeleOperated extends CommandOpMode {
         depositSubsystem = new DepositSubsystem(depositServo);
         depositCommand = new DepositCommand(depositSubsystem, intakeCommand);
 
-        fourBarSubsystem = new FourBarSubsystem(gbServoLeft, gbServoRight);
-        fourBarCommand = new FourBarCommand(fourBarSubsystem, intakeCommand);
+        slideSubsystem = new SlideSubsystem(slideMotor);
 
-        driveSubsystem = new DriveSubsystem(leftSide, rightSide);
-        driveCommand = new DriveCommand(driveSubsystem, () -> driver1.getLeftY(), () -> driver1.getRightX());
-        
+        turretSubsystem = new TurretSubsystem(turretMotor);
+
+
+        fourBarSubsystem = new FourBarSubsystem(fourBarMotor);
+        fourBarCommand = new FourBarCommand(fourBarSubsystem, slideSubsystem, intakeCommand);
+
+        driveSubsystem = new DriveSubsystem(rightBack, leftBack, rightFront, leftFront);
+        driveCommand = new DriveCommand(driveSubsystem, () -> driver1.getLeftX(), () -> driver1.getLeftY(), () -> driver1.getRightX());
         // Instant commands to control the four bar and deposit mechanisms
         // Four bar levels: {0.02, 0.06, 0.58, 0.70, 0.79} {INTAKE, HOVER, TOP GOAL, MID GOAL, LOW GOAL}
 
+        topLevelCommand = new InstantCommand(()-> {
+            depositSubsystem.closeDeposit();
+            turretSubsystem.rotateToShippingHub(0);
+            fourBarSubsystem.moveBarTop();
+            slideSubsystem.extendSlideToScore(0);
+        }, turretSubsystem, slideSubsystem, fourBarSubsystem, depositSubsystem);
+
+        returnIntakeCommand = new InstantCommand(() -> {
+            depositSubsystem.pushDeposit();
+            slideSubsystem.bringSlideBack();
+            turretSubsystem.returnToIntake();
+            fourBarSubsystem.setLevelIntake();
+        }, turretSubsystem, slideSubsystem, fourBarSubsystem, depositSubsystem);
+
         moveFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setLevel();
             sleep(15);
             depositSubsystem.closeDeposit();
         }, fourBarSubsystem);
-
-        levelTopFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(2);
-        }, fourBarSubsystem, depositSubsystem);
-
-        levelMidFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(3);
-        }, fourBarSubsystem, depositSubsystem, intakeSubsystem);
-
-        levelLowFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(4);
-        }, fourBarSubsystem, depositSubsystem);
 
         levelWaitFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setLevelWait();
@@ -153,8 +155,8 @@ public class TeleOperated extends CommandOpMode {
         }, depositSubsystem);
 
         // Declare buttons to run specific commands
-        Button depositPushButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(pushDepositCommand);
-        Button levelWaitButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(levelWaitFourBarCommand);
+        Button topLevelButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(topLevelCommand);
+        Button returnIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(returnIntakeCommand);
         Button moveDepositButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(moveDepositCommand);
         Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(moveFourBarCommand);
 

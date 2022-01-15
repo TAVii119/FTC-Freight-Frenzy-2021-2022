@@ -15,23 +15,26 @@ public class DriveCommand extends CommandBase {
     private final DriveSubsystem driveSubsystem;
     private final DoubleSupplier forward;
     private final DoubleSupplier rotation;
+    private final DoubleSupplier strafe;
 
     /**
      * @param subsystem The drive subsystem this command wil run on.
      * @param forward   The control input for driving forwards/backwards
+     * @param strafe    The control input for driving sideways
      * @param rotation  The control input for turning
      */
 
-    public DriveCommand(DriveSubsystem subsystem, DoubleSupplier forward, DoubleSupplier rotation) {
+    public DriveCommand(DriveSubsystem subsystem, DoubleSupplier strafe, DoubleSupplier forward, DoubleSupplier rotation) {
         driveSubsystem = subsystem;
         this.forward = forward;
         this.rotation = rotation;
+        this.strafe = strafe;
         addRequirements(driveSubsystem);
     }
 
     @Override
     public void execute() {
-        driveSubsystem.drive(forward.getAsDouble(), rotation.getAsDouble());
+        driveSubsystem.drive(strafe.getAsDouble(), forward.getAsDouble(), rotation.getAsDouble());
     }
 }
 
