@@ -34,7 +34,7 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        driveSubsystem.drive(forward.getAsDouble(), strafe.getAsDouble(), rotation.getAsDouble());
+        driveSubsystem.drive(strafe.getAsDouble(), forward.getAsDouble(), rotation.getAsDouble());
     }
 }
 

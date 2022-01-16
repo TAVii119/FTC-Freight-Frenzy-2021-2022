@@ -26,11 +26,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
     /**
      * Drives the robot using arcade controls.
      *
+     * @param str the commanded strafe movement
      * @param fwd the commanded forward movement
-     * @param rot the commanded rotation
+     * @param rot the commanded rotation movement
      */
 
-    public void drive(double fwd, double str, double rot) {
+    public void drive(double str, double fwd, double rot) {
         m_drive.driveRobotCentric(str, fwd, rot);
     }
 }
