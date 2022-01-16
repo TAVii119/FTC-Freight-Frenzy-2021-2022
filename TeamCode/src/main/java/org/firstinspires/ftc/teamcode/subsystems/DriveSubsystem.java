@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
     /*
-    This is our drive subsystem. This subsystem is for our 6 wheel drive chassis with 6 DC Motors.
+    This is our drive subsystem. This subsystem is for our mecanum chassis with 4 DC Motors.
      */
     public class DriveSubsystem extends SubsystemBase {
 
@@ -19,8 +19,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
     /**
      * Creates a new DriveSubsystem.
      */
-    public DriveSubsystem(Motor rightBack, Motor leftBack, Motor rightFront, Motor leftFront) {
-        m_drive = new MecanumDrive(leftFront, rightFront, leftBack, rightBack);
+    public DriveSubsystem(Motor lf, Motor rf, Motor lb, Motor rb) {
+        m_drive = new MecanumDrive(lf, rf, lb, rb);
     }
 
     /**
@@ -30,8 +30,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
      * @param rot the commanded rotation
      */
 
-    public void drive(double strafe, double fwd, double rot) {
-        m_drive.driveRobotCentric(strafe, fwd, rot);
+    public void drive(double fwd, double str, double rot) {
+        m_drive.driveRobotCentric(str, fwd, rot);
     }
 }
 
