@@ -93,14 +93,14 @@ public class TeleOPSimple extends LinearOpMode {
         while (opModeIsActive()) {
 
             double drive = -gamepad1.left_stick_y;
-            double turn = -gamepad1.left_stick_x;
-            double strafe = -gamepad1.right_stick_x;
+            double strafe = gamepad1.left_stick_x;
+            double turn = gamepad1.right_stick_x;
 
             // Send calculated power to wheels
-            lfPower = Range.clip(drive - turn - strafe, -1.0, 1.0);
-            rfPower = Range.clip(drive + turn + strafe, -1.0, 1.0);
-            lbPower = Range.clip(drive - turn + strafe, -1.0, 1.0);
-            rbPower = Range.clip(drive + turn - strafe, -1.0, 1.0);
+            lfPower = Range.clip(drive + turn + strafe, -1.0, 1.0);
+            rfPower = Range.clip(drive - turn - strafe, -1.0, 1.0);
+            lbPower = Range.clip(drive + turn - strafe, -1.0, 1.0);
+            rbPower = Range.clip(drive - turn + strafe, -1.0, 1.0);
 
             lf.setPower(lfPower);
             rf.setPower(rfPower);
@@ -249,7 +249,7 @@ public class TeleOPSimple extends LinearOpMode {
             // Telemetry
             telemetry.addData("> Slide position: ", slideMotor.getCurrentPosition());
             telemetry.addData("> Turret position: ", turretMotor.getCurrentPosition());
-            telemetry.addData("> left stick y", gamepad1.left_stick_y);
+            telemetry.addData("> left stick y", -gamepad1.left_stick_y);
             telemetry.addData("> left stick x", gamepad1.left_stick_x);
             telemetry.addData("> right stick x", gamepad1.right_stick_x);
             telemetry.update();

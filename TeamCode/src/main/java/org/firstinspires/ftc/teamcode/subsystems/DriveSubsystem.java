@@ -32,7 +32,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
      */
 
     public void drive(double str, double fwd, double rot) {
-        m_drive.driveRobotCentric(str, fwd, rot);
+        m_drive.driveRobotCentric(-str, -fwd, -rot);
     }
 }
 

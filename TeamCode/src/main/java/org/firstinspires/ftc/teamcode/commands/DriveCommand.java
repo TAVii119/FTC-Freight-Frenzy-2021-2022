@@ -24,10 +24,10 @@ public class DriveCommand extends CommandBase {
      * @param rotation  The control input for turning
      */
 
-    public DriveCommand(DriveSubsystem subsystem, DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+    public DriveCommand(DriveSubsystem subsystem, DoubleSupplier strafe, DoubleSupplier forward, DoubleSupplier rotation) {
         driveSubsystem = subsystem;
-        this.forward = forward;
         this.strafe = strafe;
+        this.forward = forward;
         this.rotation = rotation;
         addRequirements(driveSubsystem);
     }
