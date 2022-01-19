@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -22,6 +23,7 @@ public class TeleOPSimple extends LinearOpMode {
 
     private Servo armServo = null;
     private Servo depositServo = null;
+    private CRServo duckLeftServo = null;
 
     double lfPower, rfPower, lbPower, rbPower;
     boolean isDepositOpen = true;
@@ -59,6 +61,7 @@ public class TeleOPSimple extends LinearOpMode {
 
         armServo = hardwareMap.get(Servo.class, "armServo");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
+        duckLeftServo = hardwareMap.get(CRServo.class, "duckLeftServo");
 
         armServo.setPosition(0);
         depositServo.setPosition(0);
@@ -106,6 +109,9 @@ public class TeleOPSimple extends LinearOpMode {
             rf.setPower(rfPower);
             lb.setPower(lbPower);
             rb.setPower(rbPower);
+
+            if (gamepad1.dpad_left)
+                duckLeftServo.setPower(1);
 
             // Intake control
             if (gamepad1.a) {

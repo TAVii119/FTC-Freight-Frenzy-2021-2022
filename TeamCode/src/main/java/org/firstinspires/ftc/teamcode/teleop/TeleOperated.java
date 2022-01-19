@@ -30,7 +30,7 @@ public class TeleOperated extends CommandOpMode {
     private Motor rb;
 
     private Motor intakeMotor;
-    private CRServo carouselServo;
+    private CRServo duckLeftServo;
 
     // Declare commands and subsystems
     private DriveCommand driveCommand;
@@ -62,7 +62,7 @@ public class TeleOperated extends CommandOpMode {
 
         intakeMotor = new Motor(hardwareMap, "intakeMotor");
 
-        carouselServo = hardwareMap.get(CRServo.class, "carouselServo");
+        duckLeftServo = hardwareMap.get(CRServo.class, "carouselServo");
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -74,7 +74,7 @@ public class TeleOperated extends CommandOpMode {
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem);
 
-        carouselSubsystem = new CarouselSubsystem(carouselServo);
+        carouselSubsystem = new CarouselSubsystem(duckLeftServo);
         carouselCommand = new CarouselCommand(carouselSubsystem);
 
         startCarouselCommand = new InstantCommand(() -> {
