@@ -5,18 +5,19 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 public class IntakeCommand extends CommandBase {
-    private final IntakeSubsystem intakeSystem;
-    public double intake, outtake;
+    private final IntakeSubsystem intakeSubsystem;
+    public static boolean intakeRunning = false;
 
-    public IntakeCommand(IntakeSubsystem subsystem, double intakePower, double outtakePower){
-       intakeSystem = subsystem;
-       intake = intakePower;
-       outtake = outtakePower;
-       addRequirements(intakeSystem);
-
+    public IntakeCommand(IntakeSubsystem intakeSubsystem){
+       this.intakeSubsystem = intakeSubsystem;
+       addRequirements(intakeSubsystem);
     }
     @Override
-    public void execute(){
-        intakeSystem.runIntake(intake - outtake);
+    public void execute() {
+        intakeSubsystem.intakeMotor.set(intakeSubsystem.getIntakePower());
+
+        if (intakeSubsystem.getIntakePower() != 0.0)
+            intakeRunning = true;
+        else intakeRunning = false;
     }
 }

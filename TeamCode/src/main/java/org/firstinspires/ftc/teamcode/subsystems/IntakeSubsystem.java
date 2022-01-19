@@ -4,13 +4,27 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private Motor intakeMotor;
+    public Motor intakeMotor;
+    private double intakePower;
 
     public IntakeSubsystem(Motor IntakeMotor){
-        intakeMotor = IntakeMotor;
+
+        this.intakeMotor= IntakeMotor;
     }
 
-    public void runIntake(double power){
-        intakeMotor.set(power);
+    public void runIntake() {
+        this.intakePower = 1;
+    }
+
+    public void stopIntake() {
+        this.intakePower = 0;
+    }
+
+    public void reverseIntake() {
+        this.intakePower = -1;
+    }
+
+    public double getIntakePower() {
+        return this.intakePower;
     }
 }
