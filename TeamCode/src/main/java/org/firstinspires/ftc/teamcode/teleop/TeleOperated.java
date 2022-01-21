@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.transition.Slide;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.Button;
@@ -16,10 +18,13 @@ import org.firstinspires.ftc.teamcode.commands.CarouselCommand;
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeCommand;
+import org.firstinspires.ftc.teamcode.commands.SlideCommand;
+import org.firstinspires.ftc.teamcode.commands.TurretCommand;
 import org.firstinspires.ftc.teamcode.subsystems.CarouselSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.time.Instant;
@@ -42,6 +47,8 @@ public class TeleOperated extends CommandOpMode {
 
     private Servo depositServo;
 
+    private DcMotor slideMotor;
+
     // Declare commands and subsystems
     private DriveCommand driveCommand;
     private DriveSubsystem driveSubsystem;
@@ -56,6 +63,10 @@ public class TeleOperated extends CommandOpMode {
     private DepositCommand depositCommand;
 
     private TurretSubsystem turretSubsystem;
+    private TurretCommand turretCommand;
+
+    private SlideSubsystem slideSubsystem;
+    private SlideCommand slideCommand;
 
     private InstantCommand startCarouselCommand;
     private InstantCommand intakeRunCommand;
@@ -84,6 +95,8 @@ public class TeleOperated extends CommandOpMode {
 
         depositServo = hardwareMap.get(Servo.class, "depositServo");
 
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
+
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
 
@@ -101,6 +114,10 @@ public class TeleOperated extends CommandOpMode {
         carouselCommand = new CarouselCommand(carouselSubsystem);
 
         turretSubsystem = new TurretSubsystem(turretMotor);
+        turretCommand = new TurretCommand(turretSubsystem);
+
+        slideSubsystem = new SlideSubsystem(slideMotor);
+        slideCommand = new SlideCommand(slideSubsystem);
 
         startCarouselCommand = new InstantCommand(() -> {
             if (!carouselSubsystem.carouselRunning) {
@@ -129,9 +146,12 @@ public class TeleOperated extends CommandOpMode {
         Button intakeReverseButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(intakeReverseCommand);
 
         // Register subsystems and set their default commands
-        register(driveSubsystem, intakeSubsystem, carouselSubsystem);
+        register(driveSubsystem, intakeSubsystem, carouselSubsystem, slideSubsystem, turretSubsystem, depositSubsystem);
         driveSubsystem.setDefaultCommand(driveCommand);
         intakeSubsystem.setDefaultCommand(intakeCommand);
         carouselSubsystem.setDefaultCommand(carouselCommand);
+        slideSubsystem.setDefaultCommand(slideCommand);
+        turretSubsystem.setDefaultCommand(turretCommand);
+        depositSubsystem.setDefaultCommand(depositCommand);
     }
 }
