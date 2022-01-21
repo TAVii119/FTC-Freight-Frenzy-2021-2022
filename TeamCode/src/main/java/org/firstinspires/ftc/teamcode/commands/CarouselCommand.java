@@ -14,7 +14,8 @@ public class CarouselCommand extends CommandBase {
     }
         @Override
         public void execute() {
-            carouselSubsystem.carouselServo.setPower(carouselSubsystem.getCarouselPower());
+            carouselSubsystem.duckLeftServo.setPower(carouselSubsystem.getCarouselPower());
+            carouselSubsystem.duckRightServo.setPower(carouselSubsystem.getCarouselPower());
 
             if (carouselSubsystem.getCarouselPower() != 0.1)
                 carouseRunning = true;

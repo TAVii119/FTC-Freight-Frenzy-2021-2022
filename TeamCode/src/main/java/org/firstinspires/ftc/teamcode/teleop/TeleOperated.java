@@ -9,14 +9,18 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commands.CarouselCommand;
+import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeCommand;
 import org.firstinspires.ftc.teamcode.subsystems.CarouselSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.time.Instant;
 
@@ -30,7 +34,13 @@ public class TeleOperated extends CommandOpMode {
     private Motor rb;
 
     private Motor intakeMotor;
+
+    private DcMotor turretMotor;
+
     private CRServo duckLeftServo;
+    private CRServo duckRightServo;
+
+    private Servo depositServo;
 
     // Declare commands and subsystems
     private DriveCommand driveCommand;
@@ -41,6 +51,11 @@ public class TeleOperated extends CommandOpMode {
 
     private CarouselSubsystem carouselSubsystem;
     private CarouselCommand carouselCommand;
+
+    private DepositSubsystem depositSubsystem;
+    private DepositCommand depositCommand;
+
+    private TurretSubsystem turretSubsystem;
 
     private InstantCommand startCarouselCommand;
     private InstantCommand intakeRunCommand;
@@ -62,7 +77,12 @@ public class TeleOperated extends CommandOpMode {
 
         intakeMotor = new Motor(hardwareMap, "intakeMotor");
 
-        duckLeftServo = hardwareMap.get(CRServo.class, "carouselServo");
+        turretMotor = hardwareMap.get(DcMotor.class, "turretMotor");
+
+        duckLeftServo = hardwareMap.get(CRServo.class, "duckLeftServo");
+        duckRightServo = hardwareMap.get(CRServo.class, "duckRightServo");
+
+        depositServo = hardwareMap.get(Servo.class, "depositServo");
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -74,8 +94,13 @@ public class TeleOperated extends CommandOpMode {
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem);
 
-        carouselSubsystem = new CarouselSubsystem(duckLeftServo);
+        depositSubsystem = new DepositSubsystem(depositServo);
+        depositCommand = new DepositCommand(depositSubsystem, intakeCommand);
+
+        carouselSubsystem = new CarouselSubsystem(duckLeftServo, duckRightServo);
         carouselCommand = new CarouselCommand(carouselSubsystem);
+
+        turretSubsystem = new TurretSubsystem(turretMotor);
 
         startCarouselCommand = new InstantCommand(() -> {
             if (!carouselSubsystem.carouselRunning) {
