@@ -255,6 +255,7 @@ public class TeleOPSimple extends LinearOpMode {
             // Telemetry
             telemetry.addData("> Slide position: ", slideMotor.getCurrentPosition());
             telemetry.addData("> Turret position: ", turretMotor.getCurrentPosition());
+            telemetry.addData("> Arm position: ", armServo.getPosition());
             telemetry.addData("> left stick y", -gamepad1.left_stick_y);
             telemetry.addData("> left stick x", gamepad1.left_stick_x);
             telemetry.addData("> right stick x", gamepad1.right_stick_x);

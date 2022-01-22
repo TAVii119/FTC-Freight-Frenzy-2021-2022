@@ -4,9 +4,10 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class SlideSubsystem extends SubsystemBase {
-    private DcMotor slideMotor;
+    public DcMotor slideMotor;
     private int homePosition = 0;
-    private int hubPosition = 0;
+    private int hubPosition = 75;
+    public int manualPosition = 0;
 
     public SlideSubsystem(DcMotor slideMotor) {
         this.slideMotor = slideMotor;

@@ -5,10 +5,11 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class TurretSubsystem extends SubsystemBase {
-    private DcMotor turretMotor;
+    public DcMotor turretMotor;
     private int turretInitPos = 75;
     private int turretHomePos = 0;
-    private int turretHubPos = 0;
+    private int turretHubPos = 100;
+    public int turretManualPos = 0;
 
     public TurretSubsystem(DcMotor turretMotor) {
         this.turretMotor = turretMotor;
