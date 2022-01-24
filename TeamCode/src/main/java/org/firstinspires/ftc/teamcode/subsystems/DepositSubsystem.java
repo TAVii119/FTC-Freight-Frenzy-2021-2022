@@ -14,7 +14,6 @@ public class DepositSubsystem extends SubsystemBase {
         this.depositServo = depositServo;
         this.depositServo.setDirection(Servo.Direction.REVERSE);
     }
-
     public void openDeposit() {
         depositPosition = 0.27;
         depositLevel = 0;

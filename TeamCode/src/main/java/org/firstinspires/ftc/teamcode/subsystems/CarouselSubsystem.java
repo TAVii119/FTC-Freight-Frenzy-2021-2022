@@ -5,22 +5,16 @@ import com.qualcomm.robotcore.hardware.CRServo;
 
 public class CarouselSubsystem extends SubsystemBase {
     public CRServo duckLeftServo;
-    public CRServo duckRightServo;
-    public boolean carouselRunning = false;
-    private double carouselPower;
 
-    public CarouselSubsystem(CRServo duckLeftServo, CRServo duckRightServo) {
-        this.duckRightServo = duckRightServo;
+    public CarouselSubsystem(CRServo duckLeftServo) {
         this.duckLeftServo = duckLeftServo;
     }
 
-    public void startCarousel(){
-        this.carouselPower = 1;
+    public void runCarousel() {
+        duckLeftServo.setPower(0.5);
     }
+
     public void stopCarousel() {
-       this.carouselPower = 0;
-    }
-    public double getCarouselPower() {
-        return this.carouselPower;
+        duckLeftServo.setPower(0);
     }
 }
