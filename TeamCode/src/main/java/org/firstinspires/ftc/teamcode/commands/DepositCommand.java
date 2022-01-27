@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import static android.os.SystemClock.sleep;
+
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
@@ -13,6 +15,7 @@ public class DepositCommand extends CommandBase {
     public DepositCommand(DepositSubsystem depositSubsystem, IntakeCommand intakeCommand){
         this.depositSubsystem = depositSubsystem;
         this.intakeCommand = intakeCommand;
+
         addRequirements(depositSubsystem);
     }
 
@@ -23,11 +26,6 @@ public class DepositCommand extends CommandBase {
 
     @Override
     public void execute() {
-
-        if (intakeCommand.intakeRunning) {
-            depositSubsystem.openDeposit();
-        }
-
         depositSubsystem.depositServo.setPosition(depositSubsystem.getDepositPosition());
     }
 

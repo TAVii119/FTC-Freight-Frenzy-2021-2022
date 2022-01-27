@@ -57,7 +57,6 @@ public class TeleOPSimple extends LinearOpMode {
         r2.setDirection(DcMotor.Direction.REVERSE);
         r3.setDirection(DcMotor.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
-        depositServo.setDirection(Servo.Direction.REVERSE);
         iLifterServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);

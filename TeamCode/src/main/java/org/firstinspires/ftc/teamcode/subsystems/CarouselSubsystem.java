@@ -1,20 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 
 public class CarouselSubsystem extends SubsystemBase {
-    public CRServo duckLeftServo;
+    private Motor duckRightMotor;
+    public boolean isCarouselRunning = false;
 
-    public CarouselSubsystem(CRServo duckLeftServo) {
-        this.duckLeftServo = duckLeftServo;
+    public CarouselSubsystem(Motor duckRightMotor) {
+        this.duckRightMotor = duckRightMotor;
     }
 
-    public void runCarousel() {
-        duckLeftServo.setPower(0.5);
+    public void runCarousel(){
+        duckRightMotor.set(0.75);
+        isCarouselRunning = true;
     }
 
-    public void stopCarousel() {
-        duckLeftServo.setPower(0);
+    public void stopCarousel(){
+        duckRightMotor.set(0);
+        isCarouselRunning = false;
     }
 }

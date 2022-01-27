@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class FourBarSubsystem extends SubsystemBase {
     public Servo leftServo, rightServo;
-    public double[] Levels = new double[]{0.02, 0.06, 0.58, 0.70, 0.79}; // INTAKE, WAIT, TOP, MID, LOW
+    public double[] Levels = new double[]{0.01, 0.05, 0.53, 0.68, 0.77}; // INTAKE, WAIT, TOP, MID, LOW
     public double fourBarPosition = 0.02;
     int fourBarLevel = 0;
     public int desiredLevel = 0;
@@ -13,7 +13,6 @@ public class FourBarSubsystem extends SubsystemBase {
     public FourBarSubsystem(Servo left, Servo right){
         leftServo = left;
         rightServo = right;
-        leftServo.setDirection(Servo.Direction.REVERSE);
     }
 
     public void setLevel(){
