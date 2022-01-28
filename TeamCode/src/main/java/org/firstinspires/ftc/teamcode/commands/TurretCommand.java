@@ -13,8 +13,4 @@ public class TurretCommand extends CommandBase {
         addRequirements(turretSubsystem);
     }
 
-    @Override
-    public void initialize() {
-        turretSubsystem.motorInit();
-    }
 }

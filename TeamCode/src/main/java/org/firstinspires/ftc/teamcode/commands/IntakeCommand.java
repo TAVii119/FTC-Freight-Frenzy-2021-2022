@@ -12,6 +12,7 @@ public class IntakeCommand extends CommandBase {
         this.intakeSubsystem = intakeSubsystem;
         addRequirements(intakeSubsystem);
     }
+
     @Override
     public void execute() {
         intakeSubsystem.intakeMotor.set(intakeSubsystem.getIntakePower());

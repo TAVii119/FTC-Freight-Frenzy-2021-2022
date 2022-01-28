@@ -27,10 +27,8 @@ public class DepositSubsystem extends SubsystemBase {
         depositOpen = false;
     }
 
-    public void pushDeposit() {
-        depositPosition = 0.74;
-        depositLevel = 2;
-        depositOpen = false;
+    public void initServo() {
+        depositServo.setPosition(0);
     }
 
     public double getDepositPosition(){
