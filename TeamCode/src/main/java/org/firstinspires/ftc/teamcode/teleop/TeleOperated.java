@@ -64,16 +64,14 @@ public class TeleOperated extends CommandOpMode {
 
     private ArmSubsystem armSubsystem;
 
-    private InstantCommand startCarouselCommand;
     private InstantCommand intakeRunCommand;
     private InstantCommand intakeReverseCommand;
     private InstantCommand useSlideCommand;
-    private InstantCommand scoreCommand;
     private InstantCommand returnSlideCommand;
-    private InstantCommand moveTurretLeft;
-    private InstantCommand moveTurretRight;
-    private InstantCommand extendSlide;
-    private InstantCommand retractSlide;
+    private InstantCommand liftIntakeCommand;
+    private InstantCommand carouselCommand;
+
+    Timing.Timer scoreTimer;
 
     GamepadEx driver1;
 
@@ -98,17 +96,22 @@ public class TeleOperated extends CommandOpMode {
         slideMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
+        // Get servo hardware
+        depositServo = hardwareMap.get(Servo.class, "depositServo");
         armServo = hardwareMap.get(Servo.class, "armServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
-        depositServo = hardwareMap.get(Servo.class, "depositServo");
 
-        // Initialize motors and Servos
-        depositSubsystem.initServo();
-        armSubsystem.initServo();
+        // Set direction and initial position of servos
+        depositServo.setDirection(Servo.Direction.REVERSE);
+        armServo.setDirection(Servo.Direction.REVERSE);
+        depositServo.setPosition(0);
+        armServo.setPosition(0);
         iLifterServo.setPosition(0);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
+
+        //scoreTimer = new Timing.Timer(1);
 
         // Initialize subsystems and commands
         driveSubsystem = new DriveSubsystem(lf, rf, lb, rb);
@@ -120,8 +123,6 @@ public class TeleOperated extends CommandOpMode {
         depositSubsystem = new DepositSubsystem(depositServo);
         depositCommand = new DepositCommand(depositSubsystem);
 
-        carouselSubsystem = new CarouselSubsystem(duckMotor);
-
         turretSubsystem = new TurretSubsystem(turretMotor);
         turretCommand = new TurretCommand(turretSubsystem);
 
@@ -129,6 +130,8 @@ public class TeleOperated extends CommandOpMode {
         slideCommand = new SlideCommand(slideSubsystem);
 
         armSubsystem = new ArmSubsystem(armServo);
+
+        carouselSubsystem = new CarouselSubsystem(duckMotor);
 
         // Instant commands
 
@@ -145,60 +148,64 @@ public class TeleOperated extends CommandOpMode {
             intakeSubsystem.reverseIntake();
         }, intakeSubsystem);
 
+        liftIntakeCommand = new InstantCommand(() -> {
+            iLifterServo.setPosition(0.5);
+        }, intakeSubsystem);
+
+        carouselCommand = new InstantCommand(() -> {
+            if (carouselSubsystem.isCarouselRunning)
+                carouselSubsystem.stopCarousel();
+            else carouselSubsystem.runCarousel();
+        }, carouselSubsystem);
+
         useSlideCommand = new InstantCommand(() -> {
+            scoreTimer = new Timing.Timer(1);
+            scoreTimer.start();
             intakeSubsystem.reverseIntake();
             depositSubsystem.closeDeposit();
-            armSubsystem.extendArm();
-            slideSubsystem.moveToHub();
-        });
+            armSubsystem.level3Arm();
+            while (!scoreTimer.done())
+            {
+                // Wait for arm to fully extend
+            }
+            intakeSubsystem.stopIntake();
+            slideSubsystem.moveSlideToHub();
+            turretSubsystem.moveTurretToHub();
+            // Lift intake
+            scoreTimer.pause();
+        }, intakeSubsystem, depositSubsystem, armSubsystem, slideSubsystem, turretSubsystem);
 
         returnSlideCommand = new InstantCommand(() -> {
-            slideSubsystem.moveToHome();
+            // Star a timer
+            scoreTimer = new Timing.Timer(1);
+            scoreTimer.start();
+            // Open deposit
+            depositSubsystem.openDeposit();
+            while (!scoreTimer.done())
+            {
+                // Wait for freight to fall out of deposit
+            }
+            // Move turret and slide back to home position
+            slideSubsystem.moveSlideToHome();
+            turretSubsystem.moveTurretToHome();
+            while (turretMotor.get() > 0.5 || slideMotor.get() > 0.5) {
+                // Wait for turret and slide to get to home position
+            }
             armSubsystem.retractArm();
             intakeSubsystem.runIntake();
-        });
-
-        scoreCommand = new InstantCommand(() -> {
-            depositSubsystem.openDeposit();
-        });
-
-        moveTurretLeft = new InstantCommand(() -> {
-            turretMotor.set(0.1);
-        });
-
-        moveTurretRight = new InstantCommand(() -> {
-            turretMotor.set(-0.1);
-        });
-
-        extendSlide = new InstantCommand(() -> {
-            slideMotor.set(0.1);
-        });
-
-        retractSlide = new InstantCommand(() -> {
-            slideMotor.set(-0.1);
-        });
-
-
-        Button moveTurretLeftButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_LEFT).whenPressed(moveTurretLeft);
-        Button moveTurretRightButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_RIGHT).whenPressed(moveTurretRight);
-        Button extendSlideButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(extendSlide);
-        Button retractSlideButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_DOWN).whenPressed(retractSlide);
+            scoreTimer.pause();
+        }, slideSubsystem, armSubsystem, intakeSubsystem, turretSubsystem, depositSubsystem);
 
         Button intakeRunButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(intakeRunCommand);
         Button intakeReverseButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(intakeReverseCommand);
-
-        Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(startCarouselCommand);
+        Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(carouselCommand);
+        Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(liftIntakeCommand);
 
         Button useSlideButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(useSlideCommand);
-        Button scoreButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(scoreCommand);
         Button returnSlideButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(returnSlideCommand);
 
         // Register subsystems and set their default commands
         register(driveSubsystem, depositSubsystem, intakeSubsystem, carouselSubsystem, slideSubsystem, turretSubsystem, armSubsystem);
         driveSubsystem.setDefaultCommand(driveCommand);
-        intakeSubsystem.setDefaultCommand(intakeCommand);
-        slideSubsystem.setDefaultCommand(slideCommand);
-        turretSubsystem.setDefaultCommand(turretCommand);
-        depositSubsystem.setDefaultCommand(depositCommand);
     }
 }

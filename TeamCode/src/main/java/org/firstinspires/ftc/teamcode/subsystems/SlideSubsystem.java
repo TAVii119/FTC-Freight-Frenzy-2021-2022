@@ -13,7 +13,7 @@ public class SlideSubsystem extends SubsystemBase {
         this.slideMotor = slideMotor;
     }
 
-    public void moveToHub() {
+    public void moveSlideToHub() {
         // set the run mode
         slideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -51,7 +51,7 @@ public class SlideSubsystem extends SubsystemBase {
          */
     }
 
-    public void moveToHome() {
+    public void moveSlideToHome() {
         // set the run mode
         slideMotor.setRunMode(Motor.RunMode.PositionControl);
 

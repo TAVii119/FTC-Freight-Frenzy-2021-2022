@@ -6,24 +6,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ArmSubsystem extends SubsystemBase {
     private Servo armServo;
     private double armRetracted = 0.0;
-    private double armExtended = 0.5  ;
+    private double armLevel3 = 0.5;
+    private double armLevel2 = 0.5;
+    private double armLevel1 = 0.5;
     public boolean isArmExtended = false;
 
     public ArmSubsystem(Servo armServo) {
         this.armServo = armServo;
     }
 
-    public void extendArm() {
-        this.armServo.setPosition(armExtended);
-        isArmExtended = true;
-    }
-
     public void retractArm() {
-        this.armServo.setPosition(armRetracted);
-        isArmExtended = false;
+        armServo.setPosition(armRetracted);
     }
 
-    public void initServo() {
-        this.armServo.setPosition(0);
+    public void level3Arm() {
+        armServo.setPosition(armLevel3);
     }
 }

@@ -32,7 +32,7 @@ public class DriveSubsystem extends SubsystemBase {
      */
 
     public void drive(double str, double fwd, double rot) {
-        m_drive.driveRobotCentric(-str, -fwd, -rot);
+        m_drive.driveRobotCentric(str, fwd, rot);
     }
 }
 
