@@ -12,18 +12,6 @@ public class DepositCommand extends CommandBase {
 
     public DepositCommand(DepositSubsystem depositSubsystem){
         this.depositSubsystem = depositSubsystem;
-
         addRequirements(depositSubsystem);
-    }
-
-    @Override
-    public void execute() {
-        depositSubsystem.depositServo.setPosition(depositSubsystem.getDepositPosition());
-    }
-
-    @Override
-    public void cancel() {
-        depositSubsystem.depositServo.setPosition(0);
-        CommandScheduler.getInstance().cancel(this);
     }
 }

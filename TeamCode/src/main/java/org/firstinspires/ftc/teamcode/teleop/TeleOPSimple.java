@@ -19,8 +19,8 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor rb = null;
     private DcMotor intakeMotor = null;
     private DcMotor slideMotor = null;
-    private DcMotor turretMotor = null;
 
+    private Servo turretServo = null;
     private Servo armServo = null;
     private Servo depositServo = null;
     private Servo iLifterServo = null;
@@ -49,14 +49,15 @@ public class TeleOPSimple extends LinearOpMode {
 
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        turretMotor = hardwareMap.get(DcMotor.class, "turretMotor");
 
         armServo = hardwareMap.get(Servo.class, "armServo");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
+        turretServo = hardwareMap.get(Servo.class, "turretServo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         armServo.setDirection(Servo.Direction.REVERSE);
+        turretServo.setDirection(Servo.Direction.REVERSE);
 
         armServo.setPosition(0);
         depositServo.setPosition(0);
@@ -71,23 +72,19 @@ public class TeleOPSimple extends LinearOpMode {
 
         // Set modes
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -134,18 +131,32 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(200);
             }
 
+            if (gamepad1.y) {
+                // 0 la -100
+                int newLeftTarget = 1;
+            }
+
+            if(gamepad2.dpad_up){
+                iLifterServo.setPosition(0.04);
+            }
+            if(gamepad2.dpad_down){
+                iLifterServo.setPosition(0.33);
+            }
+                // Ensure that the opmode is still active
+
             // Move slides manually
-            //slideMotor.setPower(-gamepad2.left_stick_y);
-            //turretMotor.setPower(-gamepad2.right_stick_y);
+            slideMotor.setPower(-gamepad2.left_stick_y);
+            turretServo.setPosition(-gamepad2.right_stick_y + 0.178);
 
            // Manually control servos
-            iLifterServo.setPosition(-gamepad2.right_stick_y);
-            armServo.setPosition(-gamepad2.left_stick_x);
-            depositServo.setPosition(-gamepad2.right_stick_x);
+            //iLifterServo.setPosition(-gamepad2.right_stick_y);
+            armServo.setPosition(gamepad2.left_trigger);
+            depositServo.setPosition(gamepad2.right_trigger);
+
 
             // Telemetry
             telemetry.addData("> Slide position: ", slideMotor.getCurrentPosition());
-            telemetry.addData("> Turret position: ", turretMotor.getCurrentPosition());
+            telemetry.addData("> Turret position: ", turretServo.getPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
             telemetry.addData( "> Arm Position" , armServo.getPosition());
