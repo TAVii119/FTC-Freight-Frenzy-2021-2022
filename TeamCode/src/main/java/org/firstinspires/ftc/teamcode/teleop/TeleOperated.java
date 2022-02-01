@@ -174,7 +174,7 @@ public class TeleOperated extends CommandOpMode {
         }, carouselSubsystem);
 
         useSlideCommand = new InstantCommand(() -> {
-            intakeSubsystem.reverseIntake();
+            intakeLiftSubsystem.lifterIntakePos();
             depositSubsystem.closeDeposit();
             armSubsystem.levelIntermediateArm();
 
@@ -186,9 +186,8 @@ public class TeleOperated extends CommandOpMode {
             }
             scoreTimer.pause();
 
-            intakeSubsystem.stopIntake();
+            intakeSubsystem.reverseIntake();
             turretSubsystem.moveTurretToHub();
-            intakeLiftSubsystem.lifterStraightPos();
 
             scoreTimer = new Timing.Timer(500);
             scoreTimer.start();
@@ -198,6 +197,8 @@ public class TeleOperated extends CommandOpMode {
             }
             scoreTimer.pause();
 
+            intakeLiftSubsystem.lifterStraightPos();
+            intakeSubsystem.stopIntake();
             slideSubsystem.moveSlideToHubLevel3();
             armSubsystem.level3Arm();
         }, intakeSubsystem, depositSubsystem, armSubsystem, slideSubsystem, turretSubsystem, intakeLiftSubsystem);
@@ -215,6 +216,15 @@ public class TeleOperated extends CommandOpMode {
             scoreTimer.pause();
 
             armSubsystem.levelIntermediateArm();
+
+            scoreTimer = new Timing.Timer(150);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+                // Wait for timer to end
+            }
+            scoreTimer.pause();
+
             intakeLiftSubsystem.lifterIntakePos();
             slideSubsystem.moveSlideToIntermediate();
 
@@ -249,6 +259,7 @@ public class TeleOperated extends CommandOpMode {
 
             armSubsystem.homeArm();
             intakeSubsystem.runIntake();
+            depositSubsystem.middleDeposit();
         }, slideSubsystem, armSubsystem, intakeSubsystem, turretSubsystem, depositSubsystem, intakeLiftSubsystem);
 
         moveTurretLeft = new InstantCommand(() -> {

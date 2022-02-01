@@ -7,7 +7,7 @@ public class IntakeLiftSubsystem extends SubsystemBase {
     private Servo iLifterServo;
     private double initPos = 0;
     private double straightPos = 0.04;
-    private double intakePos = 0.33;
+    private double intakePos = 0.32;
     public boolean isStraight = false;
 
     public IntakeLiftSubsystem(Servo iLifterServo) {

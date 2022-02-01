@@ -12,7 +12,7 @@ public class CarouselSubsystem extends SubsystemBase {
     }
 
     public void runCarousel(){
-        duckMotor.set(0.75);
+        duckMotor.set(1);
         isCarouselRunning = true;
     }
 
