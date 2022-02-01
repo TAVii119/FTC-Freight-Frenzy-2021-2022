@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,7 +20,8 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor slideMotor = null;
 
     private Servo turretServo = null;
-    private Servo armServo = null;
+    private Servo gbServoRight = null;
+    private Servo gbServoLeft = null;
     private Servo depositServo = null;
     private Servo iLifterServo = null;
 
@@ -50,16 +50,18 @@ public class TeleOPSimple extends LinearOpMode {
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
-        armServo = hardwareMap.get(Servo.class, "armServo");
+        gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
+        gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         turretServo = hardwareMap.get(Servo.class, "turretServo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
-        armServo.setDirection(Servo.Direction.REVERSE);
+        gbServoLeft.setDirection(Servo.Direction.REVERSE);
         turretServo.setDirection(Servo.Direction.REVERSE);
 
-        armServo.setPosition(0);
+        gbServoLeft.setPosition(0);
+        gbServoRight.setPosition(0);
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
 
@@ -69,6 +71,7 @@ public class TeleOPSimple extends LinearOpMode {
         lb.setDirection(DcMotor.Direction.REVERSE);
         rf.setDirection(DcMotor.Direction.FORWARD);
         rb.setDirection(DcMotor.Direction.FORWARD);
+        slideMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Set modes
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -145,13 +148,13 @@ public class TeleOPSimple extends LinearOpMode {
                 // Ensure that the opmode is still active
 
             // Move slides manually
-            slideMotor.setPower(-gamepad2.left_stick_y);
-            turretServo.setPosition(-gamepad2.right_stick_y + 0.178);
+            slideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            turretServo.setPosition(-gamepad2.right_stick_y);
 
            // Manually control servos
             //iLifterServo.setPosition(-gamepad2.right_stick_y);
-            armServo.setPosition(gamepad2.left_trigger);
-            depositServo.setPosition(gamepad2.right_trigger);
+            gbServoRight.setPosition(-gamepad2.left_stick_y);
+            gbServoLeft.setPosition(-gamepad2.left_stick_y);
 
 
             // Telemetry
@@ -159,7 +162,8 @@ public class TeleOPSimple extends LinearOpMode {
             telemetry.addData("> Turret position: ", turretServo.getPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
-            telemetry.addData( "> Arm Position" , armServo.getPosition());
+            telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
+            telemetry.addData("> Right Trigger: ", gamepad2.right_trigger);
             telemetry.update();
         }
     }

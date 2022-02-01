@@ -4,41 +4,48 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ArmSubsystem extends SubsystemBase {
-    private Servo armServo;
-    private double armHome = 0.015;
-    private double armLevel3 = 0.7;
-    private double armLevel2 = 0.5;
-    private double armLevel1 = 0.5;
-    private double intermediatePosition = 0.28;
+    private Servo gbServoRight;
+    private Servo gbServoLeft;
+    private double armHome = 0.03;
+    private double armLevel3 = 0.60;
+    private double armLevel2 = 0.29;
+    private double armLevel1 = 0.29;
+    private double intermediatePosition = 0.36;
 
     public boolean isArmExtended = false;
 
-    public ArmSubsystem(Servo armServo) {
-        this.armServo = armServo;
+    public ArmSubsystem(Servo gbServoRight, Servo gbServoLeft) {
+        this.gbServoRight = gbServoRight;
+        this.gbServoLeft = gbServoLeft;
     }
 
     public void homeArm() {
-        armServo.setPosition(armHome);
+        gbServoRight.setPosition(armHome);
+        gbServoLeft.setPosition(armHome);
         isArmExtended = false;
     }
 
     public void level3Arm() {
-        armServo.setPosition(armLevel3);
+        gbServoRight.setPosition(armLevel3);
+        gbServoLeft.setPosition(armLevel3);
         isArmExtended = true;
     }
 
     public void level2Arm() {
-        armServo.setPosition(armLevel2);
+        gbServoRight.setPosition(armLevel2);
+        gbServoLeft.setPosition(armLevel2);
         isArmExtended = true;
     }
 
     public void level1Arm(){
-        armServo.setPosition(armLevel1);
+        gbServoRight.setPosition(armLevel1);
+        gbServoLeft.setPosition(armLevel1);
         isArmExtended = true;
     }
 
     public void levelIntermediateArm(){
-        armServo.setPosition(intermediatePosition);
+        gbServoRight.setPosition(intermediatePosition);
+        gbServoLeft.setPosition(intermediatePosition);
         isArmExtended = true;
     }
 }

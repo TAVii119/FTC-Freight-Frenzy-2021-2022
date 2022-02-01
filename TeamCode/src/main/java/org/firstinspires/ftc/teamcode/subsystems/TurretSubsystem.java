@@ -6,12 +6,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class TurretSubsystem extends SubsystemBase {
     public Servo turretServo;
-    public double turretInitPos = 0.28;
-    public double turretHomePos = 0.178;
-    public double turretHubPos = 0.36;
+    public double turretInitPos = 0;
+    public double turretHomePos = 0;
+    public double turretHubPos = 0.20;
 
     public TurretSubsystem(Servo turretServo) {
         this.turretServo = turretServo;
+    }
+
+    public void turretManualControl(double rot){
+        turretServo.setPosition(turretServo.getPosition() + rot);
     }
 
     public void moveTurretToInit(){
@@ -25,5 +29,4 @@ public class TurretSubsystem extends SubsystemBase {
     public void moveTurretToHub(){
         turretServo.setPosition(turretHubPos);
     }
-
 }
