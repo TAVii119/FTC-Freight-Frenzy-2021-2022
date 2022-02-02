@@ -7,9 +7,6 @@ public class ArmSubsystem extends SubsystemBase {
     private Servo gbServoRight;
     private Servo gbServoLeft;
     private double armHome = 0.03;
-    private double armLevel3 = 0.60;
-    private double armLevel2 = 0.29;
-    private double armLevel1 = 0.29;
     private double intermediatePosition = 0.36;
 
     public boolean isArmExtended = false;
@@ -25,21 +22,9 @@ public class ArmSubsystem extends SubsystemBase {
         isArmExtended = false;
     }
 
-    public void level3Arm() {
-        gbServoRight.setPosition(armLevel3);
-        gbServoLeft.setPosition(armLevel3);
-        isArmExtended = true;
-    }
-
-    public void level2Arm() {
-        gbServoRight.setPosition(armLevel2);
-        gbServoLeft.setPosition(armLevel2);
-        isArmExtended = true;
-    }
-
-    public void level1Arm(){
-        gbServoRight.setPosition(armLevel1);
-        gbServoLeft.setPosition(armLevel1);
+    public void moveArm(double position) {
+        gbServoRight.setPosition(position);
+        gbServoLeft.setPosition(position);
         isArmExtended = true;
     }
 

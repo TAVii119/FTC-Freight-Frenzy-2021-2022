@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class SlideSubsystem extends SubsystemBase {
     public Motor slideMotor;
-    private int level3HubPosition = 2280;
-    private int level2HubPosition = 0;
-    private int level1HubPosition = 0;
+//    private int level3HubPosition = 2280;
+//    private int level2HubPosition = 0;
+//    private int level1HubPosition = 0;
     private int intermediatePosition = 1000;
     private int homePosition = 0;
     public int cycleCount = 0;
@@ -19,10 +19,10 @@ public class SlideSubsystem extends SubsystemBase {
 
     public void manualControl(double rightTrigger, double leftTrigger) {
         slideMotor.setRunMode(Motor.RunMode.RawPower);
-        slideMotor.set(rightTrigger - leftTrigger);
+        slideMotor.set((rightTrigger - leftTrigger) * 0.5);
     }
 
-    public void moveSlideToHubLevel3() {
+    public void moveSlideToHub(int position) {
         // set the run mode
         slideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -31,53 +31,7 @@ public class SlideSubsystem extends SubsystemBase {
         double kP = slideMotor.getPositionCoefficient();
 
         // set the target position
-        slideMotor.setTargetPosition(level3HubPosition); // an integer representing desired tick count
-
-        slideMotor.set(0);
-
-        // set the tolerance
-        slideMotor.setPositionTolerance(13.6);   // allowed maximum error
-
-        // perform the control loop
-        while (!slideMotor.atTargetPosition()) {
-            slideMotor.set(1);
-        }
-        slideMotor.stopMotor(); // stop the motor
-    }
-
-    public void moveSlideToHubLevel2() {
-        // set the run mode
-        slideMotor.setRunMode(Motor.RunMode.PositionControl);
-
-        // set and get the position coefficient
-        slideMotor.setPositionCoefficient(0.05);
-        double kP = slideMotor.getPositionCoefficient();
-
-        // set the target position
-        slideMotor.setTargetPosition(level2HubPosition); // an integer representing desired tick count
-
-        slideMotor.set(0);
-
-        // set the tolerance
-        slideMotor.setPositionTolerance(13.6);   // allowed maximum error
-
-        // perform the control loop
-        while (!slideMotor.atTargetPosition()) {
-            slideMotor.set(1);
-        }
-        slideMotor.stopMotor(); // stop the motor
-    }
-
-    public void moveSlideToHubLevel1() {
-        // set the run mode
-        slideMotor.setRunMode(Motor.RunMode.PositionControl);
-
-        // set and get the position coefficient
-        slideMotor.setPositionCoefficient(0.05);
-        double kP = slideMotor.getPositionCoefficient();
-
-        // set the target position
-        slideMotor.setTargetPosition(level1HubPosition); // an integer representing desired tick count
+        slideMotor.setTargetPosition(position); // an integer representing desired tick count
 
         slideMotor.set(0);
 

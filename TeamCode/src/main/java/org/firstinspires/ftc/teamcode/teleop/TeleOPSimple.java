@@ -64,6 +64,7 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
+        turretServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -134,27 +135,35 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(200);
             }
 
-            if (gamepad1.y) {
-                // 0 la -100
-                int newLeftTarget = 1;
-            }
-
-            if(gamepad2.dpad_up){
+            if(gamepad1.dpad_up){
                 iLifterServo.setPosition(0.04);
             }
-            if(gamepad2.dpad_down){
+            if(gamepad1.dpad_down){
                 iLifterServo.setPosition(0.33);
             }
-                // Ensure that the opmode is still active
+
+            if(gamepad2.dpad_right){
+                turretServo.setPosition(turretServo.getPosition() + 0.01);
+                sleep(500);
+            }
+            if(gamepad2.dpad_left){
+                turretServo.setPosition(turretServo.getPosition() - 0.01);
+                sleep(500);
+            }
+            if(gamepad2.dpad_up){
+                gbServoRight.setPosition(gbServoRight.getPosition() + 0.02);
+                gbServoLeft.setPosition(gbServoLeft.getPosition() +0.02);
+                sleep(500);
+
+            }
+            if(gamepad2.dpad_down){
+                gbServoRight.setPosition(gbServoRight.getPosition() - 0.02);
+                gbServoLeft.setPosition(gbServoLeft.getPosition() - 0.02);
+                sleep(500);
+            }
 
             // Move slides manually
             slideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-            turretServo.setPosition(-gamepad2.right_stick_y);
-
-           // Manually control servos
-            //iLifterServo.setPosition(-gamepad2.right_stick_y);
-            gbServoRight.setPosition(-gamepad2.left_stick_y);
-            gbServoLeft.setPosition(-gamepad2.left_stick_y);
 
 
             // Telemetry

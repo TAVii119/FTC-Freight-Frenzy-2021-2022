@@ -26,7 +26,8 @@ public class TurretSubsystem extends SubsystemBase {
         turretServo.setPosition(turretHomePos);
     }
 
-    public void moveTurretToHub(){
-        turretServo.setPosition(turretHubPos);
+    public void moveTurretToHub(double position){
+
+        turretServo.setPosition(position);
     }
 }

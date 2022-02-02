@@ -177,6 +177,25 @@ public class TeleOperated extends CommandOpMode {
             // To make sure our cycles are spread out evenly,
             // we place the first minerals further back and then gradually move forward.
             // We use cycleCount to keep track of our scoring cycles.
+
+            // Slide positions
+            int slideHub3RB = 2400;
+            int slideHub3LB = 2400;
+            int slideHub3RF = 2200;
+            int slideHub3LF = 2200;
+
+            // Arm positions
+            double armHub3RB = 0.60;
+            double armHub3LB = 0.60;
+            double armHub3RF = 0.60;
+            double armHub3LF = 0.60;
+
+            // Turret Positions
+            double turretHub3RB = 0.20;
+            double turretHub3LB = 0.20;
+            double turretHub3RF = 0.20;
+            double turretHub3LF = 0.20;
+
             intakeLiftSubsystem.lifterIntakePos();
             depositSubsystem.closeDeposit();
             armSubsystem.levelIntermediateArm();
@@ -189,21 +208,96 @@ public class TeleOperated extends CommandOpMode {
             }
             scoreTimer.pause();
 
-            intakeSubsystem.reverseIntake();
-            turretSubsystem.moveTurretToHub();
+            if (slideSubsystem.cycleCount >= 0 && slideSubsystem.cycleCount <=3) {
+                turretSubsystem.moveTurretToHub(turretHub3RB);
 
-            scoreTimer = new Timing.Timer(500);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-                // Wait for timer to end
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.moveSlideToHub(slideHub3RB);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                armSubsystem.moveArm(armHub3RB);
+            } else if (slideSubsystem.cycleCount >= 4 && slideSubsystem.cycleCount <=6) {
+                turretSubsystem.moveTurretToHub(turretHub3LB);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.moveSlideToHub(slideHub3LB);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                armSubsystem.moveArm(armHub3LB);
+            } else if (slideSubsystem.cycleCount >=7 && slideSubsystem.cycleCount <=9) {
+                turretSubsystem.moveTurretToHub(turretHub3RF);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.moveSlideToHub(slideHub3RF);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                armSubsystem.moveArm(armHub3RF);
+            } else {
+                turretSubsystem.moveTurretToHub(turretHub3LF);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.moveSlideToHub(slideHub3LF);
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                armSubsystem.moveArm(armHub3LF);
             }
-            scoreTimer.pause();
 
-            intakeLiftSubsystem.lifterStraightPos();
-            intakeSubsystem.stopIntake();
-            slideSubsystem.moveSlideToHubLevel3();
-            armSubsystem.level3Arm();
         }, intakeSubsystem, depositSubsystem, armSubsystem, slideSubsystem, turretSubsystem, intakeLiftSubsystem);
 
         returnSlideCommand = new InstantCommand(() -> {
