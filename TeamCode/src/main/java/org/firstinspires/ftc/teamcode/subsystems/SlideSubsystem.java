@@ -11,6 +11,7 @@ public class SlideSubsystem extends SubsystemBase {
     private int level1HubPosition = 0;
     private int intermediatePosition = 1000;
     private int homePosition = 0;
+    public int cycleCount = 0;
 
     public SlideSubsystem(Motor slideMotor) {
         this.slideMotor = slideMotor;

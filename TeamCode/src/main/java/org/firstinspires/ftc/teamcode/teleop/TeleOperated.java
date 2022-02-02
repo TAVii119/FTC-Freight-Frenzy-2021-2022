@@ -174,6 +174,9 @@ public class TeleOperated extends CommandOpMode {
         }, carouselSubsystem);
 
         useSlideCommand = new InstantCommand(() -> {
+            // To make sure our cycles are spread out evenly,
+            // we place the first minerals further back and then gradually move forward.
+            // We use cycleCount to keep track of our scoring cycles.
             intakeLiftSubsystem.lifterIntakePos();
             depositSubsystem.closeDeposit();
             armSubsystem.levelIntermediateArm();
@@ -260,6 +263,7 @@ public class TeleOperated extends CommandOpMode {
             armSubsystem.homeArm();
             intakeSubsystem.runIntake();
             depositSubsystem.middleDeposit();
+            slideSubsystem.cycleCount++;
         }, slideSubsystem, armSubsystem, intakeSubsystem, turretSubsystem, depositSubsystem, intakeLiftSubsystem);
 
         moveTurretLeft = new InstantCommand(() -> {

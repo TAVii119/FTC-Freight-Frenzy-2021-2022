@@ -125,6 +125,7 @@ android {
 }
 
 repositories {
+    maven {url = 'https://maven.brott.dev/'}
     flatDir {
         dirs rootProject.file('libs')
     }
