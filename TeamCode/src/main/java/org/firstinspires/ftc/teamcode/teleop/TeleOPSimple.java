@@ -17,9 +17,7 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor lb = null;
     private DcMotor rb = null;
     private DcMotor intakeMotor = null;
-    private DcMotor slideMotor = null;
 
-    private Servo turretServo = null;
     private Servo gbServoRight = null;
     private Servo gbServoLeft = null;
     private Servo depositServo = null;
@@ -32,7 +30,6 @@ public class TeleOPSimple extends LinearOpMode {
 
     // Servo positions
     double depositClose = 0.00, depositOpen = 0.00;
-    double armRetracted = 0.00, armExtended = 0.00;
 
     @Override
     public void runOpMode() {
@@ -47,24 +44,20 @@ public class TeleOPSimple extends LinearOpMode {
         lb = hardwareMap.get(DcMotor.class, "lb");
         rb = hardwareMap.get(DcMotor.class, "rb");
 
-        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
-        turretServo = hardwareMap.get(Servo.class, "turretServo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
-        turretServo.setDirection(Servo.Direction.REVERSE);
 
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
-        turretServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -72,23 +65,18 @@ public class TeleOPSimple extends LinearOpMode {
         lb.setDirection(DcMotor.Direction.REVERSE);
         rf.setDirection(DcMotor.Direction.FORWARD);
         rb.setDirection(DcMotor.Direction.FORWARD);
-        slideMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Set modes
-        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -136,20 +124,14 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             if(gamepad1.dpad_up){
-                iLifterServo.setPosition(0.04);
+                iLifterServo.setPosition(iLifterServo.getPosition() +0.02);
+                sleep(500);
             }
             if(gamepad1.dpad_down){
-                iLifterServo.setPosition(0.33);
+                iLifterServo.setPosition(iLifterServo.getPosition() -0.02);
+                sleep(500);
             }
 
-            if(gamepad2.dpad_right){
-                turretServo.setPosition(turretServo.getPosition() + 0.01);
-                sleep(500);
-            }
-            if(gamepad2.dpad_left){
-                turretServo.setPosition(turretServo.getPosition() - 0.01);
-                sleep(500);
-            }
             if(gamepad2.dpad_up){
                 gbServoRight.setPosition(gbServoRight.getPosition() + 0.02);
                 gbServoLeft.setPosition(gbServoLeft.getPosition() +0.02);
@@ -162,17 +144,21 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(500);
             }
 
-            // Move slides manually
-            slideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            if(gamepad2.dpad_left){
+                depositServo.setPosition(depositServo.getPosition() -0.02);
+                sleep(500);
+            }
+            if(gamepad2.dpad_right){
+                depositServo.setPosition(depositServo.getPosition() +0.02);
+                sleep(500);
+            }
+
 
 
             // Telemetry
-            telemetry.addData("> Slide position: ", slideMotor.getCurrentPosition());
-            telemetry.addData("> Turret position: ", turretServo.getPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
             telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
-            telemetry.addData("> Right Trigger: ", gamepad2.right_trigger);
             telemetry.update();
         }
     }

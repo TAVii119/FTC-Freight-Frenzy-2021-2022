@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
@@ -35,7 +34,6 @@ public class TeleOperated extends CommandOpMode {
 
     private Motor intakeMotor;
     private Motor duckMotor;
-
 
     private Servo depositServo;
     private Servo iLifterServo;
@@ -87,9 +85,6 @@ public class TeleOperated extends CommandOpMode {
         intakeMotor = new Motor(hardwareMap, "intakeMotor");
         duckMotor = new Motor(hardwareMap, "duckMotor");
 
-        gbServoLeft= hardwareMap.get(Servo.class, "gbServoLeft");
-        gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
-
         // Set zero power behavior
         intakeMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -101,6 +96,8 @@ public class TeleOperated extends CommandOpMode {
         // Get servo hardware
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
+        gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
+        gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
 
         // Invert servos
         depositServo.setDirection(Servo.Direction.REVERSE);
@@ -108,13 +105,13 @@ public class TeleOperated extends CommandOpMode {
         // Home all servos
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
+        gbServoLeft.setPosition(0);
+        gbServoRight.setPosition(0);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
 
         // Initialize subsystems and commands
-        driveSubsystem = new DriveSubsystem(lf, rf, lb, rb);
-        driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftX, driver1::getLeftY, driver1::getRightX);
 
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem);
@@ -128,6 +125,9 @@ public class TeleOperated extends CommandOpMode {
 
         fourBarSubsystem = new FourBarSubsystem(gbServoLeft, gbServoRight);
         fourBarCommand = new FourBarCommand(fourBarSubsystem);
+
+        driveSubsystem = new DriveSubsystem(lf, rf, lb, rb);
+        driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftX, driver1::getLeftY, driver1::getRightX);
 
         // Instant commands
         intakeRunCommand = new InstantCommand(() -> {
@@ -153,9 +153,20 @@ public class TeleOperated extends CommandOpMode {
         }, carouselSubsystem);
 
         moveFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setLevel();
             depositSubsystem.closeDeposit();
-        }, fourBarSubsystem);
+            intakeSubsystem.reverseIntake();
+
+            scoreTimer = new Timing.Timer(500);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+                // Wait for timer to end
+            }
+            scoreTimer.pause();
+
+            intakeSubsystem.stopIntake();
+            fourBarSubsystem.setLevel();
+        }, fourBarSubsystem, depositSubsystem, intakeSubsystem);
 
         levelTopFourBarCommand = new InstantCommand(()-> {
             fourBarSubsystem.setDesiredLevel(2);
