@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
@@ -54,14 +55,16 @@ public class TeleOperated extends CommandOpMode {
 
     private IntakeLiftSubsystem intakeLiftSubsystem;
 
-    private FourBarCommand fourBarCommand;
     private FourBarSubsystem fourBarSubsystem;
+    private FourBarCommand fourBarCommand;
 
     // Declare instant commands, these are commands that run upon a button press
     private InstantCommand intakeRunCommand;
     private InstantCommand intakeReverseCommand;
     private InstantCommand liftIntakeCommand;
     private InstantCommand carouselCommand;
+    private InstantCommand pushDepositCommand;
+
     private InstantCommand levelTopFourBarCommand;
     private InstantCommand levelMidFourBarCommand;
     private InstantCommand levelLowFourBarCommand;
@@ -71,6 +74,7 @@ public class TeleOperated extends CommandOpMode {
 
     // Declare gamepads
     GamepadEx driver1;
+    GamepadEx driver2;
 
     @Override
     public void initialize() {
@@ -101,15 +105,17 @@ public class TeleOperated extends CommandOpMode {
 
         // Invert servos
         depositServo.setDirection(Servo.Direction.REVERSE);
+        gbServoLeft.setDirection(Servo.Direction.REVERSE);
 
         // Home all servos
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
-        gbServoLeft.setPosition(0);
-        gbServoRight.setPosition(0);
+        gbServoLeft.setPosition(0.03);
+        gbServoRight.setPosition(0.03);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
+        driver2 = new GamepadEx(gamepad2);
 
         // Initialize subsystems and commands
 
@@ -133,18 +139,34 @@ public class TeleOperated extends CommandOpMode {
         intakeRunCommand = new InstantCommand(() -> {
             if (intakeMotor.get() != 0)
                 intakeSubsystem.stopIntake();
-            else intakeSubsystem.runIntake();
-        }, intakeSubsystem);
+            else
+                intakeSubsystem.runIntake();
+        }, intakeSubsystem, fourBarSubsystem, depositSubsystem);
+
+        pushDepositCommand = new InstantCommand(() ->{
+          depositSubsystem.pushDeposit();
+            scoreTimer = new Timing.Timer(500);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+                // Wait for timer to end
+            }
+            fourBarSubsystem.fourBarIntakePos();
+            depositSubsystem.openDeposit();
+        }, depositSubsystem, fourBarSubsystem, depositSubsystem);
+
 
         intakeReverseCommand = new InstantCommand(() -> {
             intakeSubsystem.reverseIntake();
         }, intakeSubsystem);
 
+
         liftIntakeCommand = new InstantCommand(() -> {
             if (intakeLiftSubsystem.isStraight || iLifterServo.getPosition() == 0.0)
                 intakeLiftSubsystem.lifterIntakePos();
-            else intakeLiftSubsystem.lifterStraightPos();
+            else intakeLiftSubsystem.lifterIntakePos();
         }, intakeLiftSubsystem);
+
 
         carouselCommand = new InstantCommand(() -> {
             if (carouselSubsystem.isCarouselRunning)
@@ -152,7 +174,7 @@ public class TeleOperated extends CommandOpMode {
             else carouselSubsystem.runCarousel();
         }, carouselSubsystem);
 
-        moveFourBarCommand = new InstantCommand(()-> {
+        moveFourBarCommand = new InstantCommand(() -> {
             depositSubsystem.closeDeposit();
             intakeSubsystem.reverseIntake();
 
@@ -165,20 +187,22 @@ public class TeleOperated extends CommandOpMode {
             scoreTimer.pause();
 
             intakeSubsystem.stopIntake();
-            fourBarSubsystem.setLevel();
-        }, fourBarSubsystem, depositSubsystem, intakeSubsystem);
+            fourBarSubsystem.fourBarTopPos();
+        },  fourBarSubsystem, depositSubsystem, intakeSubsystem);
 
         levelTopFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(2);
-        }, fourBarSubsystem, depositSubsystem);
+            fourBarSubsystem.fourBarTopPos();
+        },  fourBarSubsystem);
+
 
         levelMidFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(3);
-        }, fourBarSubsystem, depositSubsystem, intakeSubsystem);
+            fourBarSubsystem.fourBarMidPos();
+        },  fourBarSubsystem);
+
 
         levelLowFourBarCommand = new InstantCommand(()-> {
-            fourBarSubsystem.setDesiredLevel(4);
-        }, fourBarSubsystem, depositSubsystem);
+            fourBarSubsystem.fourBarLowPos();
+        },  fourBarSubsystem);
 
 
         // State the buttons that run commands
@@ -187,12 +211,13 @@ public class TeleOperated extends CommandOpMode {
         Button intakeReverseButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(intakeReverseCommand);
         Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(carouselCommand);
         Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(liftIntakeCommand);
+        Button pushDepositButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(pushDepositCommand);
 
-
-        Button levelLowButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_DOWN).whenPressed(levelLowFourBarCommand);
-        Button levelMidButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_RIGHT).whenPressed(levelMidFourBarCommand);
-        Button levelTopButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(levelTopFourBarCommand);
+        // Buttons for the fourBar Commands(Low, Mid, Top)
         Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(moveFourBarCommand);
+        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);
+        Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(levelMidFourBarCommand);
+        Button levelTopButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(levelTopFourBarCommand);
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)
         register(driveSubsystem, depositSubsystem, intakeSubsystem, carouselSubsystem, intakeLiftSubsystem, fourBarSubsystem);
