@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class FourBarSubsystem extends SubsystemBase {
     public Servo gbServoLeft, gbServoRight;
-    private double fourBarTop = 0.64;
-    private double fourBarMid = 0.76;
-    private double fourBarLow = 0.86;
+    private double fourBarTop = 0.57;
+    private double fourBarMid = 0.72;
+    private double fourBarLow = 0.83;
     private double fourBarIntake = 0.03;
     double fourBarPosition = 0.02;
 
@@ -16,23 +16,26 @@ public class FourBarSubsystem extends SubsystemBase {
         this.gbServoRight = gbServoRight;
     }
 
-    public void fourBarTopPos(){
-        fourBarPosition = fourBarTop;
+    public void fourBarTopPos() {
+        gbServoLeft.setPosition(fourBarTop);
+        gbServoRight.setPosition(fourBarTop);
     }
 
-    public void fourBarMidPos(){
-        fourBarPosition = fourBarMid;
+    public void fourBarMidPos() {
+        gbServoLeft.setPosition(fourBarMid);
+        gbServoRight.setPosition(fourBarMid);
     }
 
-    public void fourBarLowPos(){
-        fourBarPosition = fourBarLow;
+    public void fourBarLowPos() {
+        gbServoLeft.setPosition(fourBarLow);
+        gbServoRight.setPosition(fourBarLow);
     }
 
 
     public void fourBarIntakePos(){
-        fourBarPosition = fourBarIntake;
+        gbServoLeft.setPosition(fourBarIntake);
+        gbServoRight.setPosition(fourBarIntake);
     }
 
-    public double getFourBarPosition(){ return fourBarPosition;
-    }
+
 }

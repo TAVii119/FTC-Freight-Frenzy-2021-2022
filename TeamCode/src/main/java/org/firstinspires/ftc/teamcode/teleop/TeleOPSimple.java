@@ -22,6 +22,7 @@ public class TeleOPSimple extends LinearOpMode {
     private Servo gbServoLeft = null;
     private Servo depositServo = null;
     private Servo iLifterServo = null;
+    private Servo tseServo = null;
 
     double lfPower, rfPower, lbPower, rbPower;
     boolean isDepositOpen = true;
@@ -50,14 +51,17 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
+        tseServo = hardwareMap.get(Servo.class, "tseServo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
+        tseServo.setDirection(Servo.Direction.REVERSE);
 
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
         iLifterServo.setPosition(0);
+        tseServo.setPosition(0);
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         lf.setDirection(DcMotor.Direction.REVERSE);
@@ -143,11 +147,11 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(500);
             }
 
-            if(gamepad2.dpad_left){
+            if (gamepad2.dpad_left){
                 depositServo.setPosition(depositServo.getPosition() -0.02);
                 sleep(500);
             }
-            if(gamepad2.dpad_right){
+            if (gamepad2.dpad_right){
                 depositServo.setPosition(depositServo.getPosition() +0.02);
                 sleep(500);
             }
@@ -158,6 +162,7 @@ public class TeleOPSimple extends LinearOpMode {
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
             telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
+            telemetry.addData( ">TSE Position", tseServo.getPosition());
             telemetry.update();
         }
     }
