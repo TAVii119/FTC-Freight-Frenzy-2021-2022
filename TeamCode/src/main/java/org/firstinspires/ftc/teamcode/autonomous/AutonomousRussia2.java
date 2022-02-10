@@ -94,30 +94,97 @@ public class AutonomousRussia2 extends LinearOpMode {
         }
     }
 
-    Pose2d startPose = new Pose2d(-63.0, 49.0, Math.toRadians(0.0));
+    Pose2d startPose = new Pose2d(-14, -62, Math.toRadians(265.0));
+
+    // Y e spre perete
 
     private void caseC(SampleMecanumDrive drive) {
         drive.setPoseEstimate(startPose);
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .back(20)
+                .lineTo(new Vector2d(-15, -42))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(startPose)
-                .forward(5)
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
+                .lineToSplineHeading(new Pose2d(-60, -56, Math.toRadians(190)))
+                .build();
+
+        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+                .forward(1)
+                .build();
+
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
+                .back(30)
+                .build();
+
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
+                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
+                .build();
+
+        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
+                .strafeRight(10)
+                .build();
+
+        Trajectory traj7 = drive.trajectoryBuilder(traj6.end())
+                .lineTo(new Vector2d(37, -68))
+                .build();
+
+        Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
+                .back(40)
+                .build();
+
+        Trajectory traj9 = drive.trajectoryBuilder(traj8.end())
+                .strafeLeft(20)
+                .build();
+
+        Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
+                .lineToSplineHeading(new Pose2d(-12, -37, Math.toRadians(250)))
+                .build();
+
+        Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
+                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
+                .build();
+
+        Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
+                .strafeRight(11)
+                .build();
+
+        Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
+                .lineToSplineHeading(new Pose2d(37, -68, Math.toRadians(330)))
                 .build();
 
         // Run trajectories
         drive.followTrajectory(traj1);
         liftIntake();
-        sleep(250);
+        sleep(150);
         goToLevel3();
         sleep(1000);
         pushDeposit();
+        useIntake();
 
         drive.followTrajectory(traj2);
+        drive.followTrajectory(traj3);
 
+        runCarousel();
+        sleep(800);
+        runCarousel();
+
+        drive.followTrajectory(traj4);
+        drive.followTrajectory(traj5);
+        drive.followTrajectory(traj6);
+        useIntake();
+        drive.followTrajectory(traj7);
+        useIntake();
+        goToLevel3();
+        drive.followTrajectory(traj8);
+        drive.followTrajectory(traj9);
+        drive.followTrajectory(traj10);
+        pushDeposit();
+        drive.followTrajectory(traj11);
+        drive.followTrajectory(traj12);
+        useIntake();
+        drive.followTrajectory(traj13);
     }
 
     public void goToLevel1() {
@@ -151,7 +218,7 @@ public class AutonomousRussia2 extends LinearOpMode {
         depositServo.setPosition(0.64);
 
         // Wait for minerals to be ejected from deposit
-        sleep(250);
+        sleep(300);
 
         gbServoLeft.setPosition(0.03);
         gbServoRight.setPosition(0.03);
