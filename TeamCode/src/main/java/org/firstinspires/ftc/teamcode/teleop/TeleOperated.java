@@ -106,6 +106,11 @@ public class TeleOperated extends CommandOpMode {
         duckMotor = new Motor(hardwareMap, "duckMotor");
 
         // Set zero power behavior
+        lf.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        rf.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        lb.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        rb.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
         intakeMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
@@ -128,8 +133,8 @@ public class TeleOperated extends CommandOpMode {
         // Home all servos
         depositServo.setPosition(0.16);
         iLifterServo.setPosition(0);
-        gbServoLeft.setPosition(0.03);
-        gbServoRight.setPosition(0.03);
+        gbServoLeft.setPosition(0.038);
+        gbServoRight.setPosition(0.038);
         tseServo.setPosition(0.02);
 
         // Assign gamepads to drivers
@@ -171,7 +176,8 @@ public class TeleOperated extends CommandOpMode {
             }
             scoreTimer.pause();
 
-            fourBarSubsystem.fourBarIntakePos();
+            if(fourBarSubsystem.fourBarTopCheck)
+            {fourBarSubsystem.fourBarIntakePos();
             intakeSubsystem.runIntake();
             depositSubsystem.openDeposit();
 
@@ -183,7 +189,35 @@ public class TeleOperated extends CommandOpMode {
             }
             scoreTimer.pause();
 
-            intakeLiftSubsystem.lifterIntakePos();
+            intakeLiftSubsystem.lifterIntakePos();}
+            else if(fourBarSubsystem.fourBarMidCheck)
+            {fourBarSubsystem.fourBarIntakePos();
+                intakeSubsystem.runIntake();
+                depositSubsystem.openDeposit();
+
+                scoreTimer = new Timing.Timer(1200);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                intakeLiftSubsystem.lifterIntakePos();}
+            else if(fourBarSubsystem.fourBarLowCheck)
+            {fourBarSubsystem.fourBarIntakePos();
+                intakeSubsystem.runIntake();
+                depositSubsystem.openDeposit();
+
+                scoreTimer = new Timing.Timer(1500);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+                    // Wait for timer to end
+                }
+                scoreTimer.pause();
+
+                intakeLiftSubsystem.lifterIntakePos();}
         });
 
         // Instant commands
@@ -221,14 +255,17 @@ public class TeleOperated extends CommandOpMode {
         // Insant Comamnds for the FourBar
 
         levelTopFourBarCommand = new InstantCommand(()-> {
+            intakeLiftSubsystem.iLifterfourBarPos();
             fourBarSubsystem.fourBarTopPos();
         },  fourBarSubsystem);
 
         levelMidFourBarCommand = new InstantCommand(()-> {
+            intakeLiftSubsystem.iLifterfourBarPos();
             fourBarSubsystem.fourBarMidPos();
         },  fourBarSubsystem);
 
         levelLowFourBarCommand = new InstantCommand(()-> {
+            intakeLiftSubsystem.iLifterfourBarPos();
             fourBarSubsystem.fourBarLowPos();
         },  fourBarSubsystem);
 

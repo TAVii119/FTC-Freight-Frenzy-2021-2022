@@ -14,6 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.Vision.BarCodeDetection;
+import org.firstinspires.ftc.teamcode.Vision.BarcodeUtil;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
@@ -30,9 +32,16 @@ public class AutonomousRussia extends LinearOpMode {
     private Servo gbServoLeft;
     private Servo tseServo;
 
+    BarcodeUtil webcamUtil;
+    BarCodeDetection.BarcodePosition TSEPosition;
+
     @Override
     public void runOpMode()
     {
+        webcamUtil = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry);
+        webcamUtil.init();
+
+
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         duckMotor = hardwareMap.get(DcMotor.class, "duckMotor");
@@ -63,6 +72,7 @@ public class AutonomousRussia extends LinearOpMode {
 
         while (opModeIsActive())
         {
+            TSEPosition = webcamUtil.getBarcodePosition();
             final int robotRadius = 9; // inches
             // Don't burn CPU cycles busy-looping in this sample
             sleep(50);
@@ -89,10 +99,14 @@ public class AutonomousRussia extends LinearOpMode {
 //                sleep(30000);
 //            }
 
-            caseC(drive);
-            //caseB(drive);
-
-            //caseA(drive);
+            if(TSEPosition == BarCodeDetection.BarcodePosition.RIGHT)
+                caseC(drive);
+            else if(TSEPosition == BarCodeDetection.BarcodePosition.MIDDLE)
+                caseB(drive);
+            else if(TSEPosition == BarCodeDetection.BarcodePosition.LEFT)
+                caseA(drive);
+            else
+                caseC(drive);
             sleep(30000);
         }
     }
@@ -110,11 +124,11 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-60, -56, Math.toRadians(190)))
+                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .forward(1)
+                .forward(2)
                 .build();
 
         Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
@@ -150,11 +164,11 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
-                .strafeRight(11)
+                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(330)))
                 .build();
 
         Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
-                .lineToSplineHeading(new Pose2d(37, -68, Math.toRadians(330)))
+                .lineTo(new Vector2d(37, -68))
                 .build();
 
         // Run trajectories
@@ -195,11 +209,11 @@ public class AutonomousRussia extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-15, -50))
+                .lineTo(new Vector2d(-15, -51))
                 .build();
 
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-60, -56, Math.toRadians(190)))
+                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
@@ -231,7 +245,7 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
-                .lineToSplineHeading(new Pose2d(-12, -37, Math.toRadians(250)))
+                .lineToSplineHeading(new Pose2d(-8, -33, Math.toRadians(250)))
                 .build();
 
         Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
@@ -239,11 +253,11 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
-                .strafeRight(11)
+                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(330)))
                 .build();
 
         Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
-                .lineToSplineHeading(new Pose2d(37, -68, Math.toRadians(330)))
+                .lineTo(new Vector2d(37, -68))
                 .build();
 
         // Run trajectories
@@ -284,15 +298,15 @@ public class AutonomousRussia extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-15, -52))
+                .lineTo(new Vector2d(-15, -51.5))
                 .build();
 
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-60, -56, Math.toRadians(190)))
+                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .forward(1)
+                .forward(2)
                 .build();
 
         Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
@@ -320,7 +334,7 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
-                .lineToSplineHeading(new Pose2d(-12, -37, Math.toRadians(250)))
+                .lineToSplineHeading(new Pose2d(-6, -32, Math.toRadians(250)))
                 .build();
 
         Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
@@ -328,11 +342,11 @@ public class AutonomousRussia extends LinearOpMode {
                 .build();
 
         Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
-                .strafeRight(11)
+                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(330)))
                 .build();
 
         Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
-                .lineToSplineHeading(new Pose2d(37, -68, Math.toRadians(330)))
+                .lineTo(new Vector2d(37, -68))
                 .build();
 
         // Run trajectories
@@ -391,8 +405,8 @@ public class AutonomousRussia extends LinearOpMode {
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
         sleep(500);
-        gbServoRight.setPosition(0.57);
-        gbServoLeft.setPosition(0.57);
+        gbServoRight.setPosition(0.58);
+        gbServoLeft.setPosition(0.58);
     }
 
     public void pushDeposit() {
@@ -406,7 +420,7 @@ public class AutonomousRussia extends LinearOpMode {
         intakeMotor.setPower(0.5);
         depositServo.setPosition(0.16);
 
-        sleep(950);
+        sleep(1100);
 
         iLifterServo.setPosition(0.20);
     }
