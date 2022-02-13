@@ -27,6 +27,7 @@ public class AutonomousRussia extends LinearOpMode {
     private DcMotor duckMotor;
 
     private Servo depositServo;
+    private Servo deposit2;
     private Servo iLifterServo;
     private Servo gbServoRight;
     private Servo gbServoLeft;
@@ -53,6 +54,7 @@ public class AutonomousRussia extends LinearOpMode {
         duckMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         depositServo = hardwareMap.get(Servo.class, "depositServo");
+        deposit2 = hardwareMap.get(Servo.class, "deposit2Servo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
@@ -63,6 +65,7 @@ public class AutonomousRussia extends LinearOpMode {
         tseServo.setDirection(Servo.Direction.REVERSE);
 
         depositServo.setPosition(0.16);
+        deposit2.setPosition(0);
         iLifterServo.setPosition(0);
         gbServoLeft.setPosition(0.03);
         gbServoRight.setPosition(0.03);
@@ -383,7 +386,8 @@ public class AutonomousRussia extends LinearOpMode {
     }
 
     public void goToLevel1() {
-        depositServo.setPosition(0.38);
+        deposit2.setPosition(0);
+        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
 
@@ -392,7 +396,8 @@ public class AutonomousRussia extends LinearOpMode {
     }
 
     public void goToLevel2() {
-        depositServo.setPosition(0.38);
+        deposit2.setPosition(0);
+        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
 
@@ -401,7 +406,8 @@ public class AutonomousRussia extends LinearOpMode {
     }
 
     public void goToLevel3() {
-        depositServo.setPosition(0.38);
+        deposit2.setPosition(0);
+        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
         sleep(500);
@@ -410,6 +416,7 @@ public class AutonomousRussia extends LinearOpMode {
     }
 
     public void pushDeposit() {
+        deposit2.setPosition(0.28);
         depositServo.setPosition(0.64);
 
         // Wait for minerals to be ejected from deposit
@@ -423,6 +430,7 @@ public class AutonomousRussia extends LinearOpMode {
         sleep(1100);
 
         iLifterServo.setPosition(0.20);
+        deposit2.setPosition(0);
     }
 
     public void useIntake() {

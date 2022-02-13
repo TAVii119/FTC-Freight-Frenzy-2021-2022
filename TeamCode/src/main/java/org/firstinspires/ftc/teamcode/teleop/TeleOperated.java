@@ -37,7 +37,8 @@ public class TeleOperated extends CommandOpMode {
     private Motor intakeMotor;
     private Motor duckMotor;
 
-    private Servo depositServo;
+    private Servo deposit1;
+    private Servo deposit2;
     private Servo iLifterServo;
     private Servo gbServoRight;
     private Servo gbServoLeft;
@@ -119,22 +120,24 @@ public class TeleOperated extends CommandOpMode {
         duckMotor.setInverted(true);
 
         // Get servo hardware
-        depositServo = hardwareMap.get(Servo.class, "depositServo");
+        deposit1 = hardwareMap.get(Servo.class, "depositServo");
+        deposit2 = hardwareMap.get(Servo.class, "deposit2Servo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
         tseServo = hardwareMap.get(Servo.class, "tseServo");
 
         // Invert servos
-        depositServo.setDirection(Servo.Direction.REVERSE);
+        deposit1.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
         tseServo.setDirection(Servo.Direction.REVERSE);
 
         // Home all servos
-        depositServo.setPosition(0.16);
+        deposit1.setPosition(0.16);
+        deposit2.setPosition(0);
         iLifterServo.setPosition(0);
-        gbServoLeft.setPosition(0.038);
-        gbServoRight.setPosition(0.038);
+        gbServoLeft.setPosition(0.035);
+        gbServoRight.setPosition(0.035);
         tseServo.setPosition(0.02);
 
         // Assign gamepads to drivers
@@ -146,7 +149,7 @@ public class TeleOperated extends CommandOpMode {
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem);
 
-        depositSubsystem = new DepositSubsystem(depositServo);
+        depositSubsystem = new DepositSubsystem(deposit1, deposit2);
         depositCommand = new DepositCommand(depositSubsystem);
 
         carouselSubsystem = new CarouselSubsystem(duckMotor);

@@ -18,6 +18,7 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor rb = null;
     private DcMotor intakeMotor = null;
 
+    private Servo deposit2;
     private Servo gbServoRight = null;
     private Servo gbServoLeft = null;
     private Servo depositServo = null;
@@ -52,6 +53,7 @@ public class TeleOPSimple extends LinearOpMode {
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         tseServo = hardwareMap.get(Servo.class, "tseServo");
+        deposit2 = hardwareMap.get(Servo.class, "deposit2Servo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
@@ -148,17 +150,18 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             if (gamepad2.dpad_left){
-                depositServo.setPosition(depositServo.getPosition() -0.02);
+                deposit2.setPosition(deposit2.getPosition() -0.02);
                 sleep(500);
             }
             if (gamepad2.dpad_right){
-                depositServo.setPosition(depositServo.getPosition() +0.02);
+                deposit2.setPosition(deposit2.getPosition() +0.02);
                 sleep(500);
             }
 
 
 
             // Telemetry
+            telemetry.addData("Deposit2 Servo", deposit2.getPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
             telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
