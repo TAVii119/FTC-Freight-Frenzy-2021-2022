@@ -18,11 +18,12 @@ import org.firstinspires.ftc.teamcode.Vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.Vision.BarcodeUtil;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.Arrays;
 
-@Autonomous(name = "Autonomous Test")
-public class AutonomousTest extends LinearOpMode {
+@Autonomous(name = "AutonomieTimisoara")
+public class AutonomieTimisoara extends LinearOpMode {
     private DcMotor intakeMotor;
     private DcMotor duckMotor;
 
@@ -67,8 +68,8 @@ public class AutonomousTest extends LinearOpMode {
         depositServo.setPosition(0.16);
         deposit2.setPosition(0);
         iLifterServo.setPosition(0);
-        gbServoLeft.setPosition(0.03);
-        gbServoRight.setPosition(0.03);
+        gbServoLeft.setPosition(0.028);
+        gbServoRight.setPosition(0.028);
         tseServo.setPosition(0.02);
 
         waitForStart();
@@ -114,7 +115,7 @@ public class AutonomousTest extends LinearOpMode {
         }
     }
 
-    Pose2d startPose = new Pose2d(-12, -62, Math.toRadians(265.0));
+    Pose2d startPose = new Pose2d(-12, -62, Math.toRadians(270));
 
     // Y e spre perete
 
@@ -123,35 +124,33 @@ public class AutonomousTest extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-12, -42))
+                .lineTo(new Vector2d(-12, -44))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
+                .forward(0.5)
                 .build();
 
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .forward(2)
-                .build();
-
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .back(30)
-                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
+                .back(25)
+                .turn(Math.toRadians(150))
+                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
                 .build();
 
         Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
-                .lineTo(new Vector2d(37, -68))
+                .forward(35)
                 .build();
 
-        Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
-                .back(40)
-                .lineToSplineHeading(new Pose2d(-12, -37, Math.toRadians(270)))
+        TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(35)
+                .lineToLinearHeading(new Pose2d(-10.5, -41.5, Math.toRadians(270)))
                 .build();
 
-
-        Trajectory traj11 = drive.trajectoryBuilder(traj8.end())
-                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(360)))
-                .lineTo(new Vector2d(39, -68))
+        TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
+                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
+                .turn(-Math.toRadians(5))
+                .forward(37)
                 .build();
 
         // Run trajectories
@@ -159,26 +158,25 @@ public class AutonomousTest extends LinearOpMode {
         liftIntake();
         sleep(180);
         goToLevel3();
-        sleep(1000);
+        sleep(1200);
         pushDeposit();
         useIntake();
 
-        drive.followTrajectory(traj2);
-        drive.followTrajectory(traj3);
+        drive.followTrajectorySequence(traj2);
 
         runCarousel();
         sleep(800);
         runCarousel();
 
-        drive.followTrajectory(traj4);
+        drive.followTrajectorySequence(traj4);
         useIntake();
         drive.followTrajectory(traj7);
-        useIntake();
         goToLevel3();
-        drive.followTrajectory(traj8);
+        drive.followTrajectorySequence(traj8);
+        sleep(100);
         pushDeposit();
-        drive.followTrajectory(traj11);
         useIntake();
+        drive.followTrajectorySequence(traj11);
     }
 
     private void caseB(SampleMecanumDrive drive) {
@@ -186,55 +184,33 @@ public class AutonomousTest extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-15, -51))
+                .lineTo(new Vector2d(-12, -52))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
                 .forward(1)
                 .build();
 
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .back(30)
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
+                .back(25)
+                .turn(Math.toRadians(150))
+                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
                 .build();
 
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
+        Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
+                .forward(35)
                 .build();
 
-        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
-                .strafeRight(10)
+        TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(35)
+                .lineToLinearHeading(new Pose2d(-10.5 , -41, Math.toRadians(270)))
                 .build();
 
-        Trajectory traj7 = drive.trajectoryBuilder(traj6.end())
-                .lineTo(new Vector2d(37, -68))
-                .build();
-
-        Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
-                .back(40)
-                .build();
-
-        Trajectory traj9 = drive.trajectoryBuilder(traj8.end())
-                .strafeLeft(20)
-                .build();
-
-        Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
-                .lineToSplineHeading(new Pose2d(-8, -33, Math.toRadians(250)))
-                .build();
-
-        Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
-                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
-                .build();
-
-        Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
-                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(330)))
-                .build();
-
-        Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
-                .lineTo(new Vector2d(37, -68))
+        TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
+                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
+                .turn(-Math.toRadians(5))
+                .forward(38)
                 .build();
 
         // Run trajectories
@@ -242,32 +218,25 @@ public class AutonomousTest extends LinearOpMode {
         liftIntake();
         sleep(180);
         goToLevel2();
-        sleep(1500);
+        sleep(1350);
         pushDeposit();
         useIntake();
 
-        drive.followTrajectory(traj2);
-        drive.followTrajectory(traj3);
+        drive.followTrajectorySequence(traj2);
 
         runCarousel();
         sleep(800);
         runCarousel();
 
-        drive.followTrajectory(traj4);
-        drive.followTrajectory(traj5);
-        drive.followTrajectory(traj6);
+        drive.followTrajectorySequence(traj4);
         useIntake();
         drive.followTrajectory(traj7);
-        useIntake();
         goToLevel3();
-        drive.followTrajectory(traj8);
-        drive.followTrajectory(traj9);
-        drive.followTrajectory(traj10);
+        drive.followTrajectorySequence(traj8);
+        sleep(100);
         pushDeposit();
-        drive.followTrajectory(traj11);
-        drive.followTrajectory(traj12);
         useIntake();
-        drive.followTrajectory(traj13);
+        drive.followTrajectorySequence(traj11);
     }
 
     private void caseA(SampleMecanumDrive drive) {
@@ -275,55 +244,33 @@ public class AutonomousTest extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-15, -51.5))
+                .lineTo(new Vector2d(-12, -52))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToSplineHeading(new Pose2d(-61, -57, Math.toRadians(190)))
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
+                .forward(1.3)
                 .build();
 
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .forward(2)
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
+                .back(25)
+                .turn(Math.toRadians(150))
+                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
                 .build();
 
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .back(30)
+        Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
+                .forward(36.5)
                 .build();
 
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
+        TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(35)
+                .lineToLinearHeading(new Pose2d(-10.5, -41.5, Math.toRadians(270)))
                 .build();
 
-        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
-                .strafeRight(10)
-                .build();
-
-        Trajectory traj7 = drive.trajectoryBuilder(traj6.end())
-                .lineTo(new Vector2d(37, -68))
-                .build();
-
-        Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
-                .back(40)
-                .build();
-
-        Trajectory traj9 = drive.trajectoryBuilder(traj8.end())
-                .strafeLeft(20)
-                .build();
-
-        Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
-                .lineToSplineHeading(new Pose2d(-6, -32, Math.toRadians(250)))
-                .build();
-
-        Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
-                .lineToSplineHeading(new Pose2d(5, -55, Math.toRadians(355)))
-                .build();
-
-        Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
-                .lineToSplineHeading(new Pose2d(5, -68, Math.toRadians(330)))
-                .build();
-
-        Trajectory traj13 = drive.trajectoryBuilder(traj12.end())
-                .lineTo(new Vector2d(37, -68))
+        TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
+                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
+                .turn(-Math.toRadians(5))
+                .forward(38)
                 .build();
 
         // Run trajectories
@@ -331,60 +278,54 @@ public class AutonomousTest extends LinearOpMode {
         liftIntake();
         sleep(180);
         goToLevel1();
-        sleep(1800);
+        sleep(1500);
         pushDeposit();
         useIntake();
 
-        drive.followTrajectory(traj2);
-        drive.followTrajectory(traj3);
+        drive.followTrajectorySequence(traj2);
 
         runCarousel();
         sleep(800);
         runCarousel();
 
-        drive.followTrajectory(traj4);
-        drive.followTrajectory(traj5);
-        drive.followTrajectory(traj6);
+        drive.followTrajectorySequence(traj4);
         useIntake();
         drive.followTrajectory(traj7);
-        useIntake();
+        sleep(300);
         goToLevel3();
-        drive.followTrajectory(traj8);
-        drive.followTrajectory(traj9);
-        drive.followTrajectory(traj10);
+        drive.followTrajectorySequence(traj8);
+        sleep(100);
         pushDeposit();
-        drive.followTrajectory(traj11);
-        drive.followTrajectory(traj12);
         useIntake();
-        drive.followTrajectory(traj13);
+        drive.followTrajectorySequence(traj11);
     }
 
     public void goToLevel1() {
         deposit2.setPosition(0);
-        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
-
+        sleep(500);
+        depositServo.setPosition(0.43);
         gbServoRight.setPosition(0.83);
         gbServoLeft.setPosition(0.83);
     }
 
     public void goToLevel2() {
         deposit2.setPosition(0);
-        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
-
+        sleep(500);
+        depositServo.setPosition(0.43);
         gbServoRight.setPosition(0.72);
         gbServoLeft.setPosition(0.72);
     }
 
     public void goToLevel3() {
         deposit2.setPosition(0);
-        depositServo.setPosition(0.43);
         intakeMotor.setPower(-0.5);
         iLifterServo.setPosition(0.38);
         sleep(500);
+        depositServo.setPosition(0.43);
         gbServoRight.setPosition(0.58);
         gbServoLeft.setPosition(0.58);
     }
@@ -396,15 +337,15 @@ public class AutonomousTest extends LinearOpMode {
         // Wait for minerals to be ejected from deposit
         sleep(300);
 
-        gbServoLeft.setPosition(0.03);
-        gbServoRight.setPosition(0.03);
+        deposit2.setPosition(0);
+        gbServoLeft.setPosition(0.028);
+        gbServoRight.setPosition(0.028);
         intakeMotor.setPower(0.5);
         depositServo.setPosition(0.16);
 
         sleep(1100);
 
         iLifterServo.setPosition(0.20);
-        deposit2.setPosition(0);
     }
 
     public void useIntake() {

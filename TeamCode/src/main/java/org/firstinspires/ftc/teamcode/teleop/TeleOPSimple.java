@@ -62,6 +62,7 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
+        deposit2.setPosition(0);
         iLifterServo.setPosition(0);
         tseServo.setPosition(0);
         // Most robots need the motor on one side to be reversed to drive forward

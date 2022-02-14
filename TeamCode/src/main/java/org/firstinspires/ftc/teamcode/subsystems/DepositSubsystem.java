@@ -40,4 +40,5 @@ public class DepositSubsystem extends SubsystemBase {
         deposit1.setPosition(deposit1Close);
         isDepositClosed = true;
     }
+
 }

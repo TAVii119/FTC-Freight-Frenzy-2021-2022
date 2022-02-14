@@ -71,6 +71,7 @@ public class TeleOperated extends CommandOpMode {
     private InstantCommand liftIntakeCommand;
     private InstantCommand carouselCommand;
     private InstantCommand pushDepositCommand;
+    private InstantCommand ejectCommand;
 
     // Instant Commands for TSE
     private InstantCommand tsePickUpCommand;
@@ -88,6 +89,8 @@ public class TeleOperated extends CommandOpMode {
     Timing.Timer scoreTimer;
 
     Thread ScoreCommandThread;
+    Thread EjectCommandThread;
+    Thread Score2Thread;
 
     // Declare gamepads
     GamepadEx driver1;
@@ -135,9 +138,9 @@ public class TeleOperated extends CommandOpMode {
         // Home all servos
         deposit1.setPosition(0.16);
         deposit2.setPosition(0);
-        iLifterServo.setPosition(0);
-        gbServoLeft.setPosition(0.035);
-        gbServoRight.setPosition(0.035);
+        iLifterServo.setPosition(0.20);
+        gbServoLeft.setPosition(0.03);
+        gbServoRight.setPosition(0.03);
         tseServo.setPosition(0.02);
 
         // Assign gamepads to drivers
@@ -178,7 +181,6 @@ public class TeleOperated extends CommandOpMode {
                 // Wait for timer to end
             }
             scoreTimer.pause();
-
             if(fourBarSubsystem.fourBarTopCheck)
             {fourBarSubsystem.fourBarIntakePos();
             intakeSubsystem.runIntake();
@@ -236,7 +238,7 @@ public class TeleOperated extends CommandOpMode {
         }, intakeSubsystem);
 
         liftIntakeCommand = new InstantCommand(() -> {
-            if (intakeLiftSubsystem.isStraight || iLifterServo.getPosition() == 0.0)
+            if (iLifterServo.getPosition() == 0.0 || iLifterServo.getPosition() ==0.38)
                 intakeLiftSubsystem.lifterIntakePos();
         }, intakeLiftSubsystem);
 
@@ -294,14 +296,51 @@ public class TeleOperated extends CommandOpMode {
             tseSubsystem.TSEManualControl(0.03);
         }, tseSubsystem);
 
+        Score2Thread = new Thread(() -> {
+            intakeSubsystem.reverseIntake();
+            scoreTimer = new Timing.Timer(20);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+            depositSubsystem.closeDeposit();
+            intakeLiftSubsystem.iLifterfourBarPos();
+            // Wait for minerals to be ejected from intake
+            fourBarSubsystem.fourBarTopPos();
+            scoreTimer = new Timing.Timer(1000);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+            intakeSubsystem.stopIntake();
+        });
+
+        EjectCommandThread = new Thread(() -> {
+            intakeLiftSubsystem.iLifterfourBarPos();
+            fourBarSubsystem.fourBarIntakePos();
+            scoreTimer = new Timing.Timer(700);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+            depositSubsystem.deposit1.setPosition(0.16);
+        });
+
+
         // State the buttons that run commands
         // Using a PS4 Controller: Cross = A, Circle = B, Triangle = Y, Square = X
         Button intakeRunButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(intakeRunCommand);
         Button intakeReverseButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(intakeReverseCommand);
         Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(carouselCommand);
-        Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(liftIntakeCommand);
+        Button EjectCommandButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(() -> EjectCommandThread.start());
         Button pushDepositButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> ScoreCommandThread.start());
-        Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(scoreCommand);
+        Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> Score2Thread.start());
 
         // Control for driver 2
         Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);
