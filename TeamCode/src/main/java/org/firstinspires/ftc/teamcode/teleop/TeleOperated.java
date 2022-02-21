@@ -80,7 +80,7 @@ public class TeleOperated extends CommandOpMode {
     private InstantCommand tseMoveUpCommand;
     private InstantCommand tseMoveDownCommand;
 
-    // Insant Commands for foruBar;
+    // Insant Commands for FourBar;
     private InstantCommand levelTopFourBarCommand;
     private InstantCommand levelMidFourBarCommand;
     private InstantCommand levelLowFourBarCommand;
@@ -90,7 +90,7 @@ public class TeleOperated extends CommandOpMode {
 
     Thread ScoreCommandThread;
     Thread EjectCommandThread;
-    Thread Score2Thread;
+    Thread Score2CommandThread;
 
     // Declare gamepads
     GamepadEx driver1;
@@ -172,7 +172,7 @@ public class TeleOperated extends CommandOpMode {
         ScoreCommandThread = new Thread(() -> {
             depositSubsystem.pushDeposit();
 
-            // Wait for minerals to be ejected from deposit
+            // Wait for minerals to be ejected from Deposit
             scoreTimer = new Timing.Timer(450);
             scoreTimer.start();
 
@@ -181,11 +181,12 @@ public class TeleOperated extends CommandOpMode {
                 // Wait for timer to end
             }
             scoreTimer.pause();
+            // Different Cases for Level 1, 2, 3
             if(fourBarSubsystem.fourBarTopCheck)
             {fourBarSubsystem.fourBarIntakePos();
             intakeSubsystem.runIntake();
             depositSubsystem.openDeposit();
-
+             // Wait for FourBar to return
             scoreTimer = new Timing.Timer(650);
             scoreTimer.start();
             while (!scoreTimer.done())
@@ -238,7 +239,7 @@ public class TeleOperated extends CommandOpMode {
         }, intakeSubsystem);
 
         liftIntakeCommand = new InstantCommand(() -> {
-            if (iLifterServo.getPosition() == 0.0 || iLifterServo.getPosition() ==0.38)
+            if (!intakeLiftSubsystem.isStraight)
                 intakeLiftSubsystem.lifterIntakePos();
         }, intakeLiftSubsystem);
 
@@ -296,7 +297,7 @@ public class TeleOperated extends CommandOpMode {
             tseSubsystem.TSEManualControl(0.03);
         }, tseSubsystem);
 
-        Score2Thread = new Thread(() -> {
+        Score2CommandThread = new Thread(() -> {
             intakeSubsystem.reverseIntake();
             scoreTimer = new Timing.Timer(20);
             scoreTimer.start();
@@ -340,7 +341,8 @@ public class TeleOperated extends CommandOpMode {
         Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(carouselCommand);
         Button EjectCommandButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(() -> EjectCommandThread.start());
         Button pushDepositButton = new GamepadButton(driver1, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> ScoreCommandThread.start());
-        Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> Score2Thread.start());
+        Button moveFourBarButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> Score2CommandThread.start());
+        Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_RIGHT).whenPressed(liftIntakeCommand);
 
         // Control for driver 2
         Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(levelLowFourBarCommand);

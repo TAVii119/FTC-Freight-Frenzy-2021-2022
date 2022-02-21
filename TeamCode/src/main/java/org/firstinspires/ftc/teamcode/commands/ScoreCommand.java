@@ -32,7 +32,6 @@ public class ScoreCommand extends CommandBase {
         depositSubsystem.closeDeposit();
         intakeSubsystem.reverseIntake();
         intakeLiftSubsystem.iLifterfourBarPos();
-        // Wait for minerals to be ejected from intake
         fourBarSubsystem.fourBarTopPos();
         cancel();
     }

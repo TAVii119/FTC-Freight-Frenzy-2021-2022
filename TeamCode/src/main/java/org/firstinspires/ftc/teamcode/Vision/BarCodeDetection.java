@@ -33,7 +33,7 @@ public class BarCodeDetection extends OpenCvPipeline {
             new Point( 878, 566 ),
             new Point( 1029, 713 ) );
 
-    static double PERCENT_COLOR_THRESHOLD = 0.2;
+    static double PERCENT_COLOR_THRESHOLD = 0.1;
 
     public BarCodeDetection(Telemetry t ) {
         telemetry = t;

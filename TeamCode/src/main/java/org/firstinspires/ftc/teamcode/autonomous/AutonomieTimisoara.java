@@ -128,29 +128,29 @@ public class AutonomieTimisoara extends LinearOpMode {
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
-                .forward(0.5)
+                .lineToLinearHeading(new Pose2d(-57.3, -60, Math.toRadians(190)))
+                .forward(1.3)
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
                 .back(25)
                 .turn(Math.toRadians(150))
-                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
+                .lineToLinearHeading(new Pose2d(10, -63, Math.toRadians(355)))
                 .build();
 
         Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
-                .forward(35)
+                .forward(33)
                 .build();
 
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
                 .back(35)
-                .lineToLinearHeading(new Pose2d(-10.5, -41.5, Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(-12, -41, Math.toRadians(270)))
                 .build();
 
         TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
-                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
-                .turn(-Math.toRadians(5))
-                .forward(37)
+                .lineToSplineHeading(new Pose2d(11, -52, Math.toRadians(360)))
+                .lineToSplineHeading(new Pose2d(11, -63, Math.toRadians(330)))
+                .lineTo(new Vector2d(40, -62))
                 .build();
 
         // Run trajectories
@@ -172,6 +172,7 @@ public class AutonomieTimisoara extends LinearOpMode {
         useIntake();
         drive.followTrajectory(traj7);
         goToLevel3();
+        useIntake();
         drive.followTrajectorySequence(traj8);
         sleep(100);
         pushDeposit();
@@ -188,29 +189,29 @@ public class AutonomieTimisoara extends LinearOpMode {
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
-                .forward(1)
+                .lineToLinearHeading(new Pose2d(-57.3, -60, Math.toRadians(190)))
+                .forward(1.3)
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
                 .back(25)
                 .turn(Math.toRadians(150))
-                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
+                .lineToLinearHeading(new Pose2d(10, -63, Math.toRadians(355)))
                 .build();
 
         Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
-                .forward(35)
+                .lineTo(new Vector2d(39.4, -62))
                 .build();
 
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
                 .back(35)
-                .lineToLinearHeading(new Pose2d(-10.5 , -41, Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(-12, -41, Math.toRadians(270)))
                 .build();
 
         TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
-                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
-                .turn(-Math.toRadians(5))
-                .forward(38)
+                .lineToSplineHeading(new Pose2d(11, -52, Math.toRadians(360)))
+                .lineToSplineHeading(new Pose2d(11, -63, Math.toRadians(330)))
+                .lineTo(new Vector2d(40, -62))
                 .build();
 
         // Run trajectories
@@ -232,6 +233,7 @@ public class AutonomieTimisoara extends LinearOpMode {
         useIntake();
         drive.followTrajectory(traj7);
         goToLevel3();
+        useIntake();
         drive.followTrajectorySequence(traj8);
         sleep(100);
         pushDeposit();
@@ -244,33 +246,33 @@ public class AutonomieTimisoara extends LinearOpMode {
 
         // Declare trajectories
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-12, -52))
+                .lineTo(new Vector2d(-12, -52.5))
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-57.5, -59, Math.toRadians(190)))
+                .lineToLinearHeading(new Pose2d(-57.3, -60, Math.toRadians(190)))
                 .forward(1.3)
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj2.end())
                 .back(25)
                 .turn(Math.toRadians(150))
-                .lineToLinearHeading(new Pose2d(10, -66, Math.toRadians(345)))
+                .lineToLinearHeading(new Pose2d(10, -63, Math.toRadians(355)))
                 .build();
 
         Trajectory traj7 = drive.trajectoryBuilder(traj4.end())
-                .forward(36.5)
+                .lineTo(new Vector2d(39.4, -62))
                 .build();
 
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
                 .back(35)
-                .lineToLinearHeading(new Pose2d(-10.5, -41.5, Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(-12, -42, Math.toRadians(270)))
                 .build();
 
         TrajectorySequence traj11 = drive.trajectorySequenceBuilder(traj8.end())
-                .lineToLinearHeading(new Pose2d(5, -66, Math.toRadians(350)))
-                .turn(-Math.toRadians(5))
-                .forward(38)
+                .lineToSplineHeading(new Pose2d(11, -52, Math.toRadians(360)))
+                .lineToSplineHeading(new Pose2d(11, -63, Math.toRadians(330)))
+                .lineTo(new Vector2d(40, -63))
                 .build();
 
         // Run trajectories
@@ -293,6 +295,7 @@ public class AutonomieTimisoara extends LinearOpMode {
         drive.followTrajectory(traj7);
         sleep(300);
         goToLevel3();
+        useIntake();
         drive.followTrajectorySequence(traj8);
         sleep(100);
         pushDeposit();
