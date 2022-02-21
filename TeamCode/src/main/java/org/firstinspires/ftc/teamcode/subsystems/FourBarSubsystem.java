@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class FourBarSubsystem extends SubsystemBase {
     public Servo gbServoLeft, gbServoRight;
-    private double fourBarTop = 0.58;
-    private double fourBarMid = 0.70;
-    private double fourBarLow = 0.83;
-    private double fourBarIntake = 0.028;
+    private double fourBarTopPos = 0;
+    private double fourBarMidPos = 0;
+    private double fourBarLowPos = 0;
+    private double fourBarIntakePos = 0;
     double fourBarPosition = 0.02;
     public boolean fourBarTopCheck = false;
     public boolean fourBarMidCheck = false;
@@ -19,34 +19,34 @@ public class FourBarSubsystem extends SubsystemBase {
         this.gbServoRight = gbServoRight;
     }
 
-    public void fourBarTopPos() {
-        gbServoLeft.setPosition(fourBarTop);
-        gbServoRight.setPosition(fourBarTop);
+    public void fourBarTop() {
+        gbServoLeft.setPosition(fourBarTopPos);
+        gbServoRight.setPosition(fourBarTopPos);
         fourBarMidCheck = false;
         fourBarLowCheck = false;
         fourBarTopCheck = true;
     }
 
-    public void fourBarMidPos() {
-        gbServoLeft.setPosition(fourBarMid);
-        gbServoRight.setPosition(fourBarMid);
+    public void fourBarMid() {
+        gbServoLeft.setPosition(fourBarMidPos);
+        gbServoRight.setPosition(fourBarMidPos);
         fourBarLowCheck = false;
         fourBarTopCheck = false;
         fourBarMidCheck = true;
     }
 
-    public void fourBarLowPos() {
-        gbServoLeft.setPosition(fourBarLow);
-        gbServoRight.setPosition(fourBarLow);
+    public void fourBarLow() {
+        gbServoLeft.setPosition(fourBarLowPos);
+        gbServoRight.setPosition(fourBarLowPos);
         fourBarMidCheck = false;
         fourBarTopCheck = false;
         fourBarLowCheck = true;
     }
 
 
-    public void fourBarIntakePos(){
-        gbServoLeft.setPosition(fourBarIntake);
-        gbServoRight.setPosition(fourBarIntake);
+    public void fourBarIntake(){
+        gbServoLeft.setPosition(fourBarIntakePos);
+        gbServoRight.setPosition(fourBarIntakePos);
     }
 
 

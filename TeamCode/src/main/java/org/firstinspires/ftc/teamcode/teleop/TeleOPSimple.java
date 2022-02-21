@@ -17,8 +17,9 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor lb = null;
     private DcMotor rb = null;
     private DcMotor intakeMotor = null;
+    private DcMotor leftSlideMotor = null;
+    private DcMotor rightSlideMotor = null;
 
-    private Servo deposit2;
     private Servo gbServoRight = null;
     private Servo gbServoLeft = null;
     private Servo depositServo = null;
@@ -48,12 +49,14 @@ public class TeleOPSimple extends LinearOpMode {
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
+        leftSlideMotor = hardwareMap.get(DcMotor.class, "leftSlideMotor");
+        rightSlideMotor = hardwareMap.get(DcMotor.class, "rightSlideMotor");
+
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         tseServo = hardwareMap.get(Servo.class, "tseServo");
-        deposit2 = hardwareMap.get(Servo.class, "deposit2Servo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
@@ -62,17 +65,21 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
-        deposit2.setPosition(0);
         iLifterServo.setPosition(0);
         tseServo.setPosition(0);
+
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         lf.setDirection(DcMotor.Direction.REVERSE);
         lb.setDirection(DcMotor.Direction.REVERSE);
         rf.setDirection(DcMotor.Direction.FORWARD);
         rb.setDirection(DcMotor.Direction.FORWARD);
+        leftSlideMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set modes
+        rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -82,7 +89,13 @@ public class TeleOPSimple extends LinearOpMode {
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -151,18 +164,23 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             if (gamepad2.dpad_left){
-                deposit2.setPosition(deposit2.getPosition() -0.02);
+                depositServo.setPosition(depositServo.getPosition() -0.02);
                 sleep(500);
             }
             if (gamepad2.dpad_right){
-                deposit2.setPosition(deposit2.getPosition() +0.02);
+                depositServo.setPosition(depositServo.getPosition() +0.02);
                 sleep(500);
             }
+
+            // Move slides manually
+            leftSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
 
 
             // Telemetry
-            telemetry.addData("Deposit2 Servo", deposit2.getPosition());
+            telemetry.addData(">Left Slide position: ", leftSlideMotor.getCurrentPosition());
+            telemetry.addData("> Right Slide Position", rightSlideMotor.getCurrentPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
             telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
