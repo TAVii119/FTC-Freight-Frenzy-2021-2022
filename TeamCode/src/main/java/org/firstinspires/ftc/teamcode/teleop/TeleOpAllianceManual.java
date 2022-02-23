@@ -24,9 +24,9 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
-@TeleOp(name="TeleOperated")
+@TeleOp(name="TeleOpAllianceManual", group = "Manual")
 
-public class TeleOperated extends CommandOpMode {
+public class TeleOpAllianceManual extends CommandOpMode {
 
     // Declare Motors and Servos
     private Motor lf;
