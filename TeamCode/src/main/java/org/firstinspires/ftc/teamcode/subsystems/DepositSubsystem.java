@@ -8,9 +8,9 @@ public class DepositSubsystem extends SubsystemBase {
 
     public final Servo deposit1;
 
-    public double deposit1Open = 0.16;
-    public double deposit1Close = 0.43;
-    public double deposit1Push = 0.64;
+    public double deposit1Open = 0;
+    public double deposit1Close = 0.26;
+    public double deposit1Ramp = 0.09;
 
     public boolean isDepositClosed = false;
     Timing.Timer scoreTimer;
@@ -25,7 +25,7 @@ public class DepositSubsystem extends SubsystemBase {
     }
 
     public void pushDeposit() {
-        deposit1.setPosition(deposit1Push);
+        deposit1.setPosition(deposit1Ramp);
     isDepositClosed = false;}
 
     public void closeDeposit() {

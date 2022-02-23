@@ -6,9 +6,9 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 public class SlideSubsystem extends SubsystemBase {
     public Motor leftSlideMotor;
     public Motor rightSlideMotor;
-    private int slideLevel3Pos = 0;
-    private int slideLevel2Pos = 0;
-    private int slideLevel1Pos = 0;
+    private int slideLevel3Pos = 1550;
+    private int slideLevel2Pos = 800;
+    private int slideLevel1Pos = 831;
     private int slideIntermediate = 0;
     private int homePos = 0;
 
@@ -17,24 +17,10 @@ public class SlideSubsystem extends SubsystemBase {
         this.rightSlideMotor = rightSlideMotor;
     }
 
-    public void manualControl(double rightTrigger, double leftTrigger) {
-        leftSlideMotor.setRunMode(Motor.RunMode.RawPower);
-        rightSlideMotor.setRunMode(Motor.RunMode.RawPower);
-        leftSlideMotor.set((rightTrigger - leftTrigger) * 0.5);
-        rightSlideMotor.set((rightTrigger - leftTrigger) * 0.5);
-    }
-
     public void slideHome() {
         // set the run mode
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
-
-        // set and get the position coefficient
-        leftSlideMotor.setPositionCoefficient(0.05);
-        rightSlideMotor.setPositionCoefficient(0.05);
-
-        double leftkP = leftSlideMotor.getPositionCoefficient();
-        double rightkP = rightSlideMotor.getPositionCoefficient();
 
         // set the target position
         leftSlideMotor.setTargetPosition(homePos); // an integer representing desired tick count
@@ -49,25 +35,18 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
+
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
     }
 
-
-    public void slideLevel3() {
+    public void slideTop() {
         // set the run mode
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
-
-        // set and get the position coefficient
-        leftSlideMotor.setPositionCoefficient(0.05);
-        rightSlideMotor.setPositionCoefficient(0.05);
-
-        double leftkP = leftSlideMotor.getPositionCoefficient();
-        double rightkP = rightSlideMotor.getPositionCoefficient();
 
         // set the target position
         leftSlideMotor.setTargetPosition(slideLevel3Pos); // an integer representing desired tick count
@@ -82,14 +61,14 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
     }
 
-    public void slideLevel2() {
+    public void slideMid() {
         // set the run mode
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
@@ -120,7 +99,7 @@ public class SlideSubsystem extends SubsystemBase {
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
     }
-    public void slideLevel1() {
+    public void slideLow() {
         // set the run mode
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
