@@ -91,6 +91,10 @@ public class TeleOpAllianceManual extends CommandOpMode {
     public Thread levelMidThread;
     public Thread levelLowThread;
     public Thread carouselThread;
+    public Thread tsePrepareThread;
+    public Thread tseClawThread;
+    public Thread tsePickUpThread;
+    public Thread tseReleaseThread;
 
     Timing.Timer scoreTimer;
 
@@ -298,6 +302,25 @@ public class TeleOpAllianceManual extends CommandOpMode {
             }
         });
 
+        tsePrepareThread = new Thread(() -> {
+            slideSubsystem.slideTSEPrepare();
+            fourBarSubsystem.fourBarTSEPrepare();
+            depositSubsystem.openDeposit();
+        });
+
+        tseClawThread = new Thread(() -> {
+           depositSubsystem.depositTSEClaw();
+        });
+
+        tsePickUpThread = new Thread(() -> {
+           slideSubsystem.slideTSERaise();
+           fourBarSubsystem.fourBarTSERaise();
+        });
+
+        tseReleaseThread = new Thread(() -> {
+            depositSubsystem.depositTSERelease();
+        });
+
         // Instant Commands
 
         intakeRunCommand = new InstantCommand(() -> {
@@ -355,9 +378,10 @@ public class TeleOpAllianceManual extends CommandOpMode {
         Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelMidThread.start());
         Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> levelLowThread.start());
 
-        Button tseScoreButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseScoreCommand);
-        Button tsePickUpButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tsePickUpCommand);
-        Button tseWaitButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseWaitCommand);
+        Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(() -> tsePickUpThread.start());
+        Button tseClawButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> tseClawThread.start());
+        Button tsePrepareButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> tsePrepareThread.start());
+        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> tseReleaseThread.start());
 
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)

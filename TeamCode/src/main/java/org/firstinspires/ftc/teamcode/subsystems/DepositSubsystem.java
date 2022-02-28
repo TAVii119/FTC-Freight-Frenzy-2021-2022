@@ -12,6 +12,8 @@ public class DepositSubsystem extends SubsystemBase {
     public double deposit1Close = 0.36;
     public double deposit1Ramp = 0.09;
     public double deposit1Intermediate = 0.12;
+    public double depositTSEClaw = 0.44;
+    public double depositTSERelease = 0.22;
 
     public boolean isDepositClosed = false;
     Timing.Timer scoreTimer;
@@ -27,11 +29,21 @@ public class DepositSubsystem extends SubsystemBase {
 
     public void depositIntermediate() {
         deposit1.setPosition(deposit1Intermediate);
-    isDepositClosed = false;}
+        isDepositClosed = false;
+    }
 
     public void closeDeposit() {
         deposit1.setPosition(deposit1Close);
         isDepositClosed = true;
     }
 
+    public void depositTSEClaw() {
+        deposit1.setPosition(deposit1Close);
+        isDepositClosed = true;
+    }
+
+    public void depositTSERelease() {
+        deposit1.setPosition(deposit1Close);
+        isDepositClosed = true;
+    }
 }
