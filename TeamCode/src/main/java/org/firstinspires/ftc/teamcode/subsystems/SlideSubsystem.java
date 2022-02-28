@@ -9,8 +9,9 @@ public class SlideSubsystem extends SubsystemBase {
     private int slideLevel3Pos = 1550;
     private int slideLevel2Pos = 800;
     private int slideLevel1Pos = 831;
-    private int slideIntermediate = 0;
+    private int slideIntermediate = 1200;
     private int homePos = 0;
+    public boolean slideMoving = false;
 
     public SlideSubsystem(Motor leftSlideMotor, Motor rightSlideMotor) {
         this.leftSlideMotor = leftSlideMotor;
@@ -19,6 +20,7 @@ public class SlideSubsystem extends SubsystemBase {
 
     public void slideHome() {
         // set the run mode
+        slideMoving = true;
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -45,6 +47,7 @@ public class SlideSubsystem extends SubsystemBase {
 
     public void slideTop() {
         // set the run mode
+        slideMoving = true;
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -70,6 +73,7 @@ public class SlideSubsystem extends SubsystemBase {
 
     public void slideMid() {
         // set the run mode
+        slideMoving = true;
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -101,6 +105,7 @@ public class SlideSubsystem extends SubsystemBase {
     }
     public void slideLow() {
         // set the run mode
+        slideMoving = true;
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
@@ -133,6 +138,7 @@ public class SlideSubsystem extends SubsystemBase {
 
     public void slideIntermediate() {
         // set the run mode
+        slideMoving = true;
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 

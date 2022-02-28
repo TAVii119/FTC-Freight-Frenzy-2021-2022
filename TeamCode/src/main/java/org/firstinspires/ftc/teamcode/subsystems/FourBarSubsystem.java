@@ -9,7 +9,7 @@ public class FourBarSubsystem extends SubsystemBase {
     private double fourBarMidPos = 0.68;
     private double fourBarLowPos = 0.86;
     private double fourBarIntakePos = 0.022;
-    private double fourBarIntermediatePos = 0.30;
+    private double fourBarIntermediatePos = 0.15;
     double fourBarPosition = 0.02;
     public boolean fourBarTopCheck = false;
     public boolean fourBarMidCheck = false;
