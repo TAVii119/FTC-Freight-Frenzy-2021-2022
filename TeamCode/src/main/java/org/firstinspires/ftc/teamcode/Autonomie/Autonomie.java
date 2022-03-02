@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
@@ -16,13 +17,18 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 @Autonomous(name = "AutonomousTest")
 public class Autonomie extends LinearOpMode {
     SampleMecanumDrive drive;
+    TrajectorySequence traj0;
     TrajectorySequence traj1;
+    TrajectorySequence traj2;
+    TrajectorySequence traj3;
+    TrajectorySequence trajtest;
     Pose2d startPose;
+    Pose2d secondPose;
 
     private DcMotor intakeMotor;
     private DcMotor duckMotor;
-    private DcMotor leftSlideMotor;
-    private DcMotor rightSlideMotor;
+    private Motor leftSlideMotor;
+    private Motor rightSlideMotor;
 
     private Servo depositServo;
     private Servo iLifterServo;
@@ -34,6 +40,7 @@ public class Autonomie extends LinearOpMode {
     private Thread slideLowThread;
     private Thread slideIntermediateThread;
     private Thread scoreThread;
+    private Thread intakeDown;
 
     public double depositOpen = 0;
     public double depositClose = 0.36;
@@ -59,115 +66,53 @@ public class Autonomie extends LinearOpMode {
 
     public void runOpMode() {
         drive = new SampleMecanumDrive(hardwareMap);
+
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         duckMotor = hardwareMap.get(DcMotor.class, "duckMotor");
-        leftSlideMotor = hardwareMap.get(DcMotor.class, "leftSlideMotor");
-        rightSlideMotor = hardwareMap.get(DcMotor.class, "rightSlideMotor");
+        leftSlideMotor = new Motor(hardwareMap, "leftSlideMotor");
+        rightSlideMotor = new Motor(hardwareMap, "rightSlideMotor");
 
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
-        startPose = new Pose2d(-35, -58, Math.toRadians(270));
 
-        depositServo.setPosition(0);
-        gbServoLeft.setPosition(0);
-        gbServoRight.setPosition(0);
+        leftSlideMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        rightSlideMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        leftSlideMotor.resetEncoder();
+        rightSlideMotor.resetEncoder();
+
+        // Invert motors
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+        duckMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightSlideMotor.setInverted(true);
+
+        depositServo.setDirection(Servo.Direction.REVERSE);
+        gbServoLeft.setDirection(Servo.Direction.REVERSE);
+
+        iLifterServo.setPosition(0);
+        depositServo.setPosition(0.12);
+        gbServoLeft.setPosition(0.022);
+        gbServoRight.setPosition(0.022);
 
         slideTopThread = new Thread(() -> {
+            iLifterServo.setPosition(0.27);
             depositServo.setPosition(depositClose);
 
-            scoreTimer = new Timing.Timer(100);
+            scoreTimer = new Timing.Timer(500);
             scoreTimer.start();
             while (!scoreTimer.done())
             {
 
             }
             scoreTimer.pause();
-
             intakeMotor.setPower(-0.5);
             moveFourBarIntermediate();
             moveSlideTop();
             moveFourBarTop();
-
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-            intakeMotor.setPower(0);
-        });
-
-        slideMidThread = new Thread(() -> {
-            depositServo.setPosition(depositClose);
-
-            scoreTimer = new Timing.Timer(100);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-
-            intakeMotor.setPower(-0.5);
-            moveFourBarIntermediate();
-            moveSlideMiddle();
-            moveFourBarMiddle();
-
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-            intakeMotor.setPower(0);
-        });
-
-        slideLowThread = new Thread(() -> {
-            depositServo.setPosition(depositClose);
-
-            scoreTimer = new Timing.Timer(100);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-
-            intakeMotor.setPower(-0.5);
-            moveFourBarIntermediate();
-            moveSlideLow();
-            moveFourBarLow();
-
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-            intakeMotor.setPower(0);
-        });
-
-        slideIntermediateThread = new Thread(() -> {
-            depositServo.setPosition(depositClose);
-
-            scoreTimer = new Timing.Timer(100);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-
-            intakeMotor.setPower(-0.5);
-            moveFourBarIntermediate();
-            moveSlideIntermediate();
-
-            scoreTimer = new Timing.Timer(200);
+            scoreTimer = new Timing.Timer(300);
             scoreTimer.start();
             while (!scoreTimer.done())
             {
@@ -190,7 +135,7 @@ public class Autonomie extends LinearOpMode {
 
             moveFourBarIntermediate();
 
-            scoreTimer = new Timing.Timer(500);
+            scoreTimer = new Timing.Timer(800);
             scoreTimer.start();
             while (!scoreTimer.done())
             {
@@ -212,118 +157,102 @@ public class Autonomie extends LinearOpMode {
             intakeMotor.setPower(0.5);
             depositServo.setPosition(depositIntermediate);
         });
+        intakeDown = new Thread(() -> {
+            intakeDown();
+        });
+
+        startPose = new Pose2d(10, -58, Math.toRadians(270));
 
         waitForStart();
         while(opModeIsActive()) {
             drive.setPoseEstimate(startPose);
-            traj1 = drive.trajectorySequenceBuilder(startPose)
-                    .lineToConstantHeading(new Vector2d(-12, -47))
-                    .lineToLinearHeading(new Pose2d(10, -60.5, Math.toRadians(340)))
-                    .lineToLinearHeading(new Pose2d(48, -62, Math.toRadians(360)))
-                    .lineToLinearHeading(new Pose2d(10, -62, Math.toRadians(370)))
-                    .lineToLinearHeading(new Pose2d(4, -44, Math.toRadians(300)))
 
-                    .lineToLinearHeading(new Pose2d(10, -60, Math.toRadians(335)))
-                    .lineToLinearHeading(new Pose2d(48, -62, Math.toRadians(360)))
-                    .lineToLinearHeading(new Pose2d(10, -62, Math.toRadians(380)))
-                    .lineToLinearHeading(new Pose2d(4, -44, Math.toRadians(300)))
-
-                    .lineToLinearHeading(new Pose2d(10, -60, Math.toRadians(340)))
-                    .lineToLinearHeading(new Pose2d(48, -62, Math.toRadians(360)))
-                    .lineToLinearHeading(new Pose2d(10, -62, Math.toRadians(380)))
-                    .lineToLinearHeading(new Pose2d(4, -44, Math.toRadians(300)))
-                    .lineToLinearHeading(new Pose2d(10, -60.5, Math.toRadians(340)))
-                    .lineToLinearHeading(new Pose2d(48, -62, Math.toRadians(360)))
+            traj0 = drive.trajectorySequenceBuilder(startPose)
+                    .back(10)
                     .build();
 
+            traj1 = drive.trajectorySequenceBuilder(traj0.end())
+                    .lineToLinearHeading(new Pose2d(4, -42, Math.toRadians(300)))
+                    .lineToLinearHeading(new Pose2d(10, -61, Math.toRadians(340)))
+                    .lineToLinearHeading(new Pose2d(45, -64, Math.toRadians(360)))
+                    .lineToLinearHeading(new Pose2d(10, -62, Math.toRadians(370)))
+                    .build();
+
+            trajtest = drive.trajectorySequenceBuilder(traj1.end())
+                    .lineToLinearHeading(new Pose2d(4, -41, Math.toRadians(320)))
+                    .build();
+
+            traj2 = drive.trajectorySequenceBuilder(trajtest.end())
+                    .lineToLinearHeading(new Pose2d(12, -62, Math.toRadians(340)))
+                    .lineToLinearHeading(new Pose2d(48, -64, Math.toRadians(360)))
+                    .lineToLinearHeading(new Pose2d(10, -64, Math.toRadians(365)))
+                    .lineToLinearHeading(new Pose2d(4, -41, Math.toRadians(320)))
+                    .build();
+
+            traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                    .lineToLinearHeading(new Pose2d(12, -64, Math.toRadians(335)))
+                    .lineToLinearHeading(new Pose2d(48, -66, Math.toRadians(360)))
+                    .lineToLinearHeading(new Pose2d(10, -64, Math.toRadians(365)))
+                    .lineToLinearHeading(new Pose2d(4, -41, Math.toRadians(280)))
+                    .lineToLinearHeading(new Pose2d(12, -65, Math.toRadians(340)))
+                    .lineToLinearHeading(new Pose2d(48, -67, Math.toRadians(340)))
+                    .build();
+
+            drive.followTrajectorySequence(traj0);
             drive.followTrajectorySequence(traj1);
+            drive.followTrajectorySequence(trajtest);
+            drive.followTrajectorySequence(traj2);
+            drive.followTrajectorySequence(traj3);
             sleep(30000);
         }
+
     }
-
     public void moveSlideTop() {
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+        rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
+        // set the target position
         leftSlideMotor.setTargetPosition(slideLevel3Pos); // an integer representing desired tick count
         rightSlideMotor.setTargetPosition(slideLevel3Pos);
 
-        leftSlideMotor.setPower(1);
-        rightSlideMotor.setPower(1);
-        while(leftSlideMotor.isBusy() && rightSlideMotor.isBusy()) {
+        leftSlideMotor.set(0);
+        rightSlideMotor.set(0);
 
+        // set the tolerance
+        leftSlideMotor.setPositionTolerance(13.6);   // allowed maximum error
+        rightSlideMotor.setPositionTolerance(13.6);
+
+        // perform the control loop
+        while (!leftSlideMotor.atTargetPosition()) {
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
-
-        leftSlideMotor.setPower(0);
-        rightSlideMotor.setPower(0);
-    }
-
-    public void moveSlideMiddle() {
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        leftSlideMotor.setTargetPosition(slideLevel2Pos); // an integer representing desired tick count
-        rightSlideMotor.setTargetPosition(slideLevel2Pos);
-
-        leftSlideMotor.setPower(1);
-        rightSlideMotor.setPower(1);
-        while(leftSlideMotor.isBusy() && rightSlideMotor.isBusy()) {
-
-        }
-
-        leftSlideMotor.setPower(0);
-        rightSlideMotor.setPower(0);
-    }
-
-    public void moveSlideLow() {
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        leftSlideMotor.setTargetPosition(slideLevel1Pos); // an integer representing desired tick count
-        rightSlideMotor.setTargetPosition(slideLevel1Pos);
-
-        leftSlideMotor.setPower(1);
-        rightSlideMotor.setPower(1);
-        while(leftSlideMotor.isBusy() && rightSlideMotor.isBusy()) {
-
-        }
-
-        leftSlideMotor.setPower(0);
-        rightSlideMotor.setPower(0);
-    }
-
-    public void moveSlideIntermediate() {
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        leftSlideMotor.setTargetPosition(slideIntermediate); // an integer representing desired tick count
-        rightSlideMotor.setTargetPosition(slideIntermediate);
-
-        leftSlideMotor.setPower(1);
-        rightSlideMotor.setPower(1);
-        while(leftSlideMotor.isBusy() && rightSlideMotor.isBusy()) {
-
-        }
-
-        leftSlideMotor.setPower(0);
-        rightSlideMotor.setPower(0);
+        leftSlideMotor.stopMotor();
+        rightSlideMotor.stopMotor();// stop the motor
     }
 
     public void moveSlideIntake() {
-        leftSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+        rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
 
+        // set the target position
         leftSlideMotor.setTargetPosition(slideIntakePos); // an integer representing desired tick count
         rightSlideMotor.setTargetPosition(slideIntakePos);
 
-        leftSlideMotor.setPower(1);
-        rightSlideMotor.setPower(1);
-        while(leftSlideMotor.isBusy() && rightSlideMotor.isBusy()) {
+        leftSlideMotor.set(0);
+        rightSlideMotor.set(0);
 
+        // set the tolerance
+        leftSlideMotor.setPositionTolerance(13.6);   // allowed maximum error
+        rightSlideMotor.setPositionTolerance(13.6);
+
+        // perform the control loop
+        while (!leftSlideMotor.atTargetPosition()) {
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
-
-        leftSlideMotor.setPower(0);
-        rightSlideMotor.setPower(0);
+        leftSlideMotor.stopMotor();
+        rightSlideMotor.stopMotor();// stop the motor
     }
 
     public void moveFourBarTop() {
@@ -350,5 +279,9 @@ public class Autonomie extends LinearOpMode {
         gbServoRight.setPosition(fourBarIntakePos);
         gbServoLeft.setPosition(fourBarIntakePos);
     }
-}
 
+    public void intakeDown(){
+        iLifterServo.setPosition(0);
+    }
+
+}
