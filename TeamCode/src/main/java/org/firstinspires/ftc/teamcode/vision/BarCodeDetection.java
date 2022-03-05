@@ -54,8 +54,8 @@ public class BarCodeDetection extends OpenCvPipeline {
             lowHSV = new Scalar(10, 100, 20);
             highHSV = new Scalar(25, 255, 255);
         } else if(tseType == 2) { //SOFT HOARDERS TSE
-            lowHSV = new Scalar(132, 99, 91);
-            highHSV = new Scalar(144, 93, 66);
+            lowHSV = new Scalar(40, 40, 40);
+            highHSV = new Scalar(70, 255, 255);
         } else { //TEABORGS TSE
             lowHSV = new Scalar( 56, 100, 10 );
             highHSV = new Scalar( 60, 80, 100 );
