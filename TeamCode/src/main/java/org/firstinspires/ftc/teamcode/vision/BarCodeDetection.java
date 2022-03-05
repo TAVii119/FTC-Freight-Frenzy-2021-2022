@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Vision;
+package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
@@ -13,6 +13,7 @@ public class BarCodeDetection extends OpenCvPipeline {
 
     Telemetry telemetry;
     Mat mat = new Mat( );
+    int tseType;
 
     public enum BarcodePosition {
         LEFT,
@@ -24,19 +25,23 @@ public class BarCodeDetection extends OpenCvPipeline {
     private BarcodePosition barcodePosition;
 
     static final Rect LEFT_ROW = new Rect(
-            new Point( 476, 357 ),
-            new Point( 580, 471 ) );
+            new Point( 0, 347 ),
+            new Point( 104, 715 )
+    );
     static final Rect MIDDLE_ROW = new Rect(
-            new Point( 638, 433 ),
-            new Point( 763, 575 ) );
+            new Point( 511, 376 ),
+            new Point( 715, 710 )
+    );
     static final Rect RIGHT_ROW = new Rect(
-            new Point( 878, 566 ),
-            new Point( 1029, 713 ) );
+            new Point( 1160, 416 ),
+            new Point( 1280, 720 )
+    );
 
-    static double PERCENT_COLOR_THRESHOLD = 0.1;
+    static double PERCENT_COLOR_THRESHOLD = 0.05;
 
-    public BarCodeDetection(Telemetry t ) {
+    public BarCodeDetection(Telemetry t, int type) {
         telemetry = t;
+        tseType = type;
     }
 
     public Mat processFrame( Mat input, String type ) {
@@ -45,15 +50,17 @@ public class BarCodeDetection extends OpenCvPipeline {
         Scalar lowHSV;
         Scalar highHSV;
 
-        /*if( type.equalsIgnoreCase( "TSE" ) ) {
-            lowHSV = new Scalar( 25, 25, 35 );
-            highHSV = new Scalar( 40, 255, 255 );
-        } else {
-            lowHSV = new Scalar( 40, 50, 70 );
-            highHSV = new Scalar( 65, 255, 255 );
-        }*/
-        lowHSV = new Scalar(10, 100, 20);
-        highHSV = new Scalar(25, 255, 255);
+        if( tseType == 1 ) { //DELTA FORCE TSE
+            lowHSV = new Scalar(10, 100, 20);
+            highHSV = new Scalar(25, 255, 255);
+        } else if(tseType == 2) { //SOFT HOARDERS TSE
+            lowHSV = new Scalar(132, 99, 91);
+            highHSV = new Scalar(144, 93, 66);
+        } else { //TEABORGS TSE
+            lowHSV = new Scalar( 56, 100, 10 );
+            highHSV = new Scalar( 60, 80, 100 );
+        }
+
         Core.inRange( mat, lowHSV, highHSV, mat );
 
         Mat left = mat.submat(LEFT_ROW);

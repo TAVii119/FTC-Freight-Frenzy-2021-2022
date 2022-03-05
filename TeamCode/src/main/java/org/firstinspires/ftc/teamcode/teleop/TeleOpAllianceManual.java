@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
@@ -92,9 +93,10 @@ public class TeleOpAllianceManual extends CommandOpMode {
     public Thread levelLowThread;
     public Thread carouselThread;
     public Thread tsePrepareThread;
-    public Thread tseClawThread;
+    public Thread tseResetThread;
     public Thread tsePickUpThread;
-    public Thread tseReleaseThread;
+    public Thread tseScoreThread;
+
 
     Timing.Timer scoreTimer;
 
@@ -129,6 +131,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
 
         leftSlideMotor.resetEncoder();
         rightSlideMotor.resetEncoder();
+        duckMotor.resetEncoder();
 
         // Invert motors
         intakeMotor.setInverted(true);
@@ -145,14 +148,13 @@ public class TeleOpAllianceManual extends CommandOpMode {
         // Invert servos
         deposit1.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
-        tseServo.setDirection(Servo.Direction.REVERSE);
 
         // Home all servos
         deposit1.setPosition(0.12);
         iLifterServo.setPosition(0.27);
         gbServoLeft.setPosition(0.022);
         gbServoRight.setPosition(0.022);
-        tseServo.setPosition(0);
+        tseServo.setPosition(0.34);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -287,38 +289,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
         });
 
         carouselThread = new Thread(() -> {
-            if (carouselSubsystem.isCarouselRunning)
-                carouselSubsystem.stopCarousel();
-            else
-            {
-                scoreTimer = new Timing.Timer(800);
-                scoreTimer.start();
-                while (!scoreTimer.done())
-                {
-                    carouselSubsystem.runCarousel();
-                }
-                scoreTimer.pause();
-                carouselSubsystem.powerCarousel();
-            }
-        });
-
-        tsePrepareThread = new Thread(() -> {
-            slideSubsystem.slideTSEPrepare();
-            fourBarSubsystem.fourBarTSEPrepare();
-            depositSubsystem.openDeposit();
-        });
-
-        tseClawThread = new Thread(() -> {
-           depositSubsystem.depositTSEClaw();
-        });
-
-        tsePickUpThread = new Thread(() -> {
-           slideSubsystem.slideTSERaise();
-           fourBarSubsystem.fourBarTSERaise();
-        });
-
-        tseReleaseThread = new Thread(() -> {
-            depositSubsystem.depositTSERelease();
+              carouselSubsystem.runCarousel();
         });
 
         // Instant Commands
@@ -342,17 +313,30 @@ public class TeleOpAllianceManual extends CommandOpMode {
 
         // Instant Commands for the TSE
 
-        tsePickUpCommand = new InstantCommand(() -> {
-            tseSubsystem.TSEPickup();
-        }, tseSubsystem);
+        tsePrepareThread = new Thread(() -> {
+            tseSubsystem.tsePrepare();
+            fourBarSubsystem.fourBarIntermediate();
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
 
-        tseWaitCommand = new InstantCommand(() ->{
-            tseSubsystem.TSEWait();
-        }, tseSubsystem);
+            }
+            scoreTimer.pause();
+            slideSubsystem.slideTSEPrepare();
+        });
 
-        tseScoreCommand = new InstantCommand(() -> {
-            tseSubsystem.initPos();
-        }, tseSubsystem);
+        tsePickUpThread = new Thread(() -> {
+            tseSubsystem.tsePickup();
+        });
+
+        tseScoreThread = new Thread(() -> {
+            tseSubsystem.tseScore();
+        });
+
+        tseResetThread = new Thread(() -> {
+            tseSubsystem.tseWait();
+        });
 
         tseMoveUpCommand = new InstantCommand(() -> {
             tseSubsystem.TSEManualControl(-0.03);
@@ -361,6 +345,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
         tseMoveDownCommand = new InstantCommand(() -> {
             tseSubsystem.TSEManualControl(0.03);
         }, tseSubsystem);
+
 
 
         // State the buttons that run commands
@@ -378,11 +363,12 @@ public class TeleOpAllianceManual extends CommandOpMode {
         Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelMidThread.start());
         Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> levelLowThread.start());
 
-        Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(() -> tsePickUpThread.start());
-        Button tseClawButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> tseClawThread.start());
-        Button tsePrepareButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> tsePrepareThread.start());
-        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> tseReleaseThread.start());
-
+        Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
+        Button tsePrepareButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(() -> tsePrepareThread.start());
+        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> tseScoreThread.start());
+        Button tseResetButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(() -> tseResetThread.start());
+        Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseMoveUpCommand);
+        Button tseManualDown = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tseMoveDownCommand);
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)
         register(driveSubsystem, depositSubsystem, intakeSubsystem, carouselSubsystem, intakeLiftSubsystem, fourBarSubsystem, tseSubsystem, slideSubsystem);

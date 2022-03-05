@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Vision;
+package org.firstinspires.ftc.teamcode.vision;
 
 import android.util.Log;
 
@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Vision.BarcodeUtil;
+import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -20,7 +20,7 @@ public class Test1 extends LinearOpMode {
 
     @Override
     public void runOpMode( ) {
-        webcamUtil = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry);
+        webcamUtil = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
         webcamUtil.init();
 
         waitForStart();

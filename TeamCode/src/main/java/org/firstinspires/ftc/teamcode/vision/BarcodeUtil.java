@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Vision;
+package org.firstinspires.ftc.teamcode.vision;
 
 import android.util.Log;
 
@@ -17,16 +17,16 @@ public class BarcodeUtil {
     private OpenCvWebcam webcam;
     private BarCodeDetection pipeline;
 
-    public BarcodeUtil( HardwareMap hardwareMap, String webcamName, Telemetry telemetry ) {
+    public BarcodeUtil( HardwareMap hardwareMap, String webcamName, Telemetry telemetry, int tseType ) {
         this.telemetry = telemetry;
-        setup( hardwareMap, webcamName );
+        setup( hardwareMap, webcamName, tseType);
     }
 
-    public void setup( HardwareMap hardwareMap, String webcamName ) {
+    public void setup( HardwareMap hardwareMap, String webcamName, int tseType) {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources( ).getIdentifier( "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName( ) );
         webcam = OpenCvCameraFactory.getInstance( ).createWebcam( hardwareMap.get( WebcamName.class, webcamName ), cameraMonitorViewId );
-        pipeline = new BarCodeDetection( telemetry );
+        pipeline = new BarCodeDetection( telemetry, tseType );
         webcam.setPipeline( pipeline );
     }
 

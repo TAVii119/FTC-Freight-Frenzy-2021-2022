@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class TSESubsystem extends SubsystemBase {
     public Servo tseServo;
-    private double pickUpPos = 0.75;
-    private double waitPos = 0.44;
-    private double initPos = 0.04;
+    private double pickUpPos = 0.86;
+    private double waitPos = 0.34;
+    private double prepareTSE = 0.49;
+    private double scoreTSE = 0.57;
+    private double initPos = 0;
 
     public TSESubsystem(Servo tseServo){
         this.tseServo = tseServo;
@@ -17,10 +19,14 @@ public class TSESubsystem extends SubsystemBase {
         tseServo.setPosition(tseServo.getPosition() + position);
     }
 
-    public void TSEPickup(){
+    public void tsePrepare(){
+        tseServo.setPosition(prepareTSE);
+    }
+    public void tsePickup(){
         tseServo.setPosition(pickUpPos);
     }
-    public void TSEWait() { tseServo.setPosition(waitPos); }
+    public void tseWait() { tseServo.setPosition(waitPos); }
+    public void tseScore() { tseServo.setPosition(scoreTSE); }
     public void initPos(){
         tseServo.setPosition(initPos);
     }

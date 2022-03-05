@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,6 +20,7 @@ public class TeleOPSimple extends LinearOpMode {
     private DcMotor intakeMotor = null;
     private DcMotor leftSlideMotor = null;
     private DcMotor rightSlideMotor = null;
+    private DcMotor duckMotor = null;
 
     private Servo gbServoRight = null;
     private Servo gbServoLeft = null;
@@ -47,6 +49,8 @@ public class TeleOPSimple extends LinearOpMode {
         lb = hardwareMap.get(DcMotor.class, "lb");
         rb = hardwareMap.get(DcMotor.class, "rb");
 
+        duckMotor = hardwareMap.get(DcMotor.class, "duckMotor");
+
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
         leftSlideMotor = hardwareMap.get(DcMotor.class, "leftSlideMotor");
@@ -60,7 +64,6 @@ public class TeleOPSimple extends LinearOpMode {
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
-        tseServo.setDirection(Servo.Direction.REVERSE);
 
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
@@ -75,11 +78,13 @@ public class TeleOPSimple extends LinearOpMode {
         rf.setDirection(DcMotor.Direction.FORWARD);
         rb.setDirection(DcMotor.Direction.FORWARD);
         leftSlideMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightSlideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightSlideMotor.setDirection(DcMotor.Direction.REVERSE);
+        duckMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Set modes
         rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        duckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -91,11 +96,14 @@ public class TeleOPSimple extends LinearOpMode {
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        duckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        duckMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        duckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -179,14 +187,24 @@ public class TeleOPSimple extends LinearOpMode {
                 iLifterServo.setPosition(iLifterServo.getPosition() - 0.02);
                 sleep(500);
             }
+            if(gamepad2.x){
+                tseServo.setPosition(tseServo.getPosition() + 0.02);
+                sleep(500);
+            }
+            if(gamepad2.y){
+                tseServo.setPosition(tseServo.getPosition() - 0.02);
+                sleep(500);
+            }
 
             // Move slides manually
-            leftSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-            rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            duckMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            //rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
 
 
             // Telemetry
+            telemetry.addData( "> TSE Position", tseServo.getPosition());
+            telemetry.addData(">Duck Motor Position", duckMotor.getCurrentPosition());
             telemetry.addData(">Left Slide position: ", leftSlideMotor.getCurrentPosition());
             telemetry.addData("> Right Slide Position", rightSlideMotor.getCurrentPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());

@@ -10,8 +10,7 @@ public class SlideSubsystem extends SubsystemBase {
     private int slideLevel2Pos = 800;
     private int slideLevel1Pos = 831;
     private int slideIntermediate = 1200;
-    private int slideTSEPrepare = 815;
-    private int slideTSERaise = 1698;
+    private int slideTSEPrepare = 1119;
     private int homePos = 0;
     public boolean slideMoving = false;
 
@@ -99,8 +98,8 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
@@ -131,8 +130,8 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
@@ -164,8 +163,8 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
@@ -196,40 +195,8 @@ public class SlideSubsystem extends SubsystemBase {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
-        }
-        leftSlideMotor.stopMotor();
-        rightSlideMotor.stopMotor();// stop the motor
-    }
-
-    public void slideTSERaise() {
-        slideMoving = true;
-        leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
-        rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
-
-        // set and get the position coefficient
-        leftSlideMotor.setPositionCoefficient(0.05);
-        rightSlideMotor.setPositionCoefficient(0.05);
-
-        double leftkP = leftSlideMotor.getPositionCoefficient();
-        double rightkP = rightSlideMotor.getPositionCoefficient();
-
-        // set the target position
-        leftSlideMotor.setTargetPosition(slideTSERaise); // an integer representing desired tick count
-        rightSlideMotor.setTargetPosition(slideTSERaise);
-
-        leftSlideMotor.set(0);
-        rightSlideMotor.set(0);
-
-        // set the tolerance
-        leftSlideMotor.setPositionTolerance(13.6);   // allowed maximum error
-        rightSlideMotor.setPositionTolerance(13.6);
-
-        // perform the control loop
-        while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(0.6);
-            rightSlideMotor.set(0.6);
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor

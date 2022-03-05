@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-//@Disabled
+@Disabled
 @TeleOp(name="Odometry Tester", group="Test")
 public class OdometryTester extends LinearOpMode {
 
@@ -21,6 +21,7 @@ public class OdometryTester extends LinearOpMode {
         leftEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         waitForStart();
         while(opModeIsActive()) {

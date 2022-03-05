@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -26,6 +27,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
+@Disabled
 @TeleOp(name="TeleOpAllianceAutomatic", group = "Manual")
 public class TeleOpAllianceAutomatic extends CommandOpMode {
 
@@ -264,22 +266,6 @@ public class TeleOpAllianceAutomatic extends CommandOpMode {
                 intakeLiftSubsystem.lifterIntakePos();
         }, intakeLiftSubsystem);
 
-
-        carouselCommand = new InstantCommand(() -> {
-            if (carouselSubsystem.isCarouselRunning)
-                carouselSubsystem.stopCarousel();
-            else
-            {
-                scoreTimer = new Timing.Timer(800);
-                scoreTimer.start();
-                while (!scoreTimer.done())
-                {
-                    carouselSubsystem.runCarousel();
-                }
-                scoreTimer.pause();
-                carouselSubsystem.powerCarousel();}
-        }, carouselSubsystem);
-
         // Instant Commands for the fourBar
 
         levelMidThread = new Thread(() ->{
@@ -296,11 +282,11 @@ public class TeleOpAllianceAutomatic extends CommandOpMode {
         // Instant Commands for the TSE
 
         tsePickUpCommand = new InstantCommand(() -> {
-            tseSubsystem.TSEPickup();
+            tseSubsystem.tsePickup();
         }, tseSubsystem);
 
         tseWaitCommand = new InstantCommand(() ->{
-            tseSubsystem.TSEWait();
+            tseSubsystem.tseWait();
         }, tseSubsystem);
 
         tseScoreCommand = new InstantCommand(() -> {
