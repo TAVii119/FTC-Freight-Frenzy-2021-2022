@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
@@ -95,7 +94,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
     public Thread tsePrepareThread;
     public Thread tseResetThread;
     public Thread tsePickUpThread;
-    public Thread tseScoreThread;
+    public Thread tseZeroThread;
 
 
     Timing.Timer scoreTimer;
@@ -129,6 +128,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
         intakeMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
+        // Reset encoders
         leftSlideMotor.resetEncoder();
         rightSlideMotor.resetEncoder();
         duckMotor.resetEncoder();
@@ -223,7 +223,6 @@ public class TeleOpAllianceManual extends CommandOpMode {
 
             intakeSubsystem.reverseIntake();
             fourBarSubsystem.fourBarIntermediate();
-            // Adaugi sleep aici daca nu merge
             slideSubsystem.slideMid();
             fourBarSubsystem.fourBarMid();
 
@@ -239,8 +238,30 @@ public class TeleOpAllianceManual extends CommandOpMode {
         });
 
         levelLowThread = new Thread(() -> {
-            fourBarSubsystem.fourBarLow();
+            depositSubsystem.closeDeposit();
+
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+
+            intakeSubsystem.reverseIntake();
+            fourBarSubsystem.fourBarIntermediate();
             slideSubsystem.slideLow();
+            fourBarSubsystem.fourBarLow();
+
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+
+            intakeSubsystem.stopIntake();
         });
 
         scoreCommandThread = new Thread(() -> {
@@ -330,20 +351,34 @@ public class TeleOpAllianceManual extends CommandOpMode {
             tseSubsystem.tsePickup();
         });
 
-        tseScoreThread = new Thread(() -> {
-            tseSubsystem.tseScore();
-        });
-
-        tseResetThread = new Thread(() -> {
+        tseZeroThread = new Thread(() -> {
             tseSubsystem.tseWait();
         });
 
+        tseResetThread = new Thread(() -> {
+            fourBarSubsystem.fourBarIntermediate();
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            slideSubsystem.slideHome();
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            fourBarSubsystem.fourBarIntake();
+        });
+
         tseMoveUpCommand = new InstantCommand(() -> {
-            tseSubsystem.TSEManualControl(-0.03);
+            tseSubsystem.TSEManualControl(-0.05);
         }, tseSubsystem);
 
         tseMoveDownCommand = new InstantCommand(() -> {
-            tseSubsystem.TSEManualControl(0.03);
+            tseSubsystem.TSEManualControl(0.05);
         }, tseSubsystem);
 
 
@@ -365,7 +400,7 @@ public class TeleOpAllianceManual extends CommandOpMode {
 
         Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
         Button tsePrepareButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(() -> tsePrepareThread.start());
-        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> tseScoreThread.start());
+        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> tseZeroThread.start());
         Button tseResetButton = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(() -> tseResetThread.start());
         Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseMoveUpCommand);
         Button tseManualDown = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tseMoveDownCommand);

@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.Autonomie;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,8 +14,9 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Autonomous(name = "RedWarehouse4MineralDTSE")
-public class RedWarehouse4MineralDTSE extends LinearOpMode {
+@Disabled
+@Autonomous(name = "RedWarehouse4MineralNoPark")
+public class RedWarehouse4MineralNoPark extends LinearOpMode {
     SampleMecanumDrive drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
@@ -103,7 +105,7 @@ public class RedWarehouse4MineralDTSE extends LinearOpMode {
         gbServoRight.setPosition(0.022);
         tseServo.setPosition(0);
 
-        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
+        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1); // 1 - Delta TSE, 2 - Soft TSE, 3 - T TSE
         webcam.init();
 
 
@@ -329,8 +331,7 @@ public class RedWarehouse4MineralDTSE extends LinearOpMode {
                 .addTemporalMarker(5.6, () -> {
                     scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .back(7)
                 .build();
 
         drive.followTrajectorySequence(traj0);
@@ -394,8 +395,7 @@ public class RedWarehouse4MineralDTSE extends LinearOpMode {
                 .addTemporalMarker(5.6, () -> {
                     scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .back(7)
                 .build();
 
         drive.followTrajectorySequence(traj0);
@@ -459,8 +459,7 @@ public class RedWarehouse4MineralDTSE extends LinearOpMode {
                 .addTemporalMarker(5.6, () -> {
                     scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .back(7)
                 .build();
 
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomie;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -13,14 +13,15 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Autonomous(name = "RedWarehouse4MineralSTSE")
-public class RedWarehouse4MineralSTSE extends LinearOpMode {
+@Autonomous(name = "RedWarehouse4MineralDTSE")
+public class RedWarehouse4MineralDTSE extends LinearOpMode {
     SampleMecanumDrive drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
     TrajectorySequence traj2;
     TrajectorySequence traj3;
     TrajectorySequence traj4;
+    TrajectorySequence traj5;
 
     Pose2d startPose;
 
@@ -103,7 +104,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
         gbServoRight.setPosition(0.022);
         tseServo.setPosition(0);
 
-        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 2);
+        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
         webcam.init();
 
 
@@ -118,7 +119,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.2);
+            intakeMotor.setPower(-0.8);
             moveFourBarIntermediate();
             moveSlideTop();
             moveFourBarTop();
@@ -143,7 +144,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.2);
+            intakeMotor.setPower(-0.8);
             moveFourBarIntermediate();
             moveSlideMid();
             moveFourBarMiddle();
@@ -168,7 +169,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.2);
+            intakeMotor.setPower(-0.8);
             moveFourBarIntermediate();
             moveSlideLow();
             moveFourBarLow();
@@ -214,7 +215,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
             scoreTimer.pause();
 
             moveFourBarIntake();
-            intakeMotor.setPower(0.5);
+            intakeMotor.setPower(1);
             depositServo.setPosition(depositIntermediate);
         });
 
@@ -250,7 +251,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
             scoreTimer.pause();
 
             moveFourBarIntake();
-            intakeMotor.setPower(0.5);
+            intakeMotor.setPower(1);
             depositServo.setPosition(depositIntermediate);
         });
 
@@ -279,15 +280,15 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         traj0 = drive.trajectorySequenceBuilder(startPose)
-                .back(10)
-                .addTemporalMarker(3, () -> {
+                .back(5)
+                .addTemporalMarker(0.06, () -> {
                     slideTopThread.start();
                 })
                 .build();
 
         traj1 = drive.trajectorySequenceBuilder(traj0.end())
                 .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
-                .addDisplacementMarker(() -> {
+                .addTemporalMarker(1, () -> {
                     scoreThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
@@ -307,7 +308,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
                 .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
-                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(370)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
@@ -320,13 +321,26 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 .lineToLinearHeading(new Pose2d(13, -56.25, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(56, -57, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(54, -57, Math.toRadians(350)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
                 .lineToLinearHeading(new Pose2d(0, -39.8, Math.toRadians(300)))
                 .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .build();
+
+        traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -40.1, Math.toRadians(301)))
+                .addTemporalMarker(4.5, () -> {
                     scoreThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
@@ -338,6 +352,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
         drive.followTrajectorySequence(traj2);
         drive.followTrajectorySequence(traj3);
         drive.followTrajectorySequence(traj4);
+        drive.followTrajectorySequence(traj5);
     }
 
     private void CaseB() {
@@ -356,7 +371,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
                     scoreThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
-                .lineToLinearHeading(new Pose2d(46.5, -58, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(46, -58, Math.toRadians(360)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
@@ -372,7 +387,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
                 .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
-                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(370)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
@@ -384,14 +399,27 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(56.5, -57, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(13, -56.25, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(54, -57, Math.toRadians(350)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
-                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(300)))
+                .lineToLinearHeading(new Pose2d(0, -39.8, Math.toRadians(300)))
                 .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .build();
+
+        traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -40.1, Math.toRadians(301)))
+                .addTemporalMarker(4.5, () -> {
                     scoreThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
@@ -403,6 +431,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
         drive.followTrajectorySequence(traj2);
         drive.followTrajectorySequence(traj3);
         drive.followTrajectorySequence(traj4);
+        drive.followTrajectorySequence(traj5);
     }
 
     private void CaseA() {
@@ -421,7 +450,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
                     scoreThread2.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
-                .lineToLinearHeading(new Pose2d(46.5, -58, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(46, -58, Math.toRadians(360)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
@@ -437,7 +466,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
                 .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
-                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(370)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
@@ -449,14 +478,27 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(350)))
-                .lineToLinearHeading(new Pose2d(56.5, -57, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(13, -56.25, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(54, -57, Math.toRadians(350)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
-                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(300)))
+                .lineToLinearHeading(new Pose2d(0, -39.8, Math.toRadians(300)))
                 .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .build();
+
+        traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -40.1, Math.toRadians(301)))
+                .addTemporalMarker(4.5, () -> {
                     scoreThread.start();
                 })
                 .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
@@ -469,6 +511,7 @@ public class RedWarehouse4MineralSTSE extends LinearOpMode {
         drive.followTrajectorySequence(traj2);
         drive.followTrajectorySequence(traj3);
         drive.followTrajectorySequence(traj4);
+        drive.followTrajectorySequence(traj5);
     }
 
     public void moveSlideTop() {

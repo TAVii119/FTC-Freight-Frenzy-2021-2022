@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.Autonomie;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,12 +11,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Timing;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Autonomous(name = "RedCarouselAuto")
-public class RedCarouselAuto extends LinearOpMode {
+@Disabled
+@Autonomous(name = "RedWarehouse4MineralSTSE")
+public class RedWarehouse4MineralSTSE extends LinearOpMode {
     SampleMecanumDrive drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
@@ -26,7 +27,7 @@ public class RedCarouselAuto extends LinearOpMode {
     Pose2d startPose;
 
     private DcMotor intakeMotor;
-    private Motor duckMotor;
+    private DcMotor duckMotor;
     private Motor leftSlideMotor;
     private Motor rightSlideMotor;
 
@@ -43,7 +44,6 @@ public class RedCarouselAuto extends LinearOpMode {
     private Thread scoreThread;
     private Thread intakeDown;
     private Thread scoreThread2;
-    private Thread carouselThread;
 
     public double depositOpen = 0;
     public double depositClose = 0.36;
@@ -74,7 +74,7 @@ public class RedCarouselAuto extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        duckMotor = new Motor(hardwareMap, "duckMotor");
+        duckMotor = hardwareMap.get(DcMotor.class, "duckMotor");
         leftSlideMotor = new Motor(hardwareMap, "leftSlideMotor");
         rightSlideMotor = new Motor(hardwareMap, "rightSlideMotor");
 
@@ -90,11 +90,10 @@ public class RedCarouselAuto extends LinearOpMode {
 
         leftSlideMotor.resetEncoder();
         rightSlideMotor.resetEncoder();
-        duckMotor.resetEncoder();
 
         // Invert motors
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
-        duckMotor.setInverted(true);
+        duckMotor.setDirection(DcMotor.Direction.REVERSE);
         rightSlideMotor.setInverted(true);
 
         depositServo.setDirection(Servo.Direction.REVERSE);
@@ -104,9 +103,9 @@ public class RedCarouselAuto extends LinearOpMode {
         depositServo.setPosition(0.12);
         gbServoLeft.setPosition(0.022);
         gbServoRight.setPosition(0.022);
-        tseServo.setPosition(0.34);
+        tseServo.setPosition(0);
 
-        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
+        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 2);
         webcam.init();
 
 
@@ -121,7 +120,7 @@ public class RedCarouselAuto extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.5);
+            intakeMotor.setPower(-0.2);
             moveFourBarIntermediate();
             moveSlideTop();
             moveFourBarTop();
@@ -146,7 +145,7 @@ public class RedCarouselAuto extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.5);
+            intakeMotor.setPower(-0.2);
             moveFourBarIntermediate();
             moveSlideMid();
             moveFourBarMiddle();
@@ -171,7 +170,7 @@ public class RedCarouselAuto extends LinearOpMode {
 
             }
             scoreTimer.pause();
-            intakeMotor.setPower(-0.5);
+            intakeMotor.setPower(-0.2);
             moveFourBarIntermediate();
             moveSlideLow();
             moveFourBarLow();
@@ -261,13 +260,18 @@ public class RedCarouselAuto extends LinearOpMode {
             intakeDown();
         });
 
-        startPose = new Pose2d(-35, -58, Math.toRadians(270));
+        startPose = new Pose2d(10, -58, Math.toRadians(270));
 
         waitForStart();
         while(opModeIsActive()) {
+            tseServo.setPosition(0.34);
             barcodePosition = webcam.getBarcodePosition();
             webcam.stopCamera();
-            CaseC();
+            if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
+                CaseA();
+            else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
+                CaseB();
+            else CaseC();
             sleep(30000);
         }
 
@@ -277,49 +281,130 @@ public class RedCarouselAuto extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         traj0 = drive.trajectorySequenceBuilder(startPose)
-                .addDisplacementMarker(() -> slideTopThread.start())
-                .back(5)
-                .lineToLinearHeading(new Pose2d(-31, -40, Math.toRadians(220)))
-                .addDisplacementMarker(() -> scoreThread.start())
-                .lineToLinearHeading(new Pose2d(-45, -50, Math.toRadians(190)))
-                .forward(15)
-                .addDisplacementMarker(() -> {
-                    duckMotor.resetEncoder();
-                    duckMotor.setRunMode(Motor.RunMode.RawPower);
-
-                    while (duckMotor.getCurrentPosition() < 700)
-                        duckMotor.set(0.3);
-
-                    while (duckMotor.getCurrentPosition() < 1200)
-                        duckMotor.set(1);
-
-                    sleep(500);
-                    duckMotor.stopMotor();
+                .back(10)
+                .addTemporalMarker(3, () -> {
+                    slideTopThread.start();
                 })
                 .build();
 
-                traj1 = drive.trajectorySequenceBuilder(traj0.end())
-                    .back(25)
-                    .addDisplacementMarker(() -> intakeMotor.setPower(0.5))
-                    .turn(Math.toRadians(10))
-                    .forward(20)
-                    .addDisplacementMarker(() -> slideTopThread.start())
-                    .build();
+        traj1 = drive.trajectorySequenceBuilder(traj0.end())
+                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                .addDisplacementMarker(() -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(46, -58, Math.toRadians(360)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -56.5, Math.toRadians(363)))
+                .build();
 
-                traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                    .lineToLinearHeading(new Pose2d(-31, -40, Math.toRadians(220)))
-                    .addDisplacementMarker(() -> scoreThread.start())
-                    .lineToLinearHeading(new Pose2d(-46, -35.25, Math.toRadians(360)))
-                    .back(13.5)
-                    .build();
+        traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(14, -58, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                .lineToLinearHeading(new Pose2d(13, -56.25, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(56, -57, Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.8, Math.toRadians(300)))
+                .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .build();
 
         drive.followTrajectorySequence(traj0);
         drive.followTrajectorySequence(traj1);
         drive.followTrajectorySequence(traj2);
+        drive.followTrajectorySequence(traj3);
+        drive.followTrajectorySequence(traj4);
     }
 
     private void CaseB() {
         drive.setPoseEstimate(startPose);
+
+        traj0 = drive.trajectorySequenceBuilder(startPose)
+                .back(5)
+                .addTemporalMarker(2, () -> {
+                    slideMidThread.start();
+                })
+                .build();
+
+        traj1 = drive.trajectorySequenceBuilder(traj0.end())
+                .lineToLinearHeading(new Pose2d(0, -38.7, Math.toRadians(310)))
+                .addTemporalMarker(0.85, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(46.5, -58, Math.toRadians(360)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -56.5, Math.toRadians(363)))
+                .build();
+
+        traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(14, -58, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(56.5, -57, Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(300)))
+                .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .build();
+
+        drive.followTrajectorySequence(traj0);
+        drive.followTrajectorySequence(traj1);
+        drive.followTrajectorySequence(traj2);
+        drive.followTrajectorySequence(traj3);
+        drive.followTrajectorySequence(traj4);
     }
 
     private void CaseA() {
@@ -332,6 +417,60 @@ public class RedCarouselAuto extends LinearOpMode {
                 })
                 .build();
 
+        traj1 = drive.trajectorySequenceBuilder(traj0.end())
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(308)))
+                .addTemporalMarker(0.9, () -> {
+                    scoreThread2.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(46.5, -58, Math.toRadians(360)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -56.5, Math.toRadians(363)))
+                .build();
+
+        traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(340)))
+                .lineToLinearHeading(new Pose2d(55.5, -57, Math.toRadians(370)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(14, -58, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.5, Math.toRadians(305)))
+                .addTemporalMarker(7, () -> {
+                    scoreThread.start();
+                })
+                .build();
+
+        traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                .lineToLinearHeading(new Pose2d(13, -55.5, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(56.5, -57, Math.toRadians(350)))
+                .addDisplacementMarker(() -> {
+                    slideTopThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(13, -56.5, Math.toRadians(365)))
+                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(300)))
+                .addTemporalMarker(5.6, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(350)))
+                .lineToLinearHeading(new Pose2d(58, -56 , Math.toRadians(350)))
+                .build();
+
+
+        drive.followTrajectorySequence(traj0);
+        drive.followTrajectorySequence(traj1);
+        drive.followTrajectorySequence(traj2);
+        drive.followTrajectorySequence(traj3);
+        drive.followTrajectorySequence(traj4);
     }
 
     public void moveSlideTop() {

@@ -197,8 +197,8 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             // Move slides manually
-            duckMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-            //rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            leftSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
 
 
