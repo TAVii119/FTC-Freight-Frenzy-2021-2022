@@ -68,8 +68,8 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
-        iLifterServo.setPosition(0);
-        tseServo.setPosition(0);
+        iLifterServo.setPosition(0.27);
+        tseServo.setPosition(0.34);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -197,8 +197,8 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             // Move slides manually
-            rightSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-            leftSlideMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            rightSlideMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            leftSlideMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
 
 

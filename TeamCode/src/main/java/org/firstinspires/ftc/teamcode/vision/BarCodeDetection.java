@@ -37,7 +37,7 @@ public class BarCodeDetection extends OpenCvPipeline {
             new Point( 1280, 720 )
     );
 
-    static double PERCENT_COLOR_THRESHOLD = 0.05;
+    static double PERCENT_COLOR_THRESHOLD = 0.20;
 
     public BarCodeDetection(Telemetry t, int type) {
         telemetry = t;
@@ -52,7 +52,7 @@ public class BarCodeDetection extends OpenCvPipeline {
 
         if( tseType == 1 ) { //DELTA FORCE TSE
             lowHSV = new Scalar(10, 100, 20);
-            highHSV = new Scalar(25, 255, 255);
+            highHSV = new Scalar(20, 255, 255);
         } else if(tseType == 2) { //SOFT HOARDERS TSE
             lowHSV = new Scalar(40, 40, 40);
             highHSV = new Scalar(70, 255, 255);

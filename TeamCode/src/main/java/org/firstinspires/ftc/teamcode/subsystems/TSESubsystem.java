@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class TSESubsystem extends SubsystemBase {
     public Servo tseServo;
-    private double pickUpPos = 0.833;
+    private double pickUpPos = 0.825;
     private double waitPos = 0.34;
     private double prepareTSE = 0.57;
     private double scoreTSE = 0.57;
