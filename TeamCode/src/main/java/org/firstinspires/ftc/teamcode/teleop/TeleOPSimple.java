@@ -28,6 +28,7 @@ public class TeleOPSimple extends LinearOpMode {
     private Servo iLifterServo = null;
     private Servo tseServo = null;
 
+
     double lfPower, rfPower, lbPower, rbPower;
     boolean isDepositOpen = true;
     boolean isIntakeRunning = false;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous.CSH;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,8 +14,9 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Autonomous(name = "RedWarehouse3CSH")
-public class RedWarehouse3CSH extends LinearOpMode {
+@Disabled
+@Autonomous(name = "BlueWarehouse3CSHnoDelay")
+public class BlueWarehouse3CSHnoDelay extends LinearOpMode {
     SampleMecanumDriveSlow drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
@@ -42,7 +44,7 @@ public class RedWarehouse3CSH extends LinearOpMode {
     private Thread slideIntermediateThread;
     private Thread scoreThread;
     private Thread intakeDown;
-    private Thread scoreThread2;
+    private Thread scoreThreadRamp;
 
     public double depositOpen = 0;
     public double depositClose = 0.36;
@@ -183,7 +185,7 @@ public class RedWarehouse3CSH extends LinearOpMode {
             intakeMotor.setPower(0);
         });
 
-        scoreThread2 = new Thread(() -> {
+        scoreThreadRamp = new Thread(() -> {
             depositServo.setPosition(depositRamp);
 
             scoreTimer = new Timing.Timer(300);
@@ -259,7 +261,7 @@ public class RedWarehouse3CSH extends LinearOpMode {
             intakeDown();
         });
 
-        startPose = new Pose2d(11, -58, Math.toRadians(270));
+        startPose = new Pose2d(11, 58, Math.toRadians(90));
 
         waitForStart();
         while(opModeIsActive()) {
@@ -280,13 +282,12 @@ public class RedWarehouse3CSH extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         traj0 = drive.trajectorySequenceBuilder(startPose)
-                .waitSeconds(1)
                 .back(5)
-                .strafeRight(10)
+                .strafeLeft(10)
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(-14, -46, Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(-14, 45, Math.toRadians(80)))
                 .build();
 
         traj1 = drive.trajectorySequenceBuilder(traj0.end())
@@ -294,37 +295,39 @@ public class RedWarehouse3CSH extends LinearOpMode {
                 .addTemporalMarker(1, () -> {
                     scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(46, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(12, 58, Math.toRadians(355)))
+                .lineToLinearHeading(new Pose2d(45, 58, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 60.5, Math.toRadians(0)))
                 .build();
 
         traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(306)))
+                .lineToLinearHeading(new Pose2d(0, 44, Math.toRadians(62)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(14, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(50, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 61, Math.toRadians(358)))
+                .lineToLinearHeading(new Pose2d(49, 60, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(309)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 61.5, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(0, 45, Math.toRadians(65)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(55, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 64, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(38, 70, Math.toRadians(0)))
                 .addTemporalMarker(4, () -> {
                     intakeMotor.setPower(0);
                 })
@@ -342,50 +345,52 @@ public class RedWarehouse3CSH extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         traj0 = drive.trajectorySequenceBuilder(startPose)
-                .waitSeconds(1)
                 .back(5)
-                .strafeRight(5)
+                .strafeLeft(5)
                 .addDisplacementMarker(() -> {
                     slideMidThread.start();
                 })
+                .lineToLinearHeading(new Pose2d(0, 40, Math.toRadians(60)))
                 .build();
 
         traj1 = drive.trajectorySequenceBuilder(traj0.end())
-                .lineToLinearHeading(new Pose2d(0, -39.3, Math.toRadians(310)))
-                .addTemporalMarker(0.9, () -> {
+                .waitSeconds(1.5)
+                .addTemporalMarker(1, () -> {
                     scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(46, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(12, 58, Math.toRadians(355)))
+                .lineToLinearHeading(new Pose2d(45, 58, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 60.5, Math.toRadians(0)))
                 .build();
 
         traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(306)))
+                .lineToLinearHeading(new Pose2d(0, 44, Math.toRadians(62)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(14, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(50, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 61, Math.toRadians(358)))
+                .lineToLinearHeading(new Pose2d(49, 60, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(309)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 61.5, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(0, 45, Math.toRadians(65)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(55, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 64, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(38, 70, Math.toRadians(0)))
                 .addTemporalMarker(4, () -> {
                     intakeMotor.setPower(0);
                 })
@@ -403,50 +408,52 @@ public class RedWarehouse3CSH extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         traj0 = drive.trajectorySequenceBuilder(startPose)
-                .waitSeconds(1)
                 .back(5)
-                .strafeRight(10)
+                .strafeLeft(10)
                 .addDisplacementMarker(() -> {
                     slideLowThread.start();
                 })
+                .lineToLinearHeading(new Pose2d(-12, 44.2, Math.toRadians(90)))
                 .build();
 
         traj1 = drive.trajectorySequenceBuilder(traj0.end())
-                .lineToLinearHeading(new Pose2d(-10, -43.8, Math.toRadians(290)))
-                .addTemporalMarker(0.7, () -> {
-                    scoreThread2.start();
+                .waitSeconds(1.5)
+                .addTemporalMarker(1, () -> {
+                    scoreThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(12, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(46, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(12, 58, Math.toRadians(355)))
+                .lineToLinearHeading(new Pose2d(45, 58, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 60.5, Math.toRadians(0)))
                 .build();
 
         traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(306)))
+                .lineToLinearHeading(new Pose2d(0, 44, Math.toRadians(62)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(14, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(50, -55, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 61, Math.toRadians(358)))
+                .lineToLinearHeading(new Pose2d(49, 60, Math.toRadians(5)))
                 .addDisplacementMarker(() -> {
                     slideTopThread.start();
                 })
-                .lineToLinearHeading(new Pose2d(14, -56, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(309)))
+                .lineToLinearHeading(new Pose2d(35, 62, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(14, 61.5, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(0, 45, Math.toRadians(62)))
                 .addTemporalMarker(7, () -> {
                     scoreThread.start();
                 })
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(360)))
-                .lineToLinearHeading(new Pose2d(55, -56, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(14, 64, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(38, 70, Math.toRadians(0)))
                 .addTemporalMarker(4, () -> {
                     intakeMotor.setPower(0);
                 })

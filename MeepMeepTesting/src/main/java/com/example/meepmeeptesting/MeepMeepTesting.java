@@ -3,8 +3,8 @@ package com.example.meepmeeptesting;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
-import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
+import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 
 public class MeepMeepTesting {
     public static void main(String[] args) {
@@ -16,8 +16,10 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(11, -58, Math.toRadians(270)))
                                 .back(5)
-                                .strafeRight(10)
-                                .lineToLinearHeading(new Pose2d(-14, -46, Math.toRadians(270)))
+                                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                                //.splineToSplineHeading(new Pose2d(13, -65, Math.toRadians(0)), Math.toRadians(360))
+                                .splineToLinearHeading(new Pose2d(10, -60, Math.toRadians(10)), Math.toRadians(90))
+                                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(370)))
                                 .build()
                 );
 

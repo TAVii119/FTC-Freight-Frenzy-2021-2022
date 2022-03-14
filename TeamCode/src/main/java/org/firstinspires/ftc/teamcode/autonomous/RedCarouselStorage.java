@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.CSH;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Autonomous(name = "RedCarouselStorageCSH")
-public class RedCarouselStorageCSH extends LinearOpMode {
+@Autonomous(name = "RedCarouselStorage")
+public class RedCarouselStorage extends LinearOpMode {
     SampleMecanumDriveSlow drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
