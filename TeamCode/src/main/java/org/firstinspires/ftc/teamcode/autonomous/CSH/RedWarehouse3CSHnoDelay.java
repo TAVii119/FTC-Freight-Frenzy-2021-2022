@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
-@Disabled
 @Autonomous(name = "RedWarehouse3CSHnoDelay")
 public class RedWarehouse3CSHnoDelay extends LinearOpMode {
     SampleMecanumDriveSlow drive;
@@ -266,13 +265,7 @@ public class RedWarehouse3CSHnoDelay extends LinearOpMode {
         waitForStart();
         while(opModeIsActive()) {
             tseServo.setPosition(0.34);
-            barcodePosition = webcam.getBarcodePosition();
-            webcam.stopCamera();
-            if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
-                CaseA();
-            else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
-                CaseB();
-            else CaseC();
+            CaseC();
             sleep(30000);
         }
 

@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
@@ -105,7 +106,7 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
     private int slideLevel3Pos = 1550;
     private int slideLevel2Pos = 750;
     private int slideLevel1Pos = 831;
-    private int slideIntermediate = 1200;
+    private int slideIntermediate = 540;
     private int slideIntakePos = 0;
 
     double headingOffset;
@@ -156,8 +157,8 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
         gbServoRight.setPosition(0.022);
         tseServo.setPosition(0);
 
-        webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
-        webcam.init();
+        //webcam = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
+        //webcam.init();
 
 
         slideTopThread = new Thread(() -> {
@@ -200,6 +201,30 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
             moveFourBarIntermediate();
             moveSlideMid();
             moveFourBarMiddle();
+            scoreTimer = new Timing.Timer(300);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+            intakeMotor.setPower(0);
+        });
+
+        slideIntermediateThread = new Thread(() -> {
+            iLifterServo.setPosition(0.27);
+            depositServo.setPosition(depositClose);
+
+            scoreTimer = new Timing.Timer(500);
+            scoreTimer.start();
+            while (!scoreTimer.done())
+            {
+
+            }
+            scoreTimer.pause();
+            intakeMotor.setPower(-0.6);
+            moveFourBarIntermediate();
+            moveSlideIntermediate();
             scoreTimer = new Timing.Timer(300);
             scoreTimer.start();
             while (!scoreTimer.done())
@@ -284,7 +309,7 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
 
             moveFourBarIntermediate();
 
-            scoreTimer = new Timing.Timer(800);
+            scoreTimer = new Timing.Timer(300);
             scoreTimer.start();
             while (!scoreTimer.done())
             {
@@ -301,7 +326,6 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
 
             }
             scoreTimer.pause();
-
             moveFourBarIntake();
             intakeMotor.setPower(1);
             depositServo.setPosition(depositIntermediate);
@@ -318,89 +342,117 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
         while(opModeIsActive()) {
 
             tseServo.setPosition(0.34);
-                drive.setPoseEstimate(startPose);
-            preloadTraj = drive.trajectorySequenceBuilder(startPose)
-                    .back(5)
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
-                    .build();
+            drive.setPoseEstimate(startPose);
+            CaseC();
 
-            firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(0)), Math.toRadians(90))
-                    .build();
+            sleep(30000);
+        }
+    }
 
-            firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55 , Math.toRadians(360)))
-                    .build();
+    private void CaseC() {
+        drive.setPoseEstimate(startPose);
+        preloadTraj = drive.trajectorySequenceBuilder(startPose)
+                .back(5)
+                .addTemporalMarker(0, () -> {
+                    slideTopThread.start();
+                })
+                .build();
 
-            firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(14, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
-                    .build();
+        firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
+                .lineToLinearHeading(new Pose2d(0, -42, Math.toRadians(310)))
+                .waitSeconds(0.35)
+                .addTemporalMarker(1.2, () -> {
+                    scoreThread.start();
+                })
+                .lineToLinearHeading(new Pose2d(15, -51, Math.toRadians(380)))
+                .build();
+
+        firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
+                .forward(30)
+                .addTemporalMarker(1.4, () -> {
+                    slideIntermediateThread.start();
+                })
+                .build();
+
+        firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
+                .lineToLinearHeading(new Pose2d(16, -52.5, Math.toRadians(380)))
+                .addTemporalMarker(0.6, () -> slideTopThread.start())
+                .lineToLinearHeading(new Pose2d(0, -42, Math.toRadians(320)))
+                .addTemporalMarker(5, () -> scoreThread.start())
+                .build();
 
             secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(10)), Math.toRadians(360))
+                    .lineToLinearHeading(new Pose2d(13, -52, Math.toRadians(390)))
                     .build();
 
             secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55 , Math.toRadians(360)))
+                    .forward(34)
+                    .addTemporalMarker(1.4, () -> {
+                        slideIntermediateThread.start();
+                    })
                     .build();
 
             secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                    .lineToLinearHeading(new Pose2d(15, -56.5, Math.toRadians(390)))
+                    .addTemporalMarker(0.6, () -> slideTopThread.start())
+                    .lineToLinearHeading(new Pose2d(0, -45, Math.toRadians(320)))
+                    .addTemporalMarker(5, () -> scoreThread.start())
                     .build();
 
             thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(0)), Math.toRadians(360))
+                    .lineToLinearHeading(new Pose2d(17, -50, Math.toRadians(400)))
                     .build();
 
             thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55 , Math.toRadians(360)))
+                    .forward(36)
+                    .addTemporalMarker(1.4, () -> {
+                        slideIntermediateThread.start();
+                    })
                     .build();
 
             thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                    .lineToLinearHeading(new Pose2d(15, -56.5, Math.toRadians(400)))
+                    .addTemporalMarker(0.6, () -> slideTopThread.start())
+                    .lineToLinearHeading(new Pose2d(0, -45, Math.toRadians(320)))
+                    .addTemporalMarker(5, () -> scoreThread.start())
                     .build();
 
             fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(0)), Math.toRadians(360))
+                    .lineToLinearHeading(new Pose2d(15, -49, Math.toRadians(410)))
                     .build();
 
             fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55 , Math.toRadians(360)))
+                    .forward(38)
+                    .addTemporalMarker(1.5, () -> {
+                        slideIntermediateThread.start();
+                    })
                     .build();
 
             fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                    .lineToLinearHeading(new Pose2d(15, -56.5, Math.toRadians(410)))
+                    .addTemporalMarker(0.6, () -> slideTopThread.start())
+                    .lineToLinearHeading(new Pose2d(0, -44, Math.toRadians(320)))
+                    .addTemporalMarker(5, () -> scoreThread.start())
                     .build();
 
             fifthCycleWareEntry = drive.trajectorySequenceBuilder(fourthCycleScore.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(0)), Math.toRadians(360))
+                    .lineToLinearHeading(new Pose2d(17, -48, Math.toRadians(420)))
                     .build();
 
             fifthCycleWareCollect = drive.trajectorySequenceBuilder(fifthCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55 , Math.toRadians(360)))
+                    .forward(39)
+                    .addTemporalMarker(1.5, () -> {
+                        slideIntermediateThread.start();
+                    })
                     .build();
 
             fifthCycleScore = drive.trajectorySequenceBuilder(fifthCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
-                    .build();
-
-            sixthCycleWareEntry = drive.trajectorySequenceBuilder(fifthCycleScore.end())
-                    .splineToLinearHeading(new Pose2d(14, -55, Math.toRadians(0)), Math.toRadians(360))
-                    .build();
-
-            sixthCycleWareCollect = drive.trajectorySequenceBuilder(sixthCycleWareEntry.end())
-                    .lineToLinearHeading(new Pose2d(45, -55, Math.toRadians(360)))
-                    .build();
-
-            sixthCycleScore = drive.trajectorySequenceBuilder(sixthCycleWareCollect.end())
-                    .lineToLinearHeading(new Pose2d(13, -55, Math.toRadians(365)))
-                    .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(310)))
+                    .lineToLinearHeading(new Pose2d(16, -56.5, Math.toRadians(420)))
+                    .addTemporalMarker(0.6, () -> slideTopThread.start())
+                    .lineToLinearHeading(new Pose2d(0, -45, Math.toRadians(330)))
+                    .addTemporalMarker(2.4, () -> scoreThread.start())
+                    .lineToLinearHeading(new Pose2d(15, -57, Math.toRadians(430)))
+                    .forward(35)
                     .build();
 
             drive.followTrajectorySequence(preloadTraj);
@@ -417,25 +469,13 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
             drive.followTrajectorySequence(thirdCycleWareCollect);
             drive.followTrajectorySequence(thirdCycleScore);
 
-            drive.followTrajectorySequence(fourthCycleWareEntry);
+           drive.followTrajectorySequence(fourthCycleWareEntry);
             drive.followTrajectorySequence(fourthCycleWareCollect);
             drive.followTrajectorySequence(fourthCycleScore);
 
             drive.followTrajectorySequence(fifthCycleWareEntry);
             drive.followTrajectorySequence(fifthCycleWareCollect);
             drive.followTrajectorySequence(fifthCycleScore);
-
-            drive.followTrajectorySequence(sixthCycleWareEntry);
-            drive.followTrajectorySequence(sixthCycleWareCollect);
-            drive.followTrajectorySequence(sixthCycleScore);
-
-
-            sleep(30000);
-        }
-    }
-
-    private void CaseC() {
-        drive.setPoseEstimate(startPose);
     }
 
     private void CaseB() {
@@ -445,8 +485,6 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
 
     private void CaseA() {
         drive.setPoseEstimate(startPose);
-
-
     }
 
     public void moveSlideTop() {
@@ -466,8 +504,8 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
 
         // perform the control loop
         while (!leftSlideMotor.atTargetPosition()) {
-            leftSlideMotor.set(1);
-            rightSlideMotor.set(1);
+            leftSlideMotor.set(0.8);
+            rightSlideMotor.set(0.8);
         }
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
@@ -528,6 +566,30 @@ public class RedWarehouse6CloseRight extends LinearOpMode {
         // set the target position
         leftSlideMotor.setTargetPosition(slideIntakePos); // an integer representing desired tick count
         rightSlideMotor.setTargetPosition(slideIntakePos);
+
+        leftSlideMotor.set(0);
+        rightSlideMotor.set(0);
+
+        // set the tolerance
+        leftSlideMotor.setPositionTolerance(13.6);   // allowed maximum error
+        rightSlideMotor.setPositionTolerance(13.6);
+
+        // perform the control loop
+        while (!leftSlideMotor.atTargetPosition()) {
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
+        }
+        leftSlideMotor.stopMotor();
+        rightSlideMotor.stopMotor();// stop the motor
+    }
+
+    public void moveSlideIntermediate() {
+        leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+        rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+
+        // set the target position
+        leftSlideMotor.setTargetPosition(slideIntermediate); // an integer representing desired tick count
+        rightSlideMotor.setTargetPosition(slideIntermediate);
 
         leftSlideMotor.set(0);
         rightSlideMotor.set(0);
