@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.vision;
+package org.firstinspires.ftc.teamcode.Vision;
 
 import android.util.Log;
 
@@ -61,7 +61,7 @@ public class Webcam {
         webcam.openCameraDeviceAsync( new OpenCvCamera.AsyncCameraOpenListener( ) {
             @Override
             public void onOpened( ) {
-                webcam.startStreaming( 720, 480, OpenCvCameraRotation.UPRIGHT );
+                webcam.startStreaming( 320, 240, OpenCvCameraRotation.UPRIGHT );
             }
 
             @Override

@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
-import org.firstinspires.ftc.teamcode.commands.AutomaticLiftCommand;
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.FourBarCommand;
@@ -75,7 +74,6 @@ public class RedTeleOp extends CommandOpMode {
 
     private SlideSubsystem slideSubsystem;
     
-    private AutomaticLiftCommand automaticLiftCommand;
 
     // Declare instant commands, these are commands that run upon a button press
     private InstantCommand intakeRunCommand;
@@ -207,7 +205,6 @@ public class RedTeleOp extends CommandOpMode {
         driveSubsystem = new DriveSubsystem(lf, rf, lb, rb);
         driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftX, driver1::getLeftY, driver1::getRightX);
         
-        automaticLiftCommand = new AutomaticLiftCommand(depositSubsystem, fourBarSubsystem, intakeLiftSubsystem, cupSensor, intakeSubsystem);
 
         // Scoring Threads
         levelTopandLow = new Thread(() ->{
