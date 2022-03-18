@@ -263,16 +263,16 @@ public class RedWarehouse5CloseRight extends LinearOpMode {
 
         startPose = new Pose2d(10, -58, Math.toRadians(270));
 
+        if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
+            CaseA();
+        else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
+            CaseB();
+        else CaseC();
+
         waitForStart();
         while(opModeIsActive()) {
             tseServo.setPosition(0.34);
-            barcodePosition = webcam.getBarcodePosition();
-            webcam.stopCamera();
-            if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
-                CaseA();
-            else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
-                CaseB();
-            else CaseC();
+
             sleep(30000);
         }
 

@@ -13,7 +13,7 @@ public class BarCodeDetection extends OpenCvPipeline {
 
     Telemetry telemetry;
     Mat mat = new Mat( );
-    int tseType;
+    int alliance;
 
     public enum BarcodePosition {
         LEFT,
@@ -25,23 +25,23 @@ public class BarCodeDetection extends OpenCvPipeline {
     private BarcodePosition barcodePosition;
 
     static final Rect LEFT_ROW = new Rect(
-            new Point( 0, 347 ),
-            new Point( 104, 715 )
+            new Point( 103, 378 ),
+            new Point( 267, 460 )
     );
     static final Rect MIDDLE_ROW = new Rect(
-            new Point( 511, 376 ),
-            new Point( 715, 710 )
+            new Point( 561, 372 ),
+            new Point( 734, 467 )
     );
     static final Rect RIGHT_ROW = new Rect(
-            new Point( 1160, 416 ),
-            new Point( 1280, 720 )
+            new Point( 991, 376 ),
+            new Point( 1200, 455 )
     );
 
-    static double PERCENT_COLOR_THRESHOLD = 0.20;
+    static double PERCENT_COLOR_THRESHOLD = 0.1;
 
-    public BarCodeDetection(Telemetry t, int type) {
+    public BarCodeDetection(Telemetry t, int alliance) {
         telemetry = t;
-        tseType = type;
+        this.alliance = alliance;
     }
 
     public Mat processFrame( Mat input, String type ) {
@@ -50,15 +50,12 @@ public class BarCodeDetection extends OpenCvPipeline {
         Scalar lowHSV;
         Scalar highHSV;
 
-        if( tseType == 1 ) { //DELTA FORCE TSE
-            lowHSV = new Scalar(10, 100, 20);
-            highHSV = new Scalar(20, 255, 255);
-        } else if(tseType == 2) { //SOFT HOARDERS TSE
-            lowHSV = new Scalar(40, 40, 40);
-            highHSV = new Scalar(70, 255, 255);
-        } else { //TEABORGS TSE
-            lowHSV = new Scalar( 56, 100, 10 );
-            highHSV = new Scalar( 60, 80, 100 );
+        if( alliance == 1 ) { //RED ALLIANCE
+            lowHSV = new Scalar(0, 0, 0);
+            highHSV = new Scalar(8, 255, 255);
+        } else { //BLUE ALLIANCE
+            lowHSV = new Scalar(225, 0, 0);
+            highHSV = new Scalar(255, 255, 255);
         }
 
         Core.inRange( mat, lowHSV, highHSV, mat );
@@ -79,13 +76,13 @@ public class BarCodeDetection extends OpenCvPipeline {
         boolean middleBool = middleValue > PERCENT_COLOR_THRESHOLD;
         boolean rightBool = rightValue > PERCENT_COLOR_THRESHOLD;
 
-        if( rightBool ) {
+        if( !rightBool ) {
             barcodePosition = BarcodePosition.RIGHT;
             telemetry.addData( "Location", type + " right" );
-        } else if( leftBool ) {
+        } else if( !leftBool ) {
             barcodePosition = BarcodePosition.LEFT;
             telemetry.addData( "Location", type + " left" );
-        } else if( middleBool ) {
+        } else if( !middleBool ) {
             barcodePosition = BarcodePosition.MIDDLE;
             telemetry.addData( "Location", type + " middle" );
         } else {
