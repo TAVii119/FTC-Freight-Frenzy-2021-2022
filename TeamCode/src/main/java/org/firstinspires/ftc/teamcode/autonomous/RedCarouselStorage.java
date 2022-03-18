@@ -9,14 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveSlow;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
 @Autonomous(name = "RedCarouselStorage")
 public class RedCarouselStorage extends LinearOpMode {
-    SampleMecanumDriveSlow drive;
+    SampleMecanumDrive drive;
     TrajectorySequence traj0;
     TrajectorySequence traj1;
     TrajectorySequence traj2;
@@ -73,7 +73,7 @@ public class RedCarouselStorage extends LinearOpMode {
     private BarCodeDetection.BarcodePosition barcodePosition;
 
     public void runOpMode() {
-        drive = new SampleMecanumDriveSlow(hardwareMap);
+        drive = new SampleMecanumDrive(hardwareMap);
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         duckMotor = new Motor(hardwareMap, "duckMotor");

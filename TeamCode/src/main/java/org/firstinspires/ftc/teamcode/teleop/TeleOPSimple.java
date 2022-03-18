@@ -210,7 +210,8 @@ public class TeleOPSimple extends LinearOpMode {
             telemetry.addData("> Right Slide Position", rightSlideMotor.getCurrentPosition());
             telemetry.addData( "> iLifter position" , iLifterServo.getPosition());
             telemetry.addData( "> Deposit Position" , depositServo.getPosition());
-            telemetry.addData( "> Arm Position" , gbServoLeft.getPosition());
+            telemetry.addData( "> gbServoLeft Position" , gbServoLeft.getPosition());
+            telemetry.addData( "> gbServoRight Position", gbServoRight.getPosition());
             telemetry.update();
         }
     }
