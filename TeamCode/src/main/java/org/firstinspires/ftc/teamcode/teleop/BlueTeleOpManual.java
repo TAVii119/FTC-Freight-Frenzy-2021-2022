@@ -43,7 +43,10 @@ public class BlueTeleOpManual extends CommandOpMode {
     private Servo iLifterServo;
     private Servo gbServoRight;
     private Servo gbServoLeft;
-    private Servo tseServo;
+
+    private Servo tseArmServo;
+    private Servo tseClawServo;
+    private Servo tseAngleServo;
 
 
     boolean Pose2 = false;
@@ -147,18 +150,23 @@ public class BlueTeleOpManual extends CommandOpMode {
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
-        tseServo = hardwareMap.get(Servo.class, "tseServo");
+        tseArmServo = hardwareMap.get(Servo.class, "tseServo");
+        tseClawServo = hardwareMap.get(Servo.class, "tseClawServo");
+        tseAngleServo = hardwareMap.get(Servo.class, "tseAngleServo");
 
         // Invert servos
         deposit1.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
+        tseArmServo.setDirection(Servo.Direction.REVERSE);
 
         // Home all servos
         deposit1.setPosition(0.12);
         iLifterServo.setPosition(0.27);
         gbServoLeft.setPosition(0.022);
         gbServoRight.setPosition(0.022);
-        tseServo.setPosition(0.34);
+        tseArmServo.setPosition(0);
+        tseClawServo.setPosition(0);
+        tseAngleServo.setPosition(0);
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
@@ -179,7 +187,7 @@ public class BlueTeleOpManual extends CommandOpMode {
 
         intakeLiftSubsystem = new IntakeLiftSubsystem(iLifterServo);
 
-        tseSubsystem = new TSESubsystem(tseServo);
+        tseSubsystem = new TSESubsystem(tseArmServo, tseClawServo, tseAngleServo);
 
         slideSubsystem = new SlideSubsystem(rightSlideMotor, leftSlideMotor);
 
@@ -365,18 +373,7 @@ public class BlueTeleOpManual extends CommandOpMode {
 
         // Instant Commands for the TSE
 
-        tsePrepareThread = new Thread(() -> {
-            tseSubsystem.tsePrepare();
-            fourBarSubsystem.fourBarIntermediate();
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
 
-            }
-            scoreTimer.pause();
-            slideSubsystem.slideTSEPrepare();
-        });
 
         tsePickUpThread = new Thread(() -> {
             tseSubsystem.tsePickup();

@@ -24,7 +24,6 @@ public class DistanceSensorTest extends LinearOpMode {
     DistanceSensor distanceSensorLeft;
     DistanceSensor distanceSensorRight;
     DistanceSensor distanceSensorFront;
-    NormalizedColorSensor cupSensor;
 
     BNO055IMU imu;
 
@@ -37,7 +36,6 @@ public class DistanceSensorTest extends LinearOpMode {
         distanceSensorLeft = hardwareMap.get(DistanceSensor.class, "distanceSensorLeft");
         distanceSensorRight = hardwareMap.get(DistanceSensor.class, "distanceSensorRight");
         distanceSensorFront = hardwareMap.get(DistanceSensor.class, "distanceSensorFront");
-        cupSensor = hardwareMap.get(NormalizedColorSensor.class, "cupSensor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         imu.initialize(parameters);
@@ -45,16 +43,9 @@ public class DistanceSensorTest extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()) {
-            NormalizedRGBA colors = cupSensor.getNormalizedColors();
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
             telemetry.addData("Heading", angles.firstAngle);
-            if (cupSensor instanceof DistanceSensor) {
-                telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) cupSensor).getDistance(DistanceUnit.CM));
-            }
-            telemetry.addLine()
-                    .addData("Red", "%.3f", colors.red)
-                    .addData("Green", "%.3f", colors.green)
-                    .addData("Blue", "%.3f", colors.blue);
             telemetry.addData("distanceSensorLeft", distanceSensorLeft.getDistance(DistanceUnit.INCH));
             telemetry.addData("distanceSensorRight", distanceSensorRight.getDistance(DistanceUnit.INCH));
             telemetry.addData("distanceSensorFront", distanceSensorFront.getDistance(DistanceUnit.INCH));

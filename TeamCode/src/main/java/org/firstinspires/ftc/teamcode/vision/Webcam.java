@@ -61,7 +61,7 @@ public class Webcam {
         webcam.openCameraDeviceAsync( new OpenCvCamera.AsyncCameraOpenListener( ) {
             @Override
             public void onOpened( ) {
-                webcam.startStreaming( 1920, 1080, OpenCvCameraRotation.UPRIGHT );
+                webcam.startStreaming( 720, 480, OpenCvCameraRotation.UPRIGHT );
             }
 
             @Override

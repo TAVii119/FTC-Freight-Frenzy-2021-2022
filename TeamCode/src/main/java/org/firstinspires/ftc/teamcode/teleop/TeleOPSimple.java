@@ -26,7 +26,10 @@ public class TeleOPSimple extends LinearOpMode {
     private Servo gbServoLeft = null;
     private Servo depositServo = null;
     private Servo iLifterServo = null;
-    private Servo tseServo = null;
+
+    private Servo tseArmServo = null;
+    private Servo tseClawServo = null;
+    private Servo tseAngleServo = null;
 
 
     double lfPower, rfPower, lbPower, rbPower;
@@ -61,16 +64,23 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft = hardwareMap.get(Servo.class, "gbServoLeft");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
         iLifterServo = hardwareMap.get(Servo.class, "iLifterServo");
-        tseServo = hardwareMap.get(Servo.class, "tseServo");
+
+        tseArmServo = hardwareMap.get(Servo.class, "tseArmServo");
+        tseClawServo = hardwareMap.get(Servo.class, "tseClawServo");
+        tseAngleServo = hardwareMap.get(Servo.class, "tseAngelServo");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
+        tseArmServo.setDirection(Servo.Direction.REVERSE);
+
 
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
-        iLifterServo.setPosition(0.27);
-        tseServo.setPosition(0.34);
+        iLifterServo.setPosition(0);
+        tseArmServo.setPosition(0);
+        tseClawServo.setPosition(0);
+        tseAngleServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -173,11 +183,11 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             if (gamepad2.dpad_left){
-                depositServo.setPosition(depositServo.getPosition() -0.02);
+                tseAngleServo.setPosition(depositServo.getPosition() -0.02);
                 sleep(500);
             }
             if (gamepad2.dpad_right){
-                depositServo.setPosition(depositServo.getPosition() +0.02);
+                tseAngleServo.setPosition(depositServo.getPosition() +0.02);
                 sleep(500);
             }
             if(gamepad2.a){
@@ -189,11 +199,19 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(500);
             }
             if(gamepad2.x){
-                tseServo.setPosition(tseServo.getPosition() + 0.02);
+                tseArmServo.setPosition(tseArmServo.getPosition() + 0.02);
                 sleep(500);
             }
             if(gamepad2.y){
-                tseServo.setPosition(tseServo.getPosition() - 0.02);
+                tseArmServo.setPosition(tseArmServo.getPosition() - 0.02);
+                sleep(500);
+            }
+            if(gamepad1.x){
+                tseClawServo.setPosition(tseClawServo.getPosition() + 0.02);
+                sleep(500);
+            }
+            if(gamepad1.y){
+                tseClawServo.setPosition(tseClawServo.getPosition() -0.02);
                 sleep(500);
             }
 
@@ -204,7 +222,8 @@ public class TeleOPSimple extends LinearOpMode {
 
 
             // Telemetry
-            telemetry.addData( "> TSE Position", tseServo.getPosition());
+            telemetry.addData( "> TSE Arm Position", tseArmServo.getPosition());
+            telemetry.addData( "> TSE Claw Position", tseClawServo.getPosition());
             telemetry.addData(">Duck Motor Position", duckMotor.getCurrentPosition());
             telemetry.addData(">Left Slide position: ", leftSlideMotor.getCurrentPosition());
             telemetry.addData("> Right Slide Position", rightSlideMotor.getCurrentPosition());
