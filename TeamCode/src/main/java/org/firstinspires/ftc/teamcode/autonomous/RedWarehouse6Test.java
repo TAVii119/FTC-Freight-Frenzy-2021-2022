@@ -127,7 +127,7 @@ public class RedWarehouse6Test extends LinearOpMode {
     private BarcodeUtil detector;
     private BarCodeDetection.BarcodePosition barcodePosition = BarCodeDetection.BarcodePosition.NOT_FOUND;
 
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         drive = new SampleMecanumDrive(hardwareMap);
 
         lf = hardwareMap.get(DcMotor.class, "lf");
