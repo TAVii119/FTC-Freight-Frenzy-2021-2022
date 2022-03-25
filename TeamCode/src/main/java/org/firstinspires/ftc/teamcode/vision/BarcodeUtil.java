@@ -44,7 +44,7 @@ public class BarcodeUtil {
         webcam.openCameraDeviceAsync( new OpenCvCamera.AsyncCameraOpenListener( ) {
             @Override
             public void onOpened( ) {
-                webcam.startStreaming( 1280, 720, OpenCvCameraRotation.UPRIGHT );
+                webcam.startStreaming( 640, 360, OpenCvCameraRotation.UPRIGHT );
             }
 
             @Override

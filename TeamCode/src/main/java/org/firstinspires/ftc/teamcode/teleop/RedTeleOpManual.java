@@ -46,7 +46,6 @@ public class RedTeleOpManual extends CommandOpMode {
     private Servo gbServoLeft;
     private Servo tseArmServo;
     private Servo tseClawServo;
-    private Servo tseAngleServo;
 
 
     boolean Pose2 = false;
@@ -81,8 +80,11 @@ public class RedTeleOpManual extends CommandOpMode {
     private InstantCommand tsePickUpCommand;
     private InstantCommand tseWaitCommand;
     private InstantCommand tseScoreCommand;
+
     private InstantCommand tseMoveUpCommand;
     private InstantCommand tseMoveDownCommand;
+    private InstantCommand tseClawCloseCommand;
+    private InstantCommand tseClawOpenCommand;
 
     // Insant Commands for fourBar;
     private InstantCommand levelTopFourBarCommand;
@@ -102,8 +104,7 @@ public class RedTeleOpManual extends CommandOpMode {
     public Thread tsePickUpThread;
     public Thread tseScoreThread;
     public Thread tseMoveUpThread;
-    public Thread tseMoveDown;
-    public Thread releaseTSEThread;
+    public Thread tseReleaseThread;
 
 
     Timing.Timer scoreTimer;
@@ -155,7 +156,6 @@ public class RedTeleOpManual extends CommandOpMode {
 
         tseArmServo = hardwareMap.get(Servo.class, "tseArmServo");
         tseClawServo =hardwareMap.get(Servo.class, "tseClawServo");
-        tseAngleServo= hardwareMap.get(Servo.class, "tseAngleServo");
 
 
         // Invert servos
@@ -168,9 +168,8 @@ public class RedTeleOpManual extends CommandOpMode {
         iLifterServo.setPosition(0.27);
         gbServoLeft.setPosition(0.022);
         gbServoRight.setPosition(0.022);
-        tseArmServo.setPosition(0);
+        tseArmServo.setPosition(0.16);
         tseClawServo.setPosition(0);
-        tseAngleServo.setPosition(0);
 
 
         // Assign gamepads to drivers
@@ -192,7 +191,7 @@ public class RedTeleOpManual extends CommandOpMode {
 
         intakeLiftSubsystem = new IntakeLiftSubsystem(iLifterServo);
 
-        tseSubsystem = new TSESubsystem(tseArmServo, tseClawServo, tseAngleServo);
+        tseSubsystem = new TSESubsystem(tseArmServo, tseClawServo);
 
         slideSubsystem = new SlideSubsystem(rightSlideMotor, leftSlideMotor);
 
@@ -371,24 +370,22 @@ public class RedTeleOpManual extends CommandOpMode {
         }, intakeSubsystem);
 
         liftIntakeCommand = new InstantCommand(() -> {
-            if (!intakeLiftSubsystem.isStraight)
                 intakeLiftSubsystem.lifterIntakePos();
         }, intakeLiftSubsystem);
 
 
-        // Instant Commands for the TSE
+        // Threads for the TSE
 
         tsePickUpThread = new Thread(() -> {
             tseSubsystem.tsePickup();
             tseSubsystem.tseClawRelease();
-            tseSubsystem.tseAnglePickUp();
         });
 
         tseScoreThread = new Thread(() ->
         {
-            tseSubsystem.tseAngleScore();
             tseSubsystem.tseClawGrip();
-            scoreTimer = new Timing.Timer(200);
+            iLifterServo.setPosition(0);
+            scoreTimer = new Timing.Timer(300);
             scoreTimer.start();
             while (!scoreTimer.done())
             {
@@ -398,26 +395,30 @@ public class RedTeleOpManual extends CommandOpMode {
             tseSubsystem.tseScore();
         });
 
-        releaseTSEThread = new Thread(() ->{
+        tseReleaseThread = new Thread(() ->{
             tseSubsystem.tseClawRelease();
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-            tseSubsystem.tseWait();
         });
 
-
-        tseMoveUpThread = new Thread(() -> {
+        tseMoveUpCommand = new InstantCommand(() -> {
             tseSubsystem.TSEManualControl(-0.05);
-        });
+        }, tseSubsystem);
 
         tseMoveDownCommand = new InstantCommand(() -> {
             tseSubsystem.TSEManualControl(0.05);
         }, tseSubsystem);
+
+        tseClawOpenCommand = new InstantCommand(()-> {
+            tseSubsystem.TSEClawManualControl(0.05);
+        }, tseSubsystem);
+
+        tseClawCloseCommand = new InstantCommand(() -> {
+            tseSubsystem.TSEClawManualControl(-0.05);
+        }, tseSubsystem);
+
+        tseResetThread = new Thread(() ->{
+            tseSubsystem.tseWait();
+        });
+
 
         changeLevelCommand = new InstantCommand(() -> {
             if(!Pose2)
@@ -445,9 +446,12 @@ public class RedTeleOpManual extends CommandOpMode {
 
         Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
         Button tseScoreButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(() -> tseScoreThread.start());
-        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> releaseTSEThread.start());
-        Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(() -> tseMoveUpThread.start());
+        Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> tseReleaseThread.start());
+        Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseMoveUpCommand);
         Button tseManualDown = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tseMoveDownCommand);
+        Button tseClawClose = new GamepadButton(driver2, GamepadKeys.Button.DPAD_LEFT).whenPressed(tseClawCloseCommand);
+        Button tseClawOpen = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseClawOpenCommand);
+        Button tseReset = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(() -> tseResetThread.start());
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)
         register(driveSubsystem, depositSubsystem, intakeSubsystem, carouselSubsystem, intakeLiftSubsystem, fourBarSubsystem, tseSubsystem, slideSubsystem);

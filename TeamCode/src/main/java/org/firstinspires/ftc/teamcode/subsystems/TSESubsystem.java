@@ -6,28 +6,28 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TSESubsystem extends SubsystemBase {
     public Servo tseArmServo;
     public Servo tseClawServo;
-    public Servo tseAngleServo;
 
     // Arm Servo
-    private double pickUpPos = 0.84;
-    private double waitPos = 0.18;
-    private double prepareTSEPos = 0;
-    private double scoreTSEPos = 0.52;
+    private double pickUpPos = 0.783;
+    private double waitPos = 0.16;
+    private double scoreTSE = 0.44;
+
     private double initPos = 0;
 
     // Claw Servo
     private double gripPos = 0;
-    private double releasePos = 0.42;
+    private double releasePos = 0.34;
 
-    // Angle Servo
-    private double pickUpAnglePos = 0;
-    private double scoreAnglePos = 0;
+    public boolean score1 = true;
 
-    public TSESubsystem(Servo tseArmServo, Servo tseClawServo, Servo tseAngleServo){
+    public TSESubsystem(Servo tseArmServo, Servo tseClawServo){
 
         this.tseArmServo = tseArmServo;
         this.tseClawServo = tseClawServo;
-        this.tseAngleServo = tseAngleServo;
+    }
+
+    public  void TSEClawManualControl(double position){
+        tseClawServo.setPosition(tseClawServo.getPosition() + position);
     }
 
     public void TSEManualControl(double position) {
@@ -38,15 +38,15 @@ public class TSESubsystem extends SubsystemBase {
         tseArmServo.setPosition(pickUpPos);
     }
 
-    public void tseWait(){
-        tseArmServo.setPosition(waitPos); }
+    public void tseWait() { tseArmServo.setPosition(waitPos); }
 
-    public void initPos() {
-    tseArmServo.setPosition(initPos);
+    public void initPos(){
+        tseArmServo.setPosition(initPos);
     }
 
     public void tseScore(){
-        tseArmServo.setPosition(scoreTSEPos);
+        tseArmServo.setPosition(scoreTSE);
+        score1 = false;
     }
 
     public void tseClawRelease(){
@@ -54,13 +54,5 @@ public class TSESubsystem extends SubsystemBase {
     }
     public void tseClawGrip(){
         tseClawServo.setPosition(gripPos);
-    }
-
-    public void tseAnglePickUp(){
-        tseAngleServo.setPosition(pickUpAnglePos);
-    }
-
-    public void tseAngleScore(){
-        tseAngleServo.setPosition(scoreAnglePos);
     }
 }

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
+@Disabled
 @Autonomous(name = "BlueCarouselStorage")
 public class BlueCarouselStorage extends LinearOpMode {
     SampleMecanumDrive drive;

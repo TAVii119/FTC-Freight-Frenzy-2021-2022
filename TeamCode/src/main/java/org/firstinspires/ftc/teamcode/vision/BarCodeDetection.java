@@ -25,16 +25,16 @@ public class BarCodeDetection extends OpenCvPipeline {
     private BarcodePosition barcodePosition = BarcodePosition.NOT_FOUND;
 
     static final Rect LEFT_ROW = new Rect(
-            new Point( 156, 294 ),
-            new Point( 413, 652 )
+            new Point( 40, 0 ),
+            new Point( 166, 116 )
     );
     static final Rect MIDDLE_ROW = new Rect(
-            new Point( 619, 300 ),
-            new Point( 880, 650 )
+            new Point( 270, 0 ),
+            new Point( 402, 115 )
     );
     static final Rect RIGHT_ROW = new Rect(
-            new Point( 1023, 271 ),
-            new Point( 1280, 636 )
+            new Point( 475, 0 ),
+            new Point( 620, 120 )
     );
 
     static double PERCENT_COLOR_THRESHOLD = 0.10;
@@ -52,7 +52,7 @@ public class BarCodeDetection extends OpenCvPipeline {
 
         if( tseType == 1 ) { //DELTA FORCE TSE
             lowHSV = new Scalar(6, 100, 20);
-            highHSV = new Scalar(20, 255, 255);
+            highHSV = new Scalar(25, 255, 255);
         } else if(tseType == 2) { //SOFT HOARDERS TSE
             lowHSV = new Scalar(40, 40, 40);
             highHSV = new Scalar(70, 255, 255);

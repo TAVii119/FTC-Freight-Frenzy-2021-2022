@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
 
 
-@Autonomous(name = "RedWarehouse5")
-public class RedWarehouse5 extends LinearOpMode {
+@Autonomous(name = "BlueWarehouse5")
+public class BlueWarehouse5 extends LinearOpMode {
     SampleMecanumDrive drive;
     TrajectorySequence preloadTraj;
 
@@ -104,7 +104,7 @@ public class RedWarehouse5 extends LinearOpMode {
     public double getHeadingOffset = 0;
 
     private double fourBarTopPos = 0.72;
-    private double fourBarMidPos = 0.68;
+    private double fourBarMidPos = 0.70;
     private double fourBarLowPos = 0.92;
     private double fourBarIntakePos = 0.022;
     private double fourBarIntermediatePos = 0.15;
@@ -173,7 +173,7 @@ public class RedWarehouse5 extends LinearOpMode {
         depositServo.setPosition(0.12);
         gbServoLeft.setPosition(0.022);
         gbServoRight.setPosition(0.022);
-        tseArmServo.setPosition(0.02);
+        tseArmServo.setPosition(0);
         tseClawServo.setPosition(0);
 
         BarcodeUtil detector = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
@@ -315,7 +315,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
             moveFourBarIntermediate();
 
-            scoreTimer = new Timing.Timer(300);
+            scoreTimer = new Timing.Timer(250);
             scoreTimer.start();
             while (!scoreTimer.done()) {
 
@@ -324,7 +324,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
             moveSlideIntake();
 
-            scoreTimer = new Timing.Timer(200);
+            scoreTimer = new Timing.Timer(50);
             scoreTimer.start();
             while (!scoreTimer.done()) {
 
@@ -339,22 +339,18 @@ public class RedWarehouse5 extends LinearOpMode {
             intakeDown();
         });
 
-        startPose = new Pose2d(12, -58, Math.toRadians(270));
+        startPose = new Pose2d(12, 58, Math.toRadians(90));
 
         while (!isStopRequested() && !isStarted()) {
             telemetry.addData("Element position", detector.getBarcodePosition());
             telemetry.update();
             barcodePosition = detector.getBarcodePosition();
+            detector.stopCamera();
         }
 
         waitForStart();
         tseArmServo.setPosition(0.20);
-        if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
-            CaseA(drive);
-        else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
-            CaseB(drive);
-        else
-            CaseC(drive);
+        CaseA(drive);
     }
 
     private void CaseC(SampleMecanumDrive drive) {
@@ -367,559 +363,757 @@ public class RedWarehouse5 extends LinearOpMode {
                 .build();
 
         firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                .lineToLinearHeading(new Pose2d(0, -42, Math.toRadians(310)))
+                .lineToLinearHeading(new Pose2d(-5, 42, -Math.toRadians(290)),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .waitSeconds(0.2)
-                .addTemporalMarker(1, () -> {
+                .addTemporalMarker(1.3, () -> {
                     scoreThread.start();
                 })
-                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
+                .splineToSplineHeading(new Pose2d(20, 58, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(45, 60), Math.toRadians(360))
                 .build();
 
         firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(50, 60, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -59, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 60, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(47, 62), Math.toRadians(360))
                 .build();
 
         secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(51, 62, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(48, 63), Math.toRadians(360))
                 .build();
 
         thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 59, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
                 .build();
 
         fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 58, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
-                .addTemporalMarker(2.65, () -> scoreThread.start())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
+                .addTemporalMarker(2.7, () -> scoreThread.start())
+
+                .setReversed(false)
                 .build();
 
+        fifthCycleWareEntry = drive.trajectorySequenceBuilder(fourthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
+                .build();
 
+        fifthCycleWareCollect = drive.trajectorySequenceBuilder(fifthCycleWareEntry.end())
+                .lineToLinearHeading(new Pose2d(55, 57, -Math.toRadians(380)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .build();
+
+        fifthCycleScore = drive.trajectorySequenceBuilder(fifthCycleWareCollect.end())
+                .lineToLinearHeading(new Pose2d(30, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .addTemporalMarker(0.6, () -> slideTopThread.start())
+                .addTemporalMarker(2.9, () -> scoreThread.start())
+                .setReversed(false)
+                .build();
+
+        sixthCycleWareEntry = drive.trajectorySequenceBuilder(fifthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(50, 62), Math.toRadians(360))
+                .build();
 
         drive.followTrajectorySequence(preloadTraj);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(firstCycleWareEntry);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
-            if(depositgetDistance() <  4) {
+            if(depositgetDistance() < 4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(firstCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
+            telemetry.addData("Distance", depositgetDistance());
+            telemetry.update();
 
             drive.update();
         }
+
         drive.followTrajectorySequence(secondCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
+
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(thirdCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(fourthCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
+        drive.followTrajectorySequence(fifthCycleWareEntry);
     }
 
     private void CaseB(SampleMecanumDrive drive) {
         drive.setPoseEstimate(startPose);
         preloadTraj = drive.trajectorySequenceBuilder(startPose)
-                .back(3)
+                .back(5)
                 .addTemporalMarker(0, () -> {
                     slideMidThread.start();
                 })
                 .build();
 
         firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(310)))
-                .waitSeconds(0.2)
+                .lineToLinearHeading(new Pose2d(-5, 41.5, -Math.toRadians(290)),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .waitSeconds(0.3)
                 .addTemporalMarker(1, () -> {
                     scoreThread.start();
                 })
-                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
+                .splineToSplineHeading(new Pose2d(20, 58, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(45, 60), Math.toRadians(360))
                 .build();
 
         firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(50, 60, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -59, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 60, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(47, 62), Math.toRadians(360))
                 .build();
 
         secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(51, 62, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 61.5, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(48, 63), Math.toRadians(360))
                 .build();
 
         thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 59, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
                 .build();
 
         fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 58, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
-                .addTemporalMarker(2.65, () -> scoreThread.start())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
+                .addTemporalMarker(2.7, () -> scoreThread.start())
+
+                .setReversed(false)
                 .build();
 
+        fifthCycleWareEntry = drive.trajectorySequenceBuilder(fourthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
+                .build();
 
+        fifthCycleWareCollect = drive.trajectorySequenceBuilder(fifthCycleWareEntry.end())
+                .lineToLinearHeading(new Pose2d(55, 57, -Math.toRadians(380)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .build();
+
+        fifthCycleScore = drive.trajectorySequenceBuilder(fifthCycleWareCollect.end())
+                .lineToLinearHeading(new Pose2d(30, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .addTemporalMarker(0.6, () -> slideTopThread.start())
+                .addTemporalMarker(2.9, () -> scoreThread.start())
+                .setReversed(false)
+                .build();
+
+        sixthCycleWareEntry = drive.trajectorySequenceBuilder(fifthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(50, 62), Math.toRadians(360))
+                .build();
 
         drive.followTrajectorySequence(preloadTraj);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(firstCycleWareEntry);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
-            if(depositgetDistance() <  4) {
+            if(depositgetDistance() < 4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(firstCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
+            telemetry.addData("Distance", depositgetDistance());
+            telemetry.update();
 
             drive.update();
         }
+
         drive.followTrajectorySequence(secondCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
+
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(thirdCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(fourthCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
+        drive.followTrajectorySequence(fifthCycleWareEntry);
     }
 
-    private void CaseA(SampleMecanumDrive drive) {
+    public void CaseA(SampleMecanumDrive drive) {
         drive.setPoseEstimate(startPose);
         preloadTraj = drive.trajectorySequenceBuilder(startPose)
-                .back(3.5)
+                .back(5)
                 .addTemporalMarker(0, () -> {
                     slideLowThread.start();
                 })
                 .build();
 
         firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-8 , -42.2), -Math.toRadians(270),
+                .lineToLinearHeading(new Pose2d(-5, 41.2, -Math.toRadians(295)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .setReversed(false)
-                .waitSeconds(0.2)
-                .addTemporalMarker(1.6, () -> {
+                .waitSeconds(0.3)
+                .addTemporalMarker(1.2, () -> {
                     scoreThread2.start();
                 })
-                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
+                .splineToSplineHeading(new Pose2d(20, 59, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(45, 62), Math.toRadians(360))
                 .build();
 
         firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(50, 60, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -59, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 60, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(47, 62), Math.toRadians(360))
                 .build();
 
         secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(51, 62, -Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 61.5, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 58, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(48, 63), Math.toRadians(360))
                 .build();
 
         thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 59, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
+                .addTemporalMarker(4.7, () -> scoreThread.start())
                 .build();
 
         fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
                 .build();
 
         fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(55, 58, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(35, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
-                .addTemporalMarker(2.65, () -> scoreThread.start())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
+                .addTemporalMarker(2.7, () -> scoreThread.start())
+
+                .setReversed(false)
                 .build();
 
+        fifthCycleWareEntry = drive.trajectorySequenceBuilder(fourthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 59.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(49, 62, -Math.toRadians(380)), -Math.toRadians(360))
+                .build();
 
+        fifthCycleWareCollect = drive.trajectorySequenceBuilder(fifthCycleWareEntry.end())
+                .lineToLinearHeading(new Pose2d(55, 57, -Math.toRadians(380)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .build();
+
+        fifthCycleScore = drive.trajectorySequenceBuilder(fifthCycleWareCollect.end())
+                .lineToLinearHeading(new Pose2d(30, 63, -Math.toRadians(360)))
+                .setReversed(true)
+                .splineTo(new Vector2d(5, 39.5), -Math.toRadians(127),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .addTemporalMarker(0.6, () -> slideTopThread.start())
+                .addTemporalMarker(2.9, () -> scoreThread.start())
+                .setReversed(false)
+                .build();
+
+        sixthCycleWareEntry = drive.trajectorySequenceBuilder(fifthCycleScore.end())
+                .splineToSplineHeading(new Pose2d(20, 58.5, -Math.toRadians(360)), Math.toRadians(360),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToLinearHeading(new Pose2d(50, 62), Math.toRadians(360))
+                .build();
 
         drive.followTrajectorySequence(preloadTraj);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(firstCycleWareEntry);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
-            if(depositgetDistance() <  4) {
+            if(depositgetDistance() < 4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(firstCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
+            telemetry.addData("Distance", depositgetDistance());
+            telemetry.update();
 
             drive.update();
         }
+
         drive.followTrajectorySequence(secondCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
+
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(thirdCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
         while(drive.isBusy()) {
-            telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance", depositgetDistance());
             telemetry.update();
             if(depositgetDistance() <  4) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 depositServo.setPosition(depositClose);
-                sleep(200);
+                sleep(100);
                 intakeMotor.setPower(-0.6);
             }
 
             drive.update();
         }
+
         drive.followTrajectorySequence(fourthCycleScore);
 
         newPose = drive.getPoseEstimate();
-        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
+        drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(90) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
+        drive.followTrajectorySequence(fifthCycleWareEntry);
     }
-
     public void moveSlideTop() {
         leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
         rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);

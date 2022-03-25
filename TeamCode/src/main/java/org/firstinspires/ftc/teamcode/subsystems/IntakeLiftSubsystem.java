@@ -20,11 +20,10 @@ public class IntakeLiftSubsystem extends SubsystemBase {
 
     public void iLifterfourBarPos(){
         iLifterServo.setPosition(fourBarPos);
-        isStraight = false;
+        isStraight = true;
     }
 
     public void lifterIntakePos() {
-
         iLifterServo.setPosition(intakePos);
         isStraight = false;
     }

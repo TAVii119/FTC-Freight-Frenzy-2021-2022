@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="TeleOPSimple", group="Test")
 
@@ -29,8 +32,10 @@ public class TeleOPSimple extends LinearOpMode {
 
     private Servo tseArmServo = null;
     private Servo tseClawServo = null;
-    private Servo tseAngleServo = null;
 
+    RevColorSensorV3 color;
+
+    public boolean SensorisActive = false;
 
     double lfPower, rfPower, lbPower, rbPower;
     boolean isDepositOpen = true;
@@ -44,6 +49,7 @@ public class TeleOPSimple extends LinearOpMode {
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        SensorisActive = false;
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -67,7 +73,7 @@ public class TeleOPSimple extends LinearOpMode {
 
         tseArmServo = hardwareMap.get(Servo.class, "tseArmServo");
         tseClawServo = hardwareMap.get(Servo.class, "tseClawServo");
-        tseAngleServo = hardwareMap.get(Servo.class, "tseAngelServo");
+        color = hardwareMap.get(RevColorSensorV3.class, "cupSensor");
 
         depositServo.setDirection(Servo.Direction.REVERSE);
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
@@ -80,7 +86,6 @@ public class TeleOPSimple extends LinearOpMode {
         iLifterServo.setPosition(0);
         tseArmServo.setPosition(0);
         tseClawServo.setPosition(0);
-        tseAngleServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -138,12 +143,12 @@ public class TeleOPSimple extends LinearOpMode {
             rb.setPower(rbPower);
 
             // Intake control
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 if (isIntakeRunning) {
                     intakeMotor.setPower(0);
                     isIntakeRunning = false;
                 } else {
-                    intakeMotor.setPower(1);
+                    intakeMotor.setPower(-1);
                     isIntakeRunning = true;
                 }
                 sleep(200);
@@ -155,7 +160,7 @@ public class TeleOPSimple extends LinearOpMode {
                     intakeMotor.setPower(0);
                     isIntakeRunning = false;
                 } else {
-                    intakeMotor.setPower(-1);
+                    intakeMotor.setPower(1);
                     isIntakeRunning = true;
                 }
                 sleep(200);
@@ -176,21 +181,15 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(500);
 
             }
+
             if(gamepad2.dpad_down){
                 gbServoRight.setPosition(gbServoRight.getPosition() - 0.02);
                 gbServoLeft.setPosition(gbServoLeft.getPosition() - 0.02);
                 sleep(500);
             }
 
-            if (gamepad2.dpad_left){
-                tseAngleServo.setPosition(depositServo.getPosition() -0.02);
-                sleep(500);
-            }
-            if (gamepad2.dpad_right){
-                tseAngleServo.setPosition(depositServo.getPosition() +0.02);
-                sleep(500);
-            }
-            if(gamepad2.a){
+
+            if(gamepad1.a){
                 iLifterServo.setPosition(iLifterServo.getPosition() + 0.02);
                 sleep(500);
             }
@@ -212,6 +211,14 @@ public class TeleOPSimple extends LinearOpMode {
             }
             if(gamepad1.y){
                 tseClawServo.setPosition(tseClawServo.getPosition() -0.02);
+                sleep(500);
+            }
+            if(gamepad2.dpad_left){
+                depositServo.setPosition(depositServo.getPosition() + 0.02);
+                sleep(500);
+            }
+            if(gamepad2.dpad_right){
+                depositServo.setPosition(depositServo.getPosition() - 0.02);
                 sleep(500);
             }
 
