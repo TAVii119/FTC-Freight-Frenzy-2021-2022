@@ -29,9 +29,9 @@ public class TestColorSensor extends LinearOpMode {
 
             if(color.getDistance(DistanceUnit.CM) < 4 && SensorisActive == false){
                 telemetry.addLine("Element in Cupa");
-                gamepad1.rumble(75);
+                gamepad1.rumble(250);
                 SensorisActive = true;
-                sleep(200);
+                sleep(250);
                 gamepad1.stopRumble();
             }
         }

@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -24,13 +25,18 @@ import org.firstinspires.ftc.teamcode.vision.BarCodeDetection;
 import org.firstinspires.ftc.teamcode.vision.BarcodeUtil;
 
 
-
+@Disabled
 @Autonomous(name = "RedWarehouse5")
 public class RedWarehouse5 extends LinearOpMode {
     SampleMecanumDrive drive;
-    TrajectorySequence preloadTraj;
+    TrajectorySequence preloadTrajTop;
+    TrajectorySequence preloadTrajMid;
+    TrajectorySequence preloadTrajLow;
 
-    TrajectorySequence firstCycleWareEntry;
+    TrajectorySequence firstCycleWareEntryTop;
+    TrajectorySequence firstCycleWareEntryMid;
+    TrajectorySequence firstCycleWareEntryLow;
+
     TrajectorySequence firstCycleWareCollect;
     TrajectorySequence firstCycleScore;
 
@@ -103,11 +109,11 @@ public class RedWarehouse5 extends LinearOpMode {
     public double rightOffset = 0;
     public double getHeadingOffset = 0;
 
-    private double fourBarTopPos = 0.72;
+    private double fourBarTopPos = 0.70;
     private double fourBarMidPos = 0.68;
-    private double fourBarLowPos = 0.92;
-    private double fourBarIntakePos = 0.022;
-    private double fourBarIntermediatePos = 0.15;
+    private double fourBarLowPos = 0.90;
+    private double fourBarIntakePos = 0;
+    private double fourBarIntermediatePos = 0.13;
 
     private int slideLevel3Pos = 1550;
     private int slideLevel2Pos = 750;
@@ -341,32 +347,28 @@ public class RedWarehouse5 extends LinearOpMode {
 
         startPose = new Pose2d(12, -58, Math.toRadians(270));
 
-        while (!isStopRequested() && !isStarted()) {
-            telemetry.addData("Element position", detector.getBarcodePosition());
-            telemetry.update();
-            barcodePosition = detector.getBarcodePosition();
-        }
-
-        waitForStart();
-        tseArmServo.setPosition(0.20);
-        if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
-            CaseA(drive);
-        else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
-            CaseB(drive);
-        else
-            CaseC(drive);
-    }
-
-    private void CaseC(SampleMecanumDrive drive) {
-        drive.setPoseEstimate(startPose);
-        preloadTraj = drive.trajectorySequenceBuilder(startPose)
+        preloadTrajTop = drive.trajectorySequenceBuilder(startPose)
                 .back(5)
                 .addTemporalMarker(0, () -> {
                     slideTopThread.start();
                 })
                 .build();
 
-        firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
+        preloadTrajMid = drive.trajectorySequenceBuilder(startPose)
+                .back(5)
+                .addTemporalMarker(0, () -> {
+                    slideMidThread.start();
+                })
+                .build();
+
+        preloadTrajLow = drive.trajectorySequenceBuilder(startPose)
+                .back(5)
+                .addTemporalMarker(0, () -> {
+                    slideLowThread.start();
+                })
+                .build();
+
+        firstCycleWareEntryTop = drive.trajectorySequenceBuilder(preloadTrajTop.end())
                 .lineToLinearHeading(new Pose2d(0, -42, Math.toRadians(310)))
                 .waitSeconds(0.2)
                 .addTemporalMarker(1, () -> {
@@ -377,8 +379,35 @@ public class RedWarehouse5 extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
                 .build();
 
-        firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
+        firstCycleWareEntryMid = drive.trajectorySequenceBuilder(preloadTrajMid.end())
+                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(310)))
+                .waitSeconds(0.2)
+                .addTemporalMarker(1, () -> {
+                    scoreThread.start();
+                })
+                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
+                .waitSeconds(0.01)
+                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
+                .build();
+
+        firstCycleWareEntryLow = drive.trajectorySequenceBuilder(preloadTrajLow.end())
+                .setReversed(true)
+                .splineTo(new Vector2d(-8 , -42.2), -Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .setReversed(false)
+                .waitSeconds(0.2)
+                .addTemporalMarker(1.6, () -> {
+                    scoreThread2.start();
+                })
+                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
+                .waitSeconds(0.01)
+                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
+                .build();
+
+        firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntryLow.end())
+                .lineToLinearHeading(new Pose2d(57, -59, Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -394,11 +423,11 @@ public class RedWarehouse5 extends LinearOpMode {
         secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
                 .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
                 .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(47, -60, Math.toRadians(360)))
                 .build();
 
         secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
+                .lineToLinearHeading(new Pose2d(57, -59, Math.toRadians(360)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -407,18 +436,18 @@ public class RedWarehouse5 extends LinearOpMode {
         secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
                 .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
+                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(288)))
                 .addTemporalMarker(5, () -> scoreThread.start())
                 .build();
 
         thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
                 .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
                 .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(48, -60, Math.toRadians(360)))
                 .build();
 
         thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -427,14 +456,14 @@ public class RedWarehouse5 extends LinearOpMode {
         thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
                 .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
+                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(288)))
                 .addTemporalMarker(5, () -> scoreThread.start())
                 .build();
 
         fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
                 .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
                 .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
+                .lineToLinearHeading(new Pose2d(50, -60, Math.toRadians(360)))
                 .build();
 
         fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
@@ -447,23 +476,43 @@ public class RedWarehouse5 extends LinearOpMode {
         fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
                 .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
                 .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
+                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(288)))
                 .addTemporalMarker(2.65, () -> scoreThread.start())
                 .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
                 .waitSeconds(0.01)
                 .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
+                .addTemporalMarker(4, () -> tseArmServo.setPosition(0.01))
                 .build();
 
+        while (!isStopRequested() && !isStarted()) {
+            telemetry.addData("Element position", detector.getBarcodePosition());
+            telemetry.update();
+            barcodePosition = detector.getBarcodePosition();
+        }
 
+        Thread stopCamera = new Thread(() -> detector.stopCamera());
+        stopCamera.start();
 
-        drive.followTrajectorySequence(preloadTraj);
+        waitForStart();
+        tseArmServo.setPosition(0.20);
+        if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
+            CaseA(drive);
+        else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
+            CaseB(drive);
+        else
+            CaseC(drive);
+    }
+
+    private void CaseC(SampleMecanumDrive drive) {
+        drive.setPoseEstimate(startPose);
+        drive.followTrajectorySequence(preloadTrajTop);
 
         newPose = drive.getPoseEstimate();
         drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
-        drive.followTrajectorySequence(firstCycleWareEntry);
+        drive.followTrajectorySequence(firstCycleWareEntryTop);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -483,7 +532,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -503,7 +552,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -523,7 +572,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -545,111 +594,14 @@ public class RedWarehouse5 extends LinearOpMode {
 
     private void CaseB(SampleMecanumDrive drive) {
         drive.setPoseEstimate(startPose);
-        preloadTraj = drive.trajectorySequenceBuilder(startPose)
-                .back(3)
-                .addTemporalMarker(0, () -> {
-                    slideMidThread.start();
-                })
-                .build();
-
-        firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                .lineToLinearHeading(new Pose2d(0, -39.7, Math.toRadians(310)))
-                .waitSeconds(0.2)
-                .addTemporalMarker(1, () -> {
-                    scoreThread.start();
-                })
-                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
-                .build();
-
-        firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -59, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
-                .build();
-
-        secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
-                .build();
-
-        thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
-                .build();
-
-        fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
-                .addTemporalMarker(2.65, () -> scoreThread.start())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
-                .build();
-
-
-
-        drive.followTrajectorySequence(preloadTraj);
+        drive.followTrajectorySequence(preloadTrajMid);
 
         newPose = drive.getPoseEstimate();
         drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
-        drive.followTrajectorySequence(firstCycleWareEntry);
+        drive.followTrajectorySequence(firstCycleWareEntryMid);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -669,7 +621,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -689,7 +641,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -709,7 +661,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -731,116 +683,14 @@ public class RedWarehouse5 extends LinearOpMode {
 
     private void CaseA(SampleMecanumDrive drive) {
         drive.setPoseEstimate(startPose);
-        preloadTraj = drive.trajectorySequenceBuilder(startPose)
-                .back(3.5)
-                .addTemporalMarker(0, () -> {
-                    slideLowThread.start();
-                })
-                .build();
-
-        firstCycleWareEntry = drive.trajectorySequenceBuilder(preloadTraj.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-8 , -42.2), -Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .setReversed(false)
-                .waitSeconds(0.2)
-                .addTemporalMarker(1.6, () -> {
-                    scoreThread2.start();
-                })
-                .splineToSplineHeading(new Pose2d(8, -59, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -59, Math.toRadians(360)))
-                .build();
-
-        firstCycleWareCollect = drive.trajectorySequenceBuilder(firstCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(51, -59, Math.toRadians(360)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        firstCycleScore = drive.trajectorySequenceBuilder(firstCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -59, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -40, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        secondCycleWareEntry = drive.trajectorySequenceBuilder(firstCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
-                .build();
-
-        secondCycleWareCollect = drive.trajectorySequenceBuilder(secondCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -59, Math.toRadians(360)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        secondCycleScore = drive.trajectorySequenceBuilder(secondCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        thirdCycleWareEntry = drive.trajectorySequenceBuilder(secondCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(46, -60, Math.toRadians(360)))
-                .build();
-
-        thirdCycleWareCollect = drive.trajectorySequenceBuilder(thirdCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(52, -57, Math.toRadians(380)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        thirdCycleScore = drive.trajectorySequenceBuilder(thirdCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(15, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(303)))
-                .addTemporalMarker(5, () -> scoreThread.start())
-                .build();
-
-        fourthCycleWareEntry = drive.trajectorySequenceBuilder(thirdCycleScore.end())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(40, -60, Math.toRadians(360)))
-                .build();
-
-        fourthCycleWareCollect = drive.trajectorySequenceBuilder(fourthCycleWareEntry.end())
-                .lineToLinearHeading(new Pose2d(57, -57, Math.toRadians(380)),
-                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-        fourthCycleScore = drive.trajectorySequenceBuilder(fourthCycleWareCollect.end())
-                .lineToLinearHeading(new Pose2d(13, -60, Math.toRadians(360)))
-                .addTemporalMarker(0.6, () -> slideTopThread.start())
-                .lineToLinearHeading(new Pose2d(0, -39, Math.toRadians(300)))
-                .addTemporalMarker(2.65, () -> scoreThread.start())
-                .splineToSplineHeading(new Pose2d(8, -60, Math.toRadians(360)), Math.toRadians(360))
-                .waitSeconds(0.01)
-                .lineToLinearHeading(new Pose2d(45, -60, Math.toRadians(360)))
-                .build();
-
-
-
-        drive.followTrajectorySequence(preloadTraj);
+        drive.followTrajectorySequence(preloadTrajLow);
 
         newPose = drive.getPoseEstimate();
         drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
-        drive.followTrajectorySequence(firstCycleWareEntry);
+        drive.followTrajectorySequence(firstCycleWareEntryLow);
         drive.followTrajectorySequenceAsync(firstCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -860,7 +710,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(secondCycleWareEntry);
         drive.followTrajectorySequenceAsync(secondCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -880,7 +730,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(thirdCycleWareEntry);
         drive.followTrajectorySequenceAsync(thirdCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -900,7 +750,7 @@ public class RedWarehouse5 extends LinearOpMode {
 
         drive.followTrajectorySequence(fourthCycleWareEntry);
         drive.followTrajectorySequenceAsync(fourthCycleWareCollect);
-        while(drive.isBusy()) {
+        while(drive.isBusy() && opModeIsActive()) {
             telemetry.addData("Distance", colorSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
             if(depositgetDistance() <  4) {
@@ -917,7 +767,6 @@ public class RedWarehouse5 extends LinearOpMode {
 
         newPose = drive.getPoseEstimate();
         drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
-
     }
 
     public void moveSlideTop() {

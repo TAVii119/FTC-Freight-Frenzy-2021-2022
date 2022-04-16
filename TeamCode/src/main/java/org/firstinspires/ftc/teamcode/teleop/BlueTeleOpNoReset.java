@@ -7,10 +7,12 @@ import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.commands.AutomaticLiftCommand;
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.FourBarCommand;
@@ -24,9 +26,11 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
-@TeleOp(name="RedTeleOpManual", group = "Manual Red")
+@TeleOp(name="BlueTeleOpNoReset", group = "Manual Blue")
 
-public class RedTeleOpManual extends CommandOpMode {
+public class BlueTeleOpNoReset extends CommandOpMode {
+
+    boolean Pose2 = false;
 
     // Declare Motors and Servos
     private Motor lf;
@@ -47,8 +51,8 @@ public class RedTeleOpManual extends CommandOpMode {
     private Servo tseArmServo;
     private Servo tseClawServo;
 
-
-    boolean Pose2 = false;
+    // Declare sensors
+    private RevColorSensorV3 cupSensor;
 
     // Declare subsystems and commands
     private DriveSubsystem driveSubsystem;
@@ -71,9 +75,12 @@ public class RedTeleOpManual extends CommandOpMode {
 
     private SlideSubsystem slideSubsystem;
 
+    private AutomaticLiftCommand automaticLiftCommand;
+
     // Declare instant commands, these are commands that run upon a button press
     private InstantCommand intakeRunCommand;
     private InstantCommand intakeReverseCommand;
+    private InstantCommand dropIntakeCommand;
     private InstantCommand liftIntakeCommand;
 
     // Instant Commands for TSE
@@ -85,6 +92,7 @@ public class RedTeleOpManual extends CommandOpMode {
     private InstantCommand tseMoveDownCommand;
     private InstantCommand tseClawCloseCommand;
     private InstantCommand tseClawOpenCommand;
+    private InstantCommand tseCloseCommand;
 
     // Insant Commands for fourBar;
     private InstantCommand levelTopFourBarCommand;
@@ -108,6 +116,8 @@ public class RedTeleOpManual extends CommandOpMode {
 
 
     Timing.Timer scoreTimer;
+    boolean levelLowScore = false;
+    boolean sharedHubToggle = false;
 
     // Declare gamepads
     GamepadEx driver1;
@@ -115,7 +125,6 @@ public class RedTeleOpManual extends CommandOpMode {
 
     @Override
     public void initialize() {
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station)
@@ -139,13 +148,10 @@ public class RedTeleOpManual extends CommandOpMode {
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         // Reset encoders
-        leftSlideMotor.resetEncoder();
-        rightSlideMotor.resetEncoder();
         duckMotor.resetEncoder();
 
         // Invert motors
         intakeMotor.setInverted(true);
-        duckMotor.setInverted(true);
         rightSlideMotor.setInverted(true);
 
         // Get servo hardware
@@ -155,8 +161,7 @@ public class RedTeleOpManual extends CommandOpMode {
         gbServoRight = hardwareMap.get(Servo.class, "gbServoRight");
 
         tseArmServo = hardwareMap.get(Servo.class, "tseArmServo");
-        tseClawServo =hardwareMap.get(Servo.class, "tseClawServo");
-
+        tseClawServo = hardwareMap.get(Servo.class, "tseClawServo");
 
         // Invert servos
         deposit1.setDirection(Servo.Direction.REVERSE);
@@ -165,19 +170,20 @@ public class RedTeleOpManual extends CommandOpMode {
 
         // Home all servos
         deposit1.setPosition(0.12);
-        iLifterServo.setPosition(0.27);
-        gbServoLeft.setPosition(0.022);
-        gbServoRight.setPosition(0.022);
-        tseArmServo.setPosition(0.16);
+        iLifterServo.setPosition(0.23);
+        gbServoLeft.setPosition(0.015);
+        gbServoRight.setPosition(0.015);
+        tseArmServo.setPosition(0.25);
         tseClawServo.setPosition(0);
 
+        // Initialize sensors
+        cupSensor = hardwareMap.get(RevColorSensorV3.class, "cupSensor");
 
         // Assign gamepads to drivers
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
         // Initialize subsystems and commands
-
         intakeSubsystem = new IntakeSubsystem(intakeMotor);
         intakeCommand = new IntakeCommand(intakeSubsystem);
 
@@ -198,10 +204,14 @@ public class RedTeleOpManual extends CommandOpMode {
         driveSubsystem = new DriveSubsystem(lf, rf, lb, rb);
         driveCommand = new DriveCommand(driveSubsystem, driver1::getLeftX, driver1::getLeftY, driver1::getRightX);
 
+        automaticLiftCommand = new AutomaticLiftCommand(depositSubsystem, fourBarSubsystem, intakeLiftSubsystem, cupSensor, intakeSubsystem);
+
         // Scoring Threads
         levelTopandLow = new Thread(() ->{
             if(!Pose2)
             {
+                fourBarSubsystem.isMoving = true;
+                intakeLiftSubsystem.lifterIntakePos();
                 depositSubsystem.closeDeposit();
 
                 scoreTimer = new Timing.Timer(200);
@@ -227,33 +237,68 @@ public class RedTeleOpManual extends CommandOpMode {
             }
             else
             {
-                depositSubsystem.closeDeposit();
+                levelLowScore = true;
 
-                scoreTimer = new Timing.Timer(200);
-                scoreTimer.start();
-                while (!scoreTimer.done())
-                {
+                if(!sharedHubToggle) {
+                    fourBarSubsystem.isMoving = true;
+                    depositSubsystem.closeDeposit();
 
+                    scoreTimer = new Timing.Timer(200);
+                    scoreTimer.start();
+                    while (!scoreTimer.done())
+                    {
+
+                    }
+                    scoreTimer.pause();
+
+                    intakeSubsystem.reverseIntake();
+                    fourBarSubsystem.fourBarIntermediate();
+                    slideSubsystem.slideLow();
+                    fourBarSubsystem.fourBarLow();
+
+                    scoreTimer = new Timing.Timer(200);
+                    scoreTimer.start();
+                    while (!scoreTimer.done())
+                    {
+
+                    }
+                    scoreTimer.pause();
+                    intakeSubsystem.stopIntake();
+                    intakeLiftSubsystem.lifterInitPos();
                 }
-                scoreTimer.pause();
+                else {
+                    fourBarSubsystem.isMoving = true;
+                    depositSubsystem.closeDeposit();
 
-                intakeSubsystem.reverseIntake();
-                fourBarSubsystem.fourBarIntermediate();
-                slideSubsystem.slideLow();
-                fourBarSubsystem.fourBarLow();
+                    scoreTimer = new Timing.Timer(200);
+                    scoreTimer.start();
+                    while (!scoreTimer.done())
+                    {
 
-                scoreTimer = new Timing.Timer(200);
-                scoreTimer.start();
-                while (!scoreTimer.done())
-                {
+                    }
+                    scoreTimer.pause();
 
+                    intakeSubsystem.reverseIntake();
+                    fourBarSubsystem.fourBarIntermediate();
+                    slideSubsystem.slideLowExtended();
+                    fourBarSubsystem.fourBarSharedMiddlePos();
+
+                    scoreTimer = new Timing.Timer(200);
+                    scoreTimer.start();
+                    while (!scoreTimer.done())
+                    {
+
+                    }
+                    scoreTimer.pause();
+                    intakeSubsystem.stopIntake();
+                    intakeLiftSubsystem.lifterInitPos();
                 }
-                scoreTimer.pause();
-                intakeSubsystem.stopIntake();
             }
         });
 
         levelMidThread = new Thread(() -> {
+            fourBarSubsystem.isMoving = true;
+            intakeLiftSubsystem.lifterIntakePos();
             depositSubsystem.closeDeposit();
 
             scoreTimer = new Timing.Timer(200);
@@ -281,6 +326,9 @@ public class RedTeleOpManual extends CommandOpMode {
         });
 
         levelLowThread = new Thread(() -> {
+            levelLowScore = true;
+
+            fourBarSubsystem.isMoving = true;
             depositSubsystem.closeDeposit();
 
             scoreTimer = new Timing.Timer(200);
@@ -303,57 +351,88 @@ public class RedTeleOpManual extends CommandOpMode {
 
             }
             scoreTimer.pause();
-
             intakeSubsystem.stopIntake();
+            intakeLiftSubsystem.lifterInitPos();
         });
 
         scoreCommandThread = new Thread(() -> {
-            slideSubsystem.slideMoving = true;
-            depositSubsystem.openDeposit();
-
-            scoreTimer = new Timing.Timer(200);
-            scoreTimer.start();
-            while (!scoreTimer.done())
+            if(levelLowScore)
             {
+                intakeLiftSubsystem.lifterIntakePos();
+                fourBarSubsystem.isMoving = true;
+                depositSubsystem.openDeposit();
 
+                scoreTimer = new Timing.Timer(200);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+
+                }
+                scoreTimer.pause();
+
+                fourBarSubsystem.fourBarIntermediateScore();
+
+                scoreTimer = new Timing.Timer(400);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.slideHome();
+
+                fourBarSubsystem.fourBarIntake();
+                depositSubsystem.depositIntermediate();
+
+                scoreTimer = new Timing.Timer(150);
+                scoreTimer.start();
+                while (!scoreTimer.done())
+                {
+
+                }
+                intakeSubsystem.runIntake();
+                fourBarSubsystem.isMoving = false;
+                levelLowScore = false;
             }
-            scoreTimer.pause();
+            else {
+                intakeLiftSubsystem.lifterIntakePos();
+                fourBarSubsystem.isMoving = true;
+                depositSubsystem.openDeposit();
 
-            fourBarSubsystem.fourBarIntermediate();
+                scoreTimer = new Timing.Timer(200);
+                scoreTimer.start();
+                while (!scoreTimer.done()) {
 
-            scoreTimer = new Timing.Timer(500);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
+                }
+                scoreTimer.pause();
 
+                fourBarSubsystem.fourBarIntermediateScore();
+
+                scoreTimer = new Timing.Timer(500);
+                scoreTimer.start();
+                while (!scoreTimer.done()) {
+
+                }
+                scoreTimer.pause();
+
+                slideSubsystem.slideHome();
+
+                fourBarSubsystem.fourBarIntake();
+                depositSubsystem.depositIntermediate();
+
+                scoreTimer = new Timing.Timer(150);
+                scoreTimer.start();
+                while (!scoreTimer.done()) {
+
+                }
+                intakeSubsystem.runIntake();
+                fourBarSubsystem.isMoving = false;
             }
-            scoreTimer.pause();
-
-            slideSubsystem.slideHome();
-
-            scoreTimer = new Timing.Timer(125);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            scoreTimer.pause();
-
-            fourBarSubsystem.fourBarIntake();
-            intakeSubsystem.runIntake();
-            depositSubsystem.depositIntermediate();
-
-            scoreTimer = new Timing.Timer(300);
-            scoreTimer.start();
-            while (!scoreTimer.done())
-            {
-
-            }
-            slideSubsystem.slideMoving = false;
         });
 
         carouselThread = new Thread(() -> {
-              carouselSubsystem.runCarousel();
+            carouselSubsystem.runCarousel();
         });
 
         // Instant Commands
@@ -369,12 +448,27 @@ public class RedTeleOpManual extends CommandOpMode {
             intakeSubsystem.reverseIntake();
         }, intakeSubsystem);
 
+        dropIntakeCommand = new InstantCommand(() -> {
+            intakeLiftSubsystem.lifterIntakePos();
+        }, intakeLiftSubsystem);
+
         liftIntakeCommand = new InstantCommand(() -> {
+            if(intakeLiftSubsystem.isLifted) {
                 intakeLiftSubsystem.lifterIntakePos();
+                intakeLiftSubsystem.isLifted = false;
+            }
+            else {
+                intakeLiftSubsystem.lifterInitPos();
+                intakeLiftSubsystem.isLifted = true;
+            }
         }, intakeLiftSubsystem);
 
 
         // Threads for the TSE
+
+        tseCloseCommand = new InstantCommand(() -> {
+            tseClawServo.setPosition(0);
+        }, tseSubsystem);
 
         tsePickUpThread = new Thread(() -> {
             tseSubsystem.tsePickup();
@@ -415,10 +509,10 @@ public class RedTeleOpManual extends CommandOpMode {
             tseSubsystem.TSEClawManualControl(-0.05);
         }, tseSubsystem);
 
-        tseResetThread = new Thread(() ->{
+        tseResetThread = new Thread(() -> {
+            intakeLiftSubsystem.lifterIntakePos();
             tseSubsystem.tseWait();
         });
-
 
         changeLevelCommand = new InstantCommand(() -> {
             if(!Pose2)
@@ -434,8 +528,14 @@ public class RedTeleOpManual extends CommandOpMode {
         Button intakeRunButton = new GamepadButton(driver1, GamepadKeys.Button.A).whenPressed(intakeRunCommand);
         Button intakeReverseButton = new GamepadButton(driver1, GamepadKeys.Button.B).whenPressed(intakeReverseCommand);
         Button startCarouselButton = new GamepadButton(driver1, GamepadKeys.Button.Y).whenPressed(() -> carouselThread.start());
-        Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_RIGHT).whenPressed(liftIntakeCommand);
-        Button SwitchShared = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(changeLevelCommand);
+        Button liftIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.X).whenPressed(liftIntakeCommand);
+        Button dropIntakeButton = new GamepadButton(driver1, GamepadKeys.Button.DPAD_RIGHT).whenPressed(dropIntakeCommand);
+        Button switchLow = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(changeLevelCommand);
+        Button switchShared = new GamepadButton(driver1, GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {
+            sharedHubToggle = !sharedHubToggle;
+            Pose2 = true;
+        });
+
 
         // Scoring Command Threads
         Button useSlideButton = new GamepadButton(driver1, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelTopandLow.start());
@@ -443,14 +543,14 @@ public class RedTeleOpManual extends CommandOpMode {
 
         // Control for driver 2
         Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelMidThread.start());
+        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> levelLowThread.start());
 
+        Button tseClawCloseButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseCloseCommand);
         Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
         Button tseScoreButton = new GamepadButton(driver2, GamepadKeys.Button.B).whenPressed(() -> tseScoreThread.start());
         Button tseReleaseButton = new GamepadButton(driver2, GamepadKeys.Button.Y).whenPressed(() -> tseReleaseThread.start());
         Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseMoveUpCommand);
         Button tseManualDown = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tseMoveDownCommand);
-        Button tseClawClose = new GamepadButton(driver2, GamepadKeys.Button.DPAD_LEFT).whenPressed(tseClawCloseCommand);
-        Button tseClawOpen = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseClawOpenCommand);
         Button tseReset = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(() -> tseResetThread.start());
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)

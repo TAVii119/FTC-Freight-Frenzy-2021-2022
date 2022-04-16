@@ -8,8 +8,8 @@ public class DepositSubsystem extends SubsystemBase {
 
     public final Servo deposit1;
 
-    public double deposit1Open = 0;
-    public double deposit1Close = 0.36;
+    public double deposit1Open = 0.02;
+    public double deposit1Close = 0.34;
     public double deposit1Ramp = 0.09;
     public double deposit1Intermediate = 0.12;
     public double depositTSEClaw = 0.57;

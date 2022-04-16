@@ -79,12 +79,11 @@ public class TeleOPSimple extends LinearOpMode {
         gbServoLeft.setDirection(Servo.Direction.REVERSE);
         tseArmServo.setDirection(Servo.Direction.REVERSE);
 
-
         gbServoLeft.setPosition(0);
         gbServoRight.setPosition(0);
         depositServo.setPosition(0);
-        iLifterServo.setPosition(0);
-        tseArmServo.setPosition(0);
+        iLifterServo.setPosition(0.27);
+        tseArmServo.setPosition(0.27);
         tseClawServo.setPosition(0);
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -223,10 +222,10 @@ public class TeleOPSimple extends LinearOpMode {
             }
 
             // Move slides manually
-            rightSlideMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-            leftSlideMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            rightSlideMotor.setPower((gamepad1.right_trigger - gamepad1.left_trigger) / 2);
+            leftSlideMotor.setPower((gamepad1.right_trigger - gamepad1.left_trigger) / 2);
 
-
+            duckMotor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
             // Telemetry
             telemetry.addData( "> TSE Arm Position", tseArmServo.getPosition());

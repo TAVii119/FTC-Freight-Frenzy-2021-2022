@@ -7,8 +7,9 @@ public class SlideSubsystem extends SubsystemBase {
     public Motor leftSlideMotor;
     public Motor rightSlideMotor;
     private int slideLevel3Pos = 1550;
-    private int slideLevel2Pos = 800;
-    private int slideLevel1Pos = 831;
+    private int slideLevel2Pos = 760;
+    private int slideLevel1Pos = 358;
+    private int slideLevel1SharedExtendPos = 550;
     private int slideIntermediate = 1200;
     private int slideTSEPrepare = 1119;
     private int homePos = 0;
@@ -133,6 +134,33 @@ public class SlideSubsystem extends SubsystemBase {
             leftSlideMotor.set(1);
             rightSlideMotor.set(1);
         }
+        leftSlideMotor.stopMotor();
+        rightSlideMotor.stopMotor();// stop the motor
+    }
+
+    public void slideLowExtended() {
+        // set the run mode
+        slideMoving = true;
+        leftSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+        rightSlideMotor.setRunMode(Motor.RunMode.PositionControl);
+
+        // set the target position
+        leftSlideMotor.setTargetPosition(slideLevel1SharedExtendPos); // an integer representing desired tick count
+        rightSlideMotor.setTargetPosition(slideLevel1SharedExtendPos);
+
+        leftSlideMotor.set(0);
+        rightSlideMotor.set(0);
+
+        // set the tolerance
+        leftSlideMotor.setPositionTolerance(13.6);   // allowed maximum error
+        rightSlideMotor.setPositionTolerance(13.6);
+
+        // perform the control loop
+        while (!leftSlideMotor.atTargetPosition()) {
+            leftSlideMotor.set(1);
+            rightSlideMotor.set(1);
+        }
+
         leftSlideMotor.stopMotor();
         rightSlideMotor.stopMotor();// stop the motor
     }

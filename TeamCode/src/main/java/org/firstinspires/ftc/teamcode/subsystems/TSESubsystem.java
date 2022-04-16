@@ -8,15 +8,17 @@ public class TSESubsystem extends SubsystemBase {
     public Servo tseClawServo;
 
     // Arm Servo
-    private double pickUpPos = 0.783;
-    private double waitPos = 0.16;
+    private double pickUpPos = 0.75;
+    private double waitPos = 0.27;
     private double scoreTSE = 0.44;
+    private double intermediatePos = 0.36;
 
     private double initPos = 0;
 
     // Claw Servo
-    private double gripPos = 0;
-    private double releasePos = 0.34;
+    private double gripPos = 0.1;
+    private double releasePos = 0.48;
+
 
     public boolean score1 = true;
 

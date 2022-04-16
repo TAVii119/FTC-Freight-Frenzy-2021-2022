@@ -6,16 +6,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class FourBarSubsystem extends SubsystemBase {
     public Servo gbServoLeft, gbServoRight;
     private double fourBarTopPos = 0.72;
-    private double fourBarMidPos = 0.68;
-    private double fourBarLowPos = 0.86;
-    private double fourBarIntakePos = 0.022;
-    private double fourBarIntermediatePos = 0.15;
-    private double fourBarTSEPreparePos = 0.95;
-    private double fourBarTSERaisePos = 0.66;
-    double fourBarPosition = 0.02;
+    private double fourBarMidPos = 0.74;
+    private double fourBarLowPos = 0.78;
+    private double fourBarIntakePos = 0.015;
+    private double fourBarIntermediatePos = 0.30;
+    private double fourBarIntermediateScorePos = 0.03;
+    private double fourBarSharedMiddlePos = 0.70;
+    private double fourBarTSEPreparePos = 0.93;
+    private double fourBarTSERaisePos = 0.64;
+    private double fourBarPosition = 0;
     public boolean fourBarTopCheck = false;
     public boolean fourBarMidCheck = false;
     public boolean fourBarLowCheck = false;
+    public boolean isMoving = false;
 
     public FourBarSubsystem(Servo gbServoLeft, Servo gbServoRight){
         this.gbServoLeft = gbServoLeft;
@@ -55,6 +58,16 @@ public class FourBarSubsystem extends SubsystemBase {
     public void fourBarIntermediate(){
         gbServoLeft.setPosition(fourBarIntermediatePos);
         gbServoRight.setPosition(fourBarIntermediatePos);
+    }
+
+    public void fourBarIntermediateScore() {
+        gbServoLeft.setPosition(fourBarIntermediateScorePos);
+        gbServoRight.setPosition(fourBarIntermediateScorePos);
+    }
+
+    public void fourBarSharedMiddlePos() {
+        gbServoLeft.setPosition(fourBarSharedMiddlePos);
+        gbServoRight.setPosition(fourBarSharedMiddlePos);
     }
 
     public void fourBarTSEPrepare(){
