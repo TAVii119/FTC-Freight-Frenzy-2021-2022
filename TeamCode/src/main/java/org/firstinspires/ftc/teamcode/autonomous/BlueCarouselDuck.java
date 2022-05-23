@@ -489,17 +489,26 @@ public class BlueCarouselDuck extends LinearOpMode {
 
         traj1Top = drive.trajectorySequenceBuilder(preloadTop.end())
                 .lineToLinearHeading(new Pose2d(-45, 50, Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105)))
-                .forward(3.5,   SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105))
+                )
+                .forward(3.5,
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .waitSeconds(4)
-                .addTemporalMarker( 2.5, () -> carouselThread.start())
+                .addTemporalMarker( 3, () -> carouselThread.start())
                 .build();
 
         traj1Mid = drive.trajectorySequenceBuilder(preloadMid.end())
-                .lineToLinearHeading(new Pose2d(-45, 50, Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105)))
+                .lineToLinearHeading(new Pose2d(-45, 50, Math.toRadians(120)),
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105))
+                        ,
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .forward(3.5,   SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -508,8 +517,14 @@ public class BlueCarouselDuck extends LinearOpMode {
                 .build();
 
         traj1Low = drive.trajectorySequenceBuilder(preloadLow.end())
-                .lineToLinearHeading(new Pose2d(-45, 50, Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105)))
+                .lineToLinearHeading(new Pose2d(-45, 50, Math.toRadians(120)),
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .lineToLinearHeading(new Pose2d(-58, 50.5, Math.toRadians(105)),
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .forward(3.5,   SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -526,7 +541,7 @@ public class BlueCarouselDuck extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .turn(-Math.toRadians(40))
-                .lineToConstantHeading(new Vector2d(-40, 52),
+                .lineToConstantHeading(new Vector2d(-30, 52),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -563,16 +578,16 @@ public class BlueCarouselDuck extends LinearOpMode {
 
                 .build();
 
-           traj5 = drive.trajectorySequenceBuilder(traj4.end())
-                   .waitSeconds(2)
-                   .lineToConstantHeading(new Vector2d(-45, 14))
-                   .turn(-Math.toRadians(180))
-                   .back(7)
-                   .lineToConstantHeading(new Vector2d(-63, 29))
-                   .addTemporalMarker(7,() -> tseArmServo.setPosition(0))
-                   .addTemporalMarker(7,() -> iLifterServo.setPosition(0))
-                   .back(5)
-                   .build();
+        traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .waitSeconds(2)
+                .lineToConstantHeading(new Vector2d(-45, 14))
+                .turn(-Math.toRadians(180))
+                .back(7)
+                .lineToConstantHeading(new Vector2d(-63, 29))
+                .addTemporalMarker(7,() -> tseArmServo.setPosition(0))
+                .addTemporalMarker(7,() -> iLifterServo.setPosition(0))
+                .back(5)
+                .build();
 
         trajNoDuck = drive.trajectorySequenceBuilder(traj2.end())
                 .lineToLinearHeading(new Pose2d(-61, 27, Math.toRadians(0)))

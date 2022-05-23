@@ -138,6 +138,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
     private Thread scoreThread2;
     private Thread CaseC;
     private Thread sensorOuttake;
+    private Thread scoreThreadMid;
 
     public double depositOpen = 0.02;
     public double depositClose = 0.34;
@@ -170,6 +171,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
     private BarcodeUtil detector;
     private BarCodeDetection.BarcodePosition barcodePosition = BarCodeDetection.BarcodePosition.NOT_FOUND;
 
+    private Timing.Timer autonomousTimer;
     public void runOpMode() {
         drive = new SampleMecanumDrive(hardwareMap);
 
@@ -221,9 +223,10 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         tseArmServo.setPosition(0.02);
         tseClawServo.setPosition(0);
 
+        autonomousTimer = new Timing.Timer(30000);
+
         BarcodeUtil detector = new BarcodeUtil(hardwareMap, "Webcam 1", telemetry, 1);
         detector.init();
-
 
         slideTopThread = new Thread(() -> {
             iLifterServo.setPosition(0.23);
@@ -237,6 +240,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             scoreTimer.pause();
             intakeMotor.setPower(-0.35);
             moveFourBarIntermediate();
+
             moveSlideTop();
             moveFourBarTop();
             scoreTimer = new Timing.Timer(300);
@@ -325,7 +329,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             }
             scoreTimer.pause();
 
-            moveFourBarIntermediateScore();
+            moveFourBarIntake();
 
             scoreTimer = new Timing.Timer(450);
             scoreTimer.start();
@@ -335,7 +339,40 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             scoreTimer.pause();
 
             moveSlideIntake();
+
+
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            intakeMotor.setPower(1);
+            depositServo.setPosition(depositIntermediate);
+        });
+
+        scoreThreadMid = new Thread(() -> {
+            depositServo.setPosition(depositOpen);
+
+            scoreTimer = new Timing.Timer(400);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
             moveFourBarIntake();
+
+            scoreTimer = new Timing.Timer(600);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            moveSlideIntake();
+
 
             scoreTimer = new Timing.Timer(200);
             scoreTimer.start();
@@ -432,7 +469,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
                 .build();
 
         traj2Top = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-5, -48, Math.toRadians(290)),
+                .lineToLinearHeading(new Pose2d(-5, -48, Math.toRadians(288)),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -489,7 +526,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         traj7 = drive.trajectorySequenceBuilder(traj4.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, -66, Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, -44), -Math.toRadians(261),
+                .splineTo(new Vector2d(-5, -46), -Math.toRadians(244),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -518,7 +555,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         traj12 = drive.trajectorySequenceBuilder(traj9.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, -66, Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, -43.5), -Math.toRadians(262),
+                .splineTo(new Vector2d(-5, -45.5), -Math.toRadians(239),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -547,7 +584,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         traj18 = drive.trajectorySequenceBuilder(traj15.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, -66, Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, -43.5), -Math.toRadians(264),
+                .splineTo(new Vector2d(-5, -45.5), -Math.toRadians(237),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -575,7 +612,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         traj23 = drive.trajectorySequenceBuilder(traj20.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, -66, Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, -43), -Math.toRadians(263),
+                .splineTo(new Vector2d(-5, -44.5), -Math.toRadians(242),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -603,7 +640,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         traj27 = drive.trajectorySequenceBuilder(traj25.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, -66, Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, -43), -Math.toRadians(259),
+                .splineTo(new Vector2d(-5, -45.5), -Math.toRadians(240),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -836,7 +873,8 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         stopCamera.start();
 
         waitForStart();
-        tseArmServo.setPosition(0.30);
+        autonomousTimer.start();
+        tseArmServo.setPosition(0.33);
 
         if(!isStopRequested()) {
             if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
@@ -986,6 +1024,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             drive.setPoseEstimate(new Pose2d(newPose.getX(), -70 + distanceSensorRight.getDistance(DistanceUnit.INCH) + 6.161, Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
             drive.update();
         }
+
         drive.followTrajectory(traj25);
         drive.followTrajectorySequenceAsync(traj26);
         while (drive.isBusy() && opModeIsActive()) {
@@ -1013,11 +1052,13 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         if(!isStopRequested())
             slideMidThread.start();
 
+        sleep(200);
+
         drive.followTrajectory(traj2Mid);
         sleep(100);
 
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadMid.start();
 
         sleep(100);
 
@@ -1141,6 +1182,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             drive.update();
         }
         drive.followTrajectory(traj25);
+
         drive.followTrajectorySequenceAsync(traj26);
         while (drive.isBusy() && opModeIsActive()) {
             if (depositgetDistance() < 5) {
@@ -1157,6 +1199,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         if(!isStopRequested())
             scoreThreadFinal.start();
         drive.followTrajectorySequence(traj28);
+
     }
 
     private void CaseA(SampleMecanumDrive drive) {
@@ -1170,7 +1213,7 @@ public class RedWareHouse6Sensor extends LinearOpMode {
         drive.followTrajectory(traj2Low);
 
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThread2.start();
 
         sleep(200);
 
@@ -1287,10 +1330,12 @@ public class RedWareHouse6Sensor extends LinearOpMode {
             newPose = drive.getPoseEstimate();
             drive.setPoseEstimate(new Pose2d(newPose.getX(), -70 + distanceSensorRight.getDistance(DistanceUnit.INCH) + 6.161, Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
             drive.update();
-        }        drive.followTrajectory(traj25);
+        }
+        drive.followTrajectory(traj25);
+
         drive.followTrajectorySequenceAsync(traj26);
         while (drive.isBusy() && opModeIsActive()) {
-            if (depositgetDistance() < 4.5) {
+            if (depositgetDistance() < 5) {
                 drive.breakFollowing();
                 drive.setDrivePower(new Pose2d());
                 sensorOuttake.start();

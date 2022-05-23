@@ -197,11 +197,11 @@ public class TeleOPSimple extends LinearOpMode {
                 sleep(500);
             }
             if(gamepad2.x){
-                tseArmServo.setPosition(tseArmServo.getPosition() + 0.02);
+                tseArmServo.setPosition(tseArmServo.getPosition() + 0.001);
                 sleep(500);
             }
             if(gamepad2.y){
-                tseArmServo.setPosition(tseArmServo.getPosition() - 0.02);
+                tseArmServo.setPosition(tseArmServo.getPosition() - 0.001);
                 sleep(500);
             }
             if(gamepad1.x){

@@ -173,7 +173,7 @@ public class BlueTeleOpNoReset extends CommandOpMode {
         iLifterServo.setPosition(0.23);
         gbServoLeft.setPosition(0.015);
         gbServoRight.setPosition(0.015);
-        tseArmServo.setPosition(0.25);
+        tseArmServo.setPosition(0.33);
         tseClawServo.setPosition(0);
 
         // Initialize sensors
@@ -478,7 +478,9 @@ public class BlueTeleOpNoReset extends CommandOpMode {
         tseScoreThread = new Thread(() ->
         {
             tseSubsystem.tseClawGrip();
+            intakeSubsystem.stopIntake();
             iLifterServo.setPosition(0);
+
             scoreTimer = new Timing.Timer(300);
             scoreTimer.start();
             while (!scoreTimer.done())
@@ -521,6 +523,23 @@ public class BlueTeleOpNoReset extends CommandOpMode {
                 Pose2 = false;
         });
 
+        Thread duckMidThread = new Thread(() -> {
+            fourBarSubsystem.isMoving = true;
+            intakeLiftSubsystem.lifterIntakePos();
+            depositSubsystem.closeDeposit();
+
+            scoreTimer = new Timing.Timer(600);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            fourBarSubsystem.fourBarIntermediateScore();
+
+            slideSubsystem.slideMid();
+            fourBarSubsystem.fourBarIntermediateDuck();
+        });
 
 
         // State the buttons that run commands
@@ -543,7 +562,7 @@ public class BlueTeleOpNoReset extends CommandOpMode {
 
         // Control for driver 2
         Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelMidThread.start());
-        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> levelLowThread.start());
+        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> duckMidThread.start());
 
         Button tseClawCloseButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseCloseCommand);
         Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
@@ -552,6 +571,7 @@ public class BlueTeleOpNoReset extends CommandOpMode {
         Button tseManualUp = new GamepadButton(driver2, GamepadKeys.Button.DPAD_UP).whenPressed(tseMoveUpCommand);
         Button tseManualDown = new GamepadButton(driver2, GamepadKeys.Button.DPAD_DOWN).whenPressed(tseMoveDownCommand);
         Button tseReset = new GamepadButton(driver2, GamepadKeys.Button.X).whenPressed(() -> tseResetThread.start());
+        Button liftIntakeDriver2Button = new GamepadButton(driver2, GamepadKeys.Button.DPAD_LEFT).whenPressed(liftIntakeCommand);
 
         // Register subsystems and set their default commands (default commands = commands that run all the time)
         register(driveSubsystem, depositSubsystem, intakeSubsystem, carouselSubsystem, intakeLiftSubsystem, fourBarSubsystem, tseSubsystem, slideSubsystem);

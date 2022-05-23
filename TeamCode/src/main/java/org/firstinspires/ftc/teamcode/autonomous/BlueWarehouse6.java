@@ -138,6 +138,7 @@ public class BlueWarehouse6 extends LinearOpMode {
     private Thread scoreThread2;
     private Thread CaseC;
     private Thread sensorOuttake;
+    private Thread scoreThreadMid;
 
     public double depositOpen = 0.02;
     public double depositClose = 0.34;
@@ -381,6 +382,39 @@ public class BlueWarehouse6 extends LinearOpMode {
             depositServo.setPosition(depositIntermediate);
         });
 
+        scoreThreadMid = new Thread(() -> {
+            depositServo.setPosition(depositOpen);
+
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            moveFourBarIntake();
+
+            scoreTimer = new Timing.Timer(500);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            moveSlideIntake();
+
+
+            scoreTimer = new Timing.Timer(200);
+            scoreTimer.start();
+            while (!scoreTimer.done()) {
+
+            }
+            scoreTimer.pause();
+
+            intakeMotor.setPower(1);
+            depositServo.setPosition(depositIntermediate);
+        });
+
         scoreThreadFinal = new Thread(() -> {
             depositServo.setPosition(depositOpen);
 
@@ -401,6 +435,7 @@ public class BlueWarehouse6 extends LinearOpMode {
             scoreTimer.pause();
 
             moveSlideIntake();
+            tseArmServo.setPosition(0.02);
             moveFourBarIntake();
 
             scoreTimer = new Timing.Timer(200);
@@ -410,13 +445,13 @@ public class BlueWarehouse6 extends LinearOpMode {
             }
             scoreTimer.pause();
 
-            intakeMotor.setPower(0);
+            intakeMotor.setPower(1);
             depositServo.setPosition(depositIntermediate);
         });
 
         sensorOuttake = new Thread(() -> {
             depositServo.setPosition(depositClose);
-            sleep(100);
+            sleep(300);
             intakeMotor.setPower(-0.1);
         });
 
@@ -431,7 +466,7 @@ public class BlueWarehouse6 extends LinearOpMode {
                 .build();
 
         traj2Top = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-5, 48, -Math.toRadians(290)),
+                .lineToLinearHeading(new Pose2d(-5, 47, -Math.toRadians(295)),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -487,7 +522,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         traj7 = drive.trajectorySequenceBuilder(traj4.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, 66, -Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, 46.5), Math.toRadians(258),
+                .splineTo(new Vector2d(-5, 44.2), Math.toRadians(260),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -506,8 +541,8 @@ public class BlueWarehouse6 extends LinearOpMode {
                 .build();
 
         traj10 = drive.trajectoryBuilder(traj9.end())
-                .lineToLinearHeading(new Pose2d(49, 63, Math.toRadians(350)),
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .lineToLinearHeading(new Pose2d(51, 63, Math.toRadians(350)),
+                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
@@ -516,7 +551,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         traj12 = drive.trajectorySequenceBuilder(traj9.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, 66, -Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, 46), Math.toRadians(267),
+                .splineTo(new Vector2d(-5, 44), Math.toRadians(260),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -535,8 +570,8 @@ public class BlueWarehouse6 extends LinearOpMode {
                 .build();
 
         traj16 = drive.trajectoryBuilder(traj15.end())
-                .lineToLinearHeading(new Pose2d(51, 64, -Math.toRadians(360)),
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .lineToLinearHeading(new Pose2d(55, 64, -Math.toRadians(360)),
+                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
@@ -545,7 +580,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         traj18 = drive.trajectorySequenceBuilder(traj15.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, 66, -Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, 45), Math.toRadians(266),
+                .splineTo(new Vector2d(-5, 43.5), Math.toRadians(257),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -560,12 +595,12 @@ public class BlueWarehouse6 extends LinearOpMode {
                 .build();
 
         traj20 = drive.trajectoryBuilder(traj19.end())
-                .splineToLinearHeading(new Pose2d(47, 64, -Math.toRadians(380)), -Math.toRadians(360))
+                .splineToLinearHeading(new Pose2d(48, 64, -Math.toRadians(360)), -Math.toRadians(360))
                 .build();
 
         traj21 = drive.trajectoryBuilder(traj20.end())
-                .lineToLinearHeading(new Pose2d(52, 60, -Math.toRadians(380)),
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .lineToLinearHeading(new Pose2d(55, 60, -Math.toRadians(380)),
+                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
@@ -573,7 +608,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         traj23 = drive.trajectorySequenceBuilder(traj20.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, 66, -Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, 44), Math.toRadians(268),
+                .splineTo(new Vector2d(-5, 43.5), Math.toRadians(258),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -592,7 +627,7 @@ public class BlueWarehouse6 extends LinearOpMode {
                 .build();
 
         traj26 = drive.trajectorySequenceBuilder(traj25.end())
-                .lineToLinearHeading(new Pose2d(55, 60, -Math.toRadians(380)),
+                .lineToLinearHeading(new Pose2d(56, 60, -Math.toRadians(380)),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -601,7 +636,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         traj27 = drive.trajectorySequenceBuilder(traj25.end())
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(22, 66, -Math.toRadians(360)))
-                .splineTo(new Vector2d(-5, 44.5), Math.toRadians(268),
+                .splineTo(new Vector2d(-5, 43.5), Math.toRadians(259),
                         SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -1001,7 +1036,7 @@ public class BlueWarehouse6 extends LinearOpMode {
             slideTopThread.start();
         drive.followTrajectorySequence(traj27);
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadFinal.start();
         drive.followTrajectorySequence(traj28);
     }
 
@@ -1017,7 +1052,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         sleep(100);
 
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadMid.start();
 
         sleep(100);
 
@@ -1159,7 +1194,7 @@ public class BlueWarehouse6 extends LinearOpMode {
             slideTopThread.start();
         drive.followTrajectorySequence(traj27);
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadFinal.start();
         drive.followTrajectorySequence(traj28);
     }
 
@@ -1174,7 +1209,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         drive.followTrajectory(traj2Low);
 
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadMid.start();
 
         sleep(200);
 
@@ -1316,7 +1351,7 @@ public class BlueWarehouse6 extends LinearOpMode {
             slideTopThread.start();
         drive.followTrajectorySequence(traj27);
         if(!isStopRequested())
-            scoreThread.start();
+            scoreThreadFinal.start();
         drive.followTrajectorySequence(traj28);
     }
 
@@ -1432,7 +1467,7 @@ public class BlueWarehouse6 extends LinearOpMode {
         rightSlideMotor.setPositionTolerance(13.6);
 
         // perform the control loop
-        while (!leftSlideMotor.atTargetPosition()) {
+        while (!leftSlideMotor.atTargetPosition() && !isStopRequested()) {
             leftSlideMotor.set(1);
             rightSlideMotor.set(1);
         }

@@ -11,6 +11,7 @@ public class FourBarSubsystem extends SubsystemBase {
     private double fourBarIntakePos = 0.015;
     private double fourBarIntermediatePos = 0.30;
     private double fourBarIntermediateScorePos = 0.03;
+    private double fourBarDuckWaitPos = 0.35;
     private double fourBarSharedMiddlePos = 0.70;
     private double fourBarTSEPreparePos = 0.93;
     private double fourBarTSERaisePos = 0.64;
@@ -68,6 +69,11 @@ public class FourBarSubsystem extends SubsystemBase {
     public void fourBarSharedMiddlePos() {
         gbServoLeft.setPosition(fourBarSharedMiddlePos);
         gbServoRight.setPosition(fourBarSharedMiddlePos);
+    }
+
+    public void fourBarIntermediateDuck() {
+        gbServoLeft.setPosition(fourBarDuckWaitPos);
+        gbServoRight.setPosition(fourBarDuckWaitPos);
     }
 
     public void fourBarTSEPrepare(){

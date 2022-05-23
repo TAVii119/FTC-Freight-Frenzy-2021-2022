@@ -426,7 +426,10 @@ public class RedCarouselDuck extends LinearOpMode {
                     slideTopThread.start();
                 })
                 .back(5)
-                .lineToLinearHeading(new Pose2d(-30, -36.5, -Math.toRadians(140)))
+                .lineToLinearHeading(new Pose2d(-30, -36.5, -Math.toRadians(140)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .build();
 
         preloadMid = drive.trajectorySequenceBuilder(startPose)
@@ -434,7 +437,10 @@ public class RedCarouselDuck extends LinearOpMode {
                     slideMidThread.start();
                 })
                 .back(5)
-                .lineToLinearHeading(new Pose2d(-23.5, -37.5, -Math.toRadians(130)))
+                .lineToLinearHeading(new Pose2d(-23.5, -37.5, -Math.toRadians(130)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .build();
 
         preloadLow = drive.trajectorySequenceBuilder(startPose)
@@ -442,7 +448,10 @@ public class RedCarouselDuck extends LinearOpMode {
                     slideLowThread.start();
                 })
                 .back(5)
-                .lineToLinearHeading(new Pose2d(-24, -36, -Math.toRadians(130)))
+                .lineToLinearHeading(new Pose2d(-24, -36, -Math.toRadians(130)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .build();
 
         carouselLow = drive.trajectorySequenceBuilder(preloadLow.end())
@@ -453,24 +462,42 @@ public class RedCarouselDuck extends LinearOpMode {
                 .build();
 
         traj1Top = drive.trajectorySequenceBuilder(preloadTop.end())
-                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-57, -58, Math.toRadians(150)))
-                .waitSeconds(3)
-                .addTemporalMarker( 2, () -> carouselThread.start())
+                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .lineToLinearHeading(new Pose2d(-56, -57, Math.toRadians(150)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .waitSeconds(4)
+                .addTemporalMarker( 3.3, () -> carouselThread.start())
                 .build();
 
         traj1Mid = drive.trajectorySequenceBuilder(preloadMid.end())
-                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-57, -58, Math.toRadians(150)))
+                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .lineToLinearHeading(new Pose2d(-56, -57, Math.toRadians(150)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .waitSeconds(3)
-                .addTemporalMarker( 2.2, () -> carouselThread.start())
+                .addTemporalMarker( 3.2, () -> carouselThread.start())
                 .build();
 
         traj1Low = drive.trajectorySequenceBuilder(preloadLow.end())
-                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)))
-                .lineToLinearHeading(new Pose2d(-57, -58, Math.toRadians(150)))
+                .lineToLinearHeading(new Pose2d(-45, -50, -Math.toRadians(120)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .lineToLinearHeading(new Pose2d(-56, -57, Math.toRadians(150)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .waitSeconds(3.5)
-                .addTemporalMarker( 2.5, () -> carouselThread.start())
+                .addTemporalMarker( 3.5, () -> carouselThread.start())
                 .build();
 
         traj2 = drive.trajectorySequenceBuilder(traj1Top.end())
@@ -511,7 +538,7 @@ public class RedCarouselDuck extends LinearOpMode {
                 .build();
 
         traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToConstantHeading(new Vector2d(-43, -20),
+                .lineToConstantHeading(new Vector2d(-39, -20),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -519,13 +546,13 @@ public class RedCarouselDuck extends LinearOpMode {
 
         traj5 = drive.trajectorySequenceBuilder(traj4.end())
                 .waitSeconds(2)
-                .lineToConstantHeading(new Vector2d(-45, -16))
+                .lineToConstantHeading(new Vector2d(-38, -16))
                 .turn(-Math.toRadians(180))
-                .back(15)
-                .lineToConstantHeading(new Vector2d(-66, -35))
-                .addTemporalMarker(7,() -> tseArmServo.setPosition(0))
-                .addTemporalMarker(7,() -> iLifterServo.setPosition(0))
-                .back(5)
+                .back(4)
+                .lineToConstantHeading(new Vector2d(-42, -37))
+                .addTemporalMarker(6,() -> tseArmServo.setPosition(0))
+                .addTemporalMarker(6,() -> iLifterServo.setPosition(0))
+                .back(30)
                 .build();
 
         trajNoDuck = drive.trajectorySequenceBuilder(traj2.end())
@@ -544,6 +571,7 @@ public class RedCarouselDuck extends LinearOpMode {
         waitForStart();
 
         tseArmServo.setPosition(0.20);
+        sleep(1000);
         if(barcodePosition == BarCodeDetection.BarcodePosition.LEFT)
             CaseA();
         else if(barcodePosition == BarCodeDetection.BarcodePosition.MIDDLE)
@@ -581,7 +609,8 @@ public class RedCarouselDuck extends LinearOpMode {
             drive.update();
         }
 
-        if(duckFound) {
+        sleep(500);
+        if(duckFound || depositgetDistance() < 5) {
             drive.followTrajectorySequence(traj3);
 
             sleep(500);
@@ -639,7 +668,7 @@ public class RedCarouselDuck extends LinearOpMode {
             drive.update();
         }
 
-        if(duckFound) {
+        if(duckFound || depositgetDistance() < 5) {
             drive.followTrajectorySequence(traj3);
 
             sleep(500);
@@ -677,9 +706,7 @@ public class RedCarouselDuck extends LinearOpMode {
         newPose = drive.getPoseEstimate();
         drive.setPoseEstimate(new Pose2d(newPose.getX(), newPose.getY(), Math.toRadians(270) + imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle));
 
-
         drive.followTrajectorySequenceAsync(traj2);
-
 
         while(drive.isBusy() && opModeIsActive()) {
             if(depositgetDistance() <  5) {
@@ -697,7 +724,7 @@ public class RedCarouselDuck extends LinearOpMode {
             drive.update();
         }
 
-        if(duckFound) {
+        if(duckFound || depositgetDistance() < 5) {
             drive.followTrajectorySequence(traj3);
 
             sleep(500);
@@ -739,7 +766,7 @@ public class RedCarouselDuck extends LinearOpMode {
         rightSlideMotor.setPositionTolerance(13.6);
 
         // perform the control loop
-        while (!leftSlideMotor.atTargetPosition()) {
+        while (!leftSlideMotor.atTargetPosition() && !isStopRequested()) {
             leftSlideMotor.set(0.5);
             rightSlideMotor.set(0.5);
         }

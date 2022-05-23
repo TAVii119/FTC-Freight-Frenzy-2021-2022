@@ -431,7 +431,7 @@ public class BlueCarousel extends LinearOpMode {
 
         traj8Mid = drive.trajectorySequenceBuilder(traj7.end())
                 .turn(Math.toRadians(80))
-                .lineToLinearHeading(new Pose2d( -33.9 , 21, -Math.toRadians(190)),
+                .lineToLinearHeading(new Pose2d( -32.5 , 21, -Math.toRadians(180)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -439,7 +439,7 @@ public class BlueCarousel extends LinearOpMode {
 
         traj8Low = drive.trajectorySequenceBuilder(traj7.end())
                 .turn(Math.toRadians(80))
-                .lineToLinearHeading(new Pose2d( -33.9 , 21, -Math.toRadians(190)),
+                .lineToLinearHeading(new Pose2d( -33 , 21, -Math.toRadians(180)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )

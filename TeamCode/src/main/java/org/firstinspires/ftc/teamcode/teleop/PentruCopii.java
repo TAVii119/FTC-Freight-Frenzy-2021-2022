@@ -26,9 +26,9 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
-@TeleOp(name="RedTeleOpNoReset", group = "Manual Red")
+@TeleOp(name="PentruCopii", group = "Manual Blue")
 
-public class RedTeleOpNoReset extends CommandOpMode {
+public class PentruCopii extends CommandOpMode {
 
     boolean Pose2 = false;
 
@@ -148,11 +148,12 @@ public class RedTeleOpNoReset extends CommandOpMode {
         duckMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         // Reset encoders
+        leftSlideMotor.resetEncoder();
+        rightSlideMotor.resetEncoder();
         duckMotor.resetEncoder();
 
         // Invert motors
         intakeMotor.setInverted(true);
-        duckMotor.setInverted(true);
         rightSlideMotor.setInverted(true);
 
         // Get servo hardware
@@ -562,7 +563,7 @@ public class RedTeleOpNoReset extends CommandOpMode {
 
         // Control for driver 2
         Button levelMidButton = new GamepadButton(driver2, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> levelMidThread.start());
-        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> duckMidThread.start());
+        Button levelLowButton = new GamepadButton(driver2, GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> scoreCommandThread.start());
 
         Button tseClawCloseButton = new GamepadButton(driver2, GamepadKeys.Button.DPAD_RIGHT).whenPressed(tseCloseCommand);
         Button tsePickupButton = new GamepadButton(driver2, GamepadKeys.Button.A).whenPressed(() -> tsePickUpThread.start());
