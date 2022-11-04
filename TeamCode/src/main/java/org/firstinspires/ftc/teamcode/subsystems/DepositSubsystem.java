@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.roadrunner.Timing;
 
 public class DepositSubsystem extends SubsystemBase {
 

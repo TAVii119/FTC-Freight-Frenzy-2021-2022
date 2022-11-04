@@ -11,7 +11,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.roadrunner.Timing;
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.FourBarCommand;
@@ -29,8 +29,6 @@ import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
 public class RedTeleOp extends CommandOpMode {
 
-    boolean Pose2 = false;
-    
     // Declare Motors and Servos
     private Motor lf;
     private Motor rf;
@@ -73,7 +71,6 @@ public class RedTeleOp extends CommandOpMode {
     private TSESubsystem tseSubsystem;
 
     private SlideSubsystem slideSubsystem;
-    
 
     // Declare instant commands, these are commands that run upon a button press
     private InstantCommand intakeRunCommand;
@@ -99,7 +96,6 @@ public class RedTeleOp extends CommandOpMode {
     private InstantCommand changeLevelCommand;
 
     // Threads used for Scoring
-
     public Thread levelTopandLow;
     public Thread scoreCommandThread;
     public Thread levelMidThread;
@@ -112,17 +108,21 @@ public class RedTeleOp extends CommandOpMode {
     public Thread tseMoveUpThread;
     public Thread tseReleaseThread;
 
-
+    // A timer
     Timing.Timer scoreTimer;
-    boolean levelLowScore = false;
-    boolean sharedHubToggle = false;
 
     // Declare gamepads
     GamepadEx driver1;
     GamepadEx driver2;
 
+    // Booleans to toggle between different scoring mechanism positions
+    boolean pose2 = false;
+    boolean levelLowScore = false;
+    boolean sharedHubToggle = false;
+
     @Override
     public void initialize() {
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station)
@@ -208,7 +208,7 @@ public class RedTeleOp extends CommandOpMode {
 
         // Scoring Threads
         levelTopandLow = new Thread(() ->{
-            if(!Pose2)
+            if(!pose2)
             {
                 fourBarSubsystem.isMoving = true;
                 intakeLiftSubsystem.lifterIntakePos();
@@ -517,10 +517,10 @@ public class RedTeleOp extends CommandOpMode {
         });
 
         changeLevelCommand = new InstantCommand(() -> {
-            if(!Pose2)
-                Pose2 = true;
+            if(!pose2)
+                pose2 = true;
             else
-                Pose2 = false;
+                pose2 = false;
         });
 
         Thread duckMidThread = new Thread(() -> {
@@ -551,7 +551,7 @@ public class RedTeleOp extends CommandOpMode {
         Button switchLow = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(changeLevelCommand);
         Button switchShared = new GamepadButton(driver1, GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {
             sharedHubToggle = !sharedHubToggle;
-            Pose2 = true;
+            pose2 = true;
         });
 
 

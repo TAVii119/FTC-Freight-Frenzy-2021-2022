@@ -11,7 +11,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Timing;
+import org.firstinspires.ftc.teamcode.roadrunner.Timing;
 import org.firstinspires.ftc.teamcode.commands.DepositCommand;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.FourBarCommand;
@@ -25,11 +25,9 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TSESubsystem;
 
-@TeleOp(name="BlueTeleOp", group = "Manual Blue")
+@TeleOp(name="BlueTeleOp", group = "TeleOp")
 
 public class BlueTeleOp extends CommandOpMode {
-
-    boolean Pose2 = false;
 
     // Declare Motors and Servos
     private Motor lf;
@@ -111,14 +109,17 @@ public class BlueTeleOp extends CommandOpMode {
     public Thread tseMoveUpThread;
     public Thread tseReleaseThread;
 
-
+    // A timer
     Timing.Timer scoreTimer;
-    boolean levelLowScore = false;
-    boolean sharedHubToggle = false;
 
     // Declare gamepads
     GamepadEx driver1;
     GamepadEx driver2;
+
+    // Booleans to toggle between different scoring mechanism positions
+    boolean pose2 = false;
+    boolean levelLowScore = false;
+    boolean sharedHubToggle = false;
 
     @Override
     public void initialize() {
@@ -206,7 +207,7 @@ public class BlueTeleOp extends CommandOpMode {
 
         // Scoring Threads
         levelTopandLow = new Thread(() ->{
-            if(!Pose2)
+            if(!pose2)
             {
                 fourBarSubsystem.isMoving = true;
                 intakeLiftSubsystem.lifterIntakePos();
@@ -515,10 +516,10 @@ public class BlueTeleOp extends CommandOpMode {
         });
 
         changeLevelCommand = new InstantCommand(() -> {
-            if(!Pose2)
-                Pose2 = true;
+            if(!pose2)
+                pose2 = true;
             else
-                Pose2 = false;
+                pose2 = false;
         });
 
         Thread duckMidThread = new Thread(() -> {
@@ -549,7 +550,7 @@ public class BlueTeleOp extends CommandOpMode {
         Button switchLow = new GamepadButton(driver1, GamepadKeys.Button.DPAD_UP).whenPressed(changeLevelCommand);
         Button switchShared = new GamepadButton(driver1, GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {
             sharedHubToggle = !sharedHubToggle;
-            Pose2 = true;
+            pose2 = true;
         });
 
 

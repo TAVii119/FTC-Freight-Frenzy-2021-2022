@@ -25,6 +25,7 @@ android {
             pickFirsts += ['**/*.so']
         }
     }
+    namespace 'org.firstinspires.ftc.teamcode'
 }
 
 dependencies {
